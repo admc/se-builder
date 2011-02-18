@@ -1,0 +1,8 @@
+content     seleniumbuilder    chrome/content/
+content     seleniumbuilder    chrome/content/ contentaccessible=yes
+overlay chrome://browser/content/browser.xul chrome://seleniumbuilder/content/browser.xul
+
+locale  seleniumbuilder  en-US  locale/en-US/
+
+skin  seleniumbuilder  classic/1.0  skin/
+style  chrome://global/content/customizeToolbar.xul  chrome://seleniumbuilder/skin/skin.css

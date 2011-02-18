@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://seleniumbuilder/skin/skin.css" type="text/css"?> 
+<!DOCTYPE seleniumbuilder SYSTEM "chrome://seleniumbuilder/locale/translations.dtd">
+<overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        <script src="seleniumBuilder.js" />
+
+        <menupopup id="menu_ToolsPopup"> 
+            <menuitem
+                label="&runseleniumbuilder;"
+                key="selenium-builder-run-key"
+                oncommand="seleniumBuilder.boot()" />
+        </menupopup>
+
+        <keyset>
+            <key id="selenium-builder-run-key"
+                modifiers="accel alt"
+                key="B"
+                oncommand="seleniumBuilder.boot()" />
+        </keyset>
+
+        <statusbar id="status-bar">
+            <statusbarpanel id="selenium-builder-status-bar-icon"
+                class="statusbarpanel-iconic"
+                src="chrome://seleniumbuilder/skin/statusbar.png"
+                tooltiptext="&runseleniumbuilder;"
+                onclick="seleniumBuilder.boot(null)" />
+        </statusbar>
+
+        <toolbarpalette id="BrowserToolbarPalette">
+            <toolbarbutton id="selenium-builder-toolbar-button"
+                label="Selenium Builder"
+                image="chrome://seleniumbuilder/skin/toolbar.png"
+                tooltiptext="&runseleniumbuilder;"
+                oncommand="seleniumBuilder.boot(null)" />
+        </toolbarpalette>
+
+        <popup id="contentAreaContextMenu">
+            <menuitem id="selenium-builder-context-menu-launch"
+                label="&runseleniumbuilder;"
+                oncommand="seleniumBuilder.boot(null);" />
+        </popup>
+</overlay>

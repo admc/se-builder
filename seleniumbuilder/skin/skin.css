@@ -1,0 +1,8 @@
+#selenium-builder-toolbar-button {
+  list-style-image: url("chrome://seleniumbuilder/skin/toolbar.png");
+}
+
+#selenium-builder-status-bar-icon {
+  width: 22px;
+  margin: 0 5px;
+}

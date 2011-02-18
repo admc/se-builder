@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+    <Description about="urn:mozilla:install-manifest">
+        <em:id>seleniumbuilder@saucelabs.com</em:id>
+        <em:name>Selenium Builder</em:name>
+        <em:version>0.9.8</em:version>
+        <em:type>2</em:type>
+        <em:creator>Sauce Labs</em:creator>
+        <em:description>Create automated cross-browser functional tests easily and quickly.</em:description>
+     	<em:iconURL>chrome://seleniumbuilder/content/html/img/builder-logo.png</em:iconURL>
+        <em:homepageURL>http://www.saucelabs.com/</em:homepageURL>
+        <em:unpack>true</em:unpack>
+
+        <em:targetApplication>
+            <Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <em:minVersion>3.5</em:minVersion>
+                <em:maxVersion>4.*</em:maxVersion>
+            </Description>
+        </em:targetApplication>
+    </Description>      
+</RDF>
