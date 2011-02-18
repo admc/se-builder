@@ -5,12 +5,12 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>seleniumbuilder@saucelabs.com</em:id>
         <em:name>Selenium Builder</em:name>
-        <em:version>0.9.8</em:version>
+        <em:version>0.5.1</em:version>
         <em:type>2</em:type>
         <em:creator>Sauce Labs</em:creator>
         <em:description>Create automated cross-browser functional tests easily and quickly.</em:description>
      	<em:iconURL>chrome://seleniumbuilder/content/html/img/builder-logo.png</em:iconURL>
-        <em:homepageURL>http://www.saucelabs.com/</em:homepageURL>
+        <em:homepageURL>http://code.google.com/p/se-builder/</em:homepageURL>
         <em:unpack>true</em:unpack>
 
         <em:targetApplication>
