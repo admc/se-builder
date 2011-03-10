@@ -473,31 +473,31 @@
         newNode('span', {class: 'b-tasks'},
           newNode('a', "delete step", {
             id: uuid + 'delete',
-            href: '#' + uuid + 'delete',
+            href: '#',
             class: 'b-task',
             click: deleteStep,
           }),
           newNode('a', "new step above", {
             id: uuid + 'insert-above',
-            href: '#' + uuid + 'insert-above',
+            href: '#',
             class: 'b-task',
             click: function() { builder.insertNewStepBefore(uuid, 'click', {}); }
           }),
           newNode('a', "new step below", {
             id: uuid + 'insert-below',
-            href: '#' + uuid + 'insert-below',
+            href: '#',
             class: 'b-task',
             click: function() { builder.insertNewStepAfter(uuid, 'click', {}); }
           }),
           newNode('a', "run step", {
             id: uuid + 'run-step',
-            href: '#' + uuid + 'run-step',
+            href: '#',
             class: 'b-task',
             click: function() { builder.local.runtestbetween(uuid, uuid); }
           }),
           newNode('a', "run from here", {
             id: uuid + 'run-from-here',
-            href: '#' + uuid + 'run-from-here',
+            href: '#',
             class: 'b-task',
             click: function() { builder.local.runtestbetween(uuid, 0); }
           })
@@ -545,6 +545,7 @@
               newNode('span', {id: uuid + 'warning'})
             ),
         
+            newNode('div', {class:"b-step-message", id: uuid + "message", style:'display: none'}),
             newNode('div', {class:"b-step-error", id: uuid + "error", style:'display: none'}),
         
             newNode('input', {id: uuid + 'url', type: 'hidden', value: call.url ? call.url : '[unknown]'})

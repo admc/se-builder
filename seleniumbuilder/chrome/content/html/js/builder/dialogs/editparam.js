@@ -21,7 +21,7 @@ builder.dialogs.editparam = new(function () {
       'span', {class:jQuery(replaced_node).hasClass('b-param-row') ? 'b-param-row' : ''},
       input_field = newNode('input', {type: 'text', class:'b-param-input', value: current_property.html()}),
       newNode('a', 'OK', {
-        class: 'ui-state-default ui-corner-all record-button',
+        class: 'button',
         click: function () {
           builder.dialogs.editparam.hide();
         },

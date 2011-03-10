@@ -433,7 +433,7 @@ builder.Recorder = function (target_window, record_action) {
         if (status != 0) {
           msg = msg + "<br>(Attempting to load the page produced a " + status + " status code.)";
         }
-        jQuery("#big_error").html(msg).show();
+        jQuery("#error-panel").html(msg).show();
       }
     });
   }

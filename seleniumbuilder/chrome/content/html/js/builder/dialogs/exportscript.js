@@ -85,7 +85,7 @@ builder.dialogs.exportscript = new(function () {
       
       var format_list = newNode('ul');
       var cancel_b = newNode('a', 'Cancel', {
-        class: 'ui-state-default ui-corner-all record-button',
+        class: 'button',
         click: function () {
           builder.dialogs.exportscript.hide();
         },

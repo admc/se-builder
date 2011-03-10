@@ -11,6 +11,8 @@ builder.local = new (function() {
   var playResult;
   /** Whether the user has requested test stoppage. */
   var stopRequest = false;
+  /** The delay between steps. */
+  var speed = 0;
   // Set up Selenium to drive the browser.
   var handler = new CommandHandlerFactory();
   var browserbot = new MozillaBrowserBot(window.bridge.content());
@@ -60,6 +62,14 @@ builder.local = new (function() {
         postPlayCallback(playResult);
       }
     }
+  };
+  
+  this.echo = function(message) {
+    jQuery('#' + script[step_index].uuid + "message").html(message).show();
+  };
+  
+  this.setSpeed = function(newSpeed) {
+    speed = newSpeed;
   };
   
   this.record_error = function(error) {

@@ -206,7 +206,7 @@ builder.dialogs.method = (function () {
     dom = newNode('div', { class: 'method-dialog' },
       new_method,
       newNode('a', "OK", {
-        class: 'record-button ui-state-default ui-corner-all',
+        class: 'button',
         href: '#change',
         click: function (e) {
           builder.dialogs.method.hide();

@@ -334,7 +334,8 @@ builder.methods = [
           'fireEvent',
           'highlight',
           'rollup',
-          'runScript'
+          'runScript',
+          'echo'
 //          'shutDownSeleniumServer',
         ]
       }

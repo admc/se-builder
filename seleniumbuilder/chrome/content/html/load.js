@@ -175,6 +175,7 @@ builder.Loader = (function /* load */ () {
     "builder/recorder.js",
     "builder/assertexplorer.js",
     "builder/interface.js",
+    "builder/seleniumpatch.js",
     "builder/methods.js",
     // Load in user-extensions.js
     "user-extensions.js",

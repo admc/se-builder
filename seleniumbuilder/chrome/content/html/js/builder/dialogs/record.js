@@ -14,18 +14,18 @@ builder.dialogs.record = new(function () {
     show: function (anode) {
       node = anode;
       node.html('');
-      node.append(newNode('h3', 'Start recording a new script at'));
+      node.append(newNode('span', {style:"font-weight: bold;"}, 'Start recording a new script at'));
       node.append(newNode('form', {method:'get', action:'#record'},
           newNode('p',
               newNode('input', {id:'startup-url-2', type:'text', class:'texta', size:'24'}),
-              newNode('input', {type:'submit', value:'Go!', class:'ui-state-default ui-corner-all suiteButton',
+              newNode('input', {type:'submit', value:'Go!', class:'button',
                 click:function(e) {
                   builder.suite.addEmptyScript();
                   builder.clearAndStartRecordingAt(e, jQuery("#startup-url-2").val());
                   node.html('');
                 }}),
               newNode('a', 'Cancel', {
-                  class: 'ui-state-default ui-corner-all record-button',
+                  class: 'button',
                   click: function () {
                     node.html('');
                   },

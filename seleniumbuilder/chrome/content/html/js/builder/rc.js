@@ -87,6 +87,11 @@ builder.rc = new (function () {
         result.errormessage = "Test stopped";
       } else {
         currentStep++;
+        // Echo is not supported server-side, so ignore it.
+        while (currentStep < script.steps.length && script.steps[currentStep].method == "echo") {
+          jQuery("#" + script.steps[currentStep].uuid + '-content').css('background-color', '#ccffcc');
+          currentStep++;
+        }
         if (currentStep < script.steps.length) {
           builder.rc.post(builder.rc.toCmdString(script.steps[currentStep]) + "&sessionId=" + session, builder.rc.playNextStep);
           return;

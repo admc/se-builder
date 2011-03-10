@@ -74,7 +74,7 @@ builder.interface = new(function () {
           newNode('span', {class: 'b-param', id: 'baseurl-input'})
         )
       );
-      document.getElementById('ideForm').appendChild(suite);
+      document.getElementById('steps').appendChild(suite);
 
       builder.storage.addChangeListener('baseurl', function (v) {
         // Update the base url input field, adding a trailing slash if needed.
@@ -101,7 +101,7 @@ builder.interface = new(function () {
 
   // Load the stylesheets.
   // NOTE: loading by setting the src parameter seems buggy
-  var stylesheets = ['smoothness/jquery-ui-1.7.custom.css', 'windmill.css'];
+  var stylesheets = ['smoothness/jquery-ui-1.7.custom.css', 'gui.css'];
   // Go over the stylesheets and load in each of them with an AJAX call, then attach them to
   // the window's document.
   for (var i = 0; i < stylesheets.length; i++) {
@@ -167,6 +167,11 @@ builder.interface = new(function () {
 
   // Set up a bunch of stuff!
   this.addOnloadHook(function () {
+    // Auto-resize the steps area.
+    window.setInterval(function() {
+      jQuery('#steplist').css('top', 70 + jQuery('#panels').height());
+    }, 150);
+    
     // If the user wants to close the recorder while there's unsaved data, ask for confirmation
     var originalShutdown = window.bridge.shutdown;
     window.bridge.shutdown = function() {
@@ -426,9 +431,9 @@ builder.interface.startup = new(function () {
   builder.clearAndStartRecordingAt = function(e, urlText) {
     builder.storage.set('testscriptpath', null);
     builder.storage.set('save_required', false);
-    jQuery('#ideForm').html('');
+    jQuery('#steps').html('');
     // Clear any error messages.
-    jQuery('#big_error').hide();
+    jQuery('#error-panel').hide();
     
     start_recording_at(e, urlText);
   };
@@ -460,7 +465,7 @@ builder.interface.startup = new(function () {
    */
   function open_file(path, script) {
     // NB Edit interface must be open before we can write into the edit form (jQuery relies on
-    // the ideForm being shown).
+    // the steps being shown).
     builder.interface.switchTo('edit');
 
     for (var step = builder.lastStep(); step.id; step = builder.lastStep()) {
@@ -606,7 +611,7 @@ builder.interface.record = new(function () {
       builder.storage.set('baseurl', builder.getDomainName(params._url));
     }
     builder.createStep(name, params);
-    jQuery('#record-bottom')[0].scrollIntoView(false);
+    jQuery('#bottom')[0].scrollIntoView(false);
     builder.storage.set('save_required', true);
   }
   builder.interface.record_action = record_action;
@@ -722,7 +727,7 @@ builder.interface.record = new(function () {
   var noticed_loading = false;
 
   builder.interface.addOnloadHook(function () {
-    jQuery('#record-stop-button, #record-stop-bottom').click(function (e) {
+    jQuery('#record-stop-button').click(function (e) {
       builder.interface.switchTo('edit');
     });
 
@@ -807,7 +812,7 @@ builder.interface.record = new(function () {
 
   return {
     show: function () {
-      jQuery('#record, #heading-record, #record-bottom').show();
+      jQuery('#record-panel, #steplist, #heading-record').show();
       // If the previous step's URL doesn't match up with the one we're recording from now,
       // create an "open" step in the script to navigate to the right URL.
       if (builder.lastStep().url() != builder.storage.get('currenturl')) {
@@ -829,7 +834,7 @@ builder.interface.record = new(function () {
       setRecordMode('record');
     },
     hide: function () {
-      jQuery('#record, #heading-record, #record-bottom').hide();
+      jQuery('#record-panel, #steplist, #heading-record').hide();
       setRecordWindow(null);
       setRecordMode(null);
     },
@@ -853,7 +858,7 @@ builder.interface.edit = new(function () {
      */
     function save_script(post_save) {
       // Clear any error messages.
-      jQuery('#big_error').hide();
+      jQuery('#error-panel').hide();
 
       if (builder.storage.get('testscriptpath') && builder.storage.get('testscriptpath').where == "remote") {
         builder.frontend.updateScript(
@@ -886,14 +891,15 @@ builder.interface.edit = new(function () {
     // Save button
     // If there is a backend server, enable the save button.
     if (window.bridge.hasServer()) {
-      jQuery("#edit-save").show();
+      jQuery("#script-save-li").show();
     }
-    jQuery("#edit-runonrc").show();
-    jQuery("#edit-suite-runonrc").show();
-    jQuery('#edit-runonrc').bind('click', function () {
-      builder.dialogs.rc.show(jQuery("#edit-export-ui"), /*play all*/ false);
+    
+    jQuery("#run-onrc-li").show();
+    jQuery("#run-suite-onrc-li").show();
+    jQuery('#run-onrc').bind('click', function () {
+      builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ false);
     });
-    jQuery('#edit-runnow').bind('click', function () {
+    jQuery('#run-onserver').bind('click', function () {
       // Save the script, then navigate the main browser window to the saved script's "run
       // now" page.
             save_script(
@@ -905,22 +911,20 @@ builder.interface.edit = new(function () {
               }
       );
     });
-    jQuery('#edit-save').bind('click', function () { save_script(); });
+    jQuery('#script-save').bind('click', function () { save_script(); });
     // Run now button: saves script to server, then allows user to run it there
     if (window.bridge.hasServer()) {
-      jQuery("#edit-runnow").show();
+      jQuery("#run-onserver-li").show();
     }
     // Export button: allows user to export script using Selenium IDE's formatting code.
-    jQuery('#edit-export').click(
+    jQuery('#script-export').click(
       function() {
-        builder.dialogs.exportscript.show(jQuery("#edit-export-ui"));
-        jQuery('#edit-export')[0].scrollIntoView(false);
+        builder.dialogs.exportscript.show(jQuery("#dialog-attachment-point"));
       }
     );
     jQuery('#edit-test-script-nopath-save').click(
       function() {
-        builder.dialogs.exportscript.show(jQuery("#edit-export-ui"));
-        jQuery('#edit-export')[0].scrollIntoView(false);
+        builder.dialogs.exportscript.show(jQuery("#dialog-attachment-point"));
       }
     );
     // Discard button: discards unsaved changes in script, if any. Returns to startup interface
@@ -933,20 +937,20 @@ builder.interface.edit = new(function () {
           builder.interface.switchTo('startup');
           builder.storage.set('testscriptpath', null);
           builder.storage.set('save_required', false);
-          jQuery('#ideForm').html('');
+          jQuery('#steps').html('');
           // Clear any error messages.
-          jQuery('#big_error').hide();
+          jQuery('#error-panel').hide();
         }
       }
     );
     // Record button: Record more of the script
-    jQuery('#edit-record').click(function () {
+    jQuery('#record').click(function () {
       // The user knows this may fail now.
-      jQuery('#big_error').hide();
+      jQuery('#error-panel').hide();
       builder.interface.switchTo('record');
     });
     // Play button: Play back the script in this browser
-    jQuery('#edit-play').click(function () {
+    jQuery('#run-locally').click(function () {
       builder.local.runtest();
     });
     // Stop playback buttons
@@ -962,6 +966,7 @@ builder.interface.edit = new(function () {
       for (var i = 0; i < script.length; i++) {
         jQuery('#' + script[i].uuid + '-content').css('background-color', '#dddddd');
         jQuery('#' + script[i].uuid + 'error').hide();
+        jQuery('#' + script[i].uuid + 'message').hide();  
       }
       jQuery('#edit-clearresults').hide();
     };
@@ -971,10 +976,6 @@ builder.interface.edit = new(function () {
     jQuery('#edit-insert').click(function () {
       builder.createStep("click", {});
       builder.storage.set('save_required', true);
-    });
-    // Add new script button: add a second script
-    jQuery('#edit-addscript').click(function() {
-      builder.dialogs.record.show(jQuery('#edit-export-ui'));
     });
     
     // Bind to the testscriptpath value to display the path of the script 
@@ -1001,10 +1002,10 @@ builder.interface.edit = new(function () {
 
   return {
     show: function () {
-      jQuery('#record, #heading-edit, #edit-bottom').show();
+      jQuery('#edit-panel, #steplist, #menu').show();
     },
     hide: function () {
-      jQuery('#record, #heading-edit, #edit-bottom').hide();
+      jQuery('#edit-panel, #steplist, #menu').hide();
     }
   }
 })();
@@ -1013,11 +1014,18 @@ builder.interface.edit = new(function () {
  * Interface for manipulating test suite.
  */
 builder.interface.suite = new(function () {
-  function create_script_option(name, index, isSelected) {
+  function create_script_li(name, index, isSelected) {
     if (isSelected) {
-      return newNode('option', { value: index, selected: "true" }, name);
+      return newNode('li', { class: 'currentScript' }, name);
     } else {
-      return newNode('option', { value: index }, name);
+      return newNode('li',
+        newNode('a', {
+            id: 'suite-script-' + index,
+            href: '#suite-script-' + index,
+            click: function() { builder.suite.switchToScript(index); }
+          },
+          name)
+      );
     }
   }
   
@@ -1031,24 +1039,19 @@ builder.interface.suite = new(function () {
   
   this.update = function() {
     if (builder.suite.getNumberOfScripts() > 1) {
-      jQuery('#edit-suite').show();
-      jQuery('#edit-addscript').hide();
-      jQuery('#edit-discard').hide();
+      jQuery('#suite-panel, #multiscript-0, #multiscript-1, #multiscript-2').show();
+      jQuery('#script-discard-li').hide();
       
-      jQuery('#edit-suite-testselector').html('').unbind('change');
+      jQuery('#scriptlist').html('');
       var scriptNames = builder.suite.getScriptNames();
       var selectedScriptIndex = builder.suite.getSelectedScriptIndex();
       for (var i = 0; i < scriptNames.length; i++) {
-        jQuery('#edit-suite-testselector').append(create_script_option(scriptNames[i], i,
+        jQuery('#scriptlist').append(create_script_li(scriptNames[i], i,
             i == selectedScriptIndex));
       }
-      jQuery('#edit-suite-testselector').bind('change', function() {
-        builder.suite.switchToScript(jQuery('#edit-suite-testselector').val());
-      });
     } else {
-      jQuery('#edit-suite').hide();
-      jQuery('#edit-addscript').show();
-      jQuery('#edit-discard').show();
+      jQuery('#suite-panel, #multiscript-0, #multiscript-1, #multiscript-2').hide();
+      jQuery('#script-discard-li').show();
     }
   };
   
@@ -1057,11 +1060,11 @@ builder.interface.suite = new(function () {
       builder.dialogs.runall.stoprun();
     });
     
-    jQuery('#edit-suite-removescript').click(function() {
+    jQuery('#suite-removescript').click(function() {
       builder.suite.deleteScript(builder.suite.getSelectedScriptIndex());
     });
     
-    jQuery('#edit-suite-addscript').click(function() {
+    jQuery('#suite-addscript').click(function() {
       var script = builder.seleniumadapter.importScript();
       if (script) {
         // Save the current script and unselect it to make sure that when we overwrite its
@@ -1073,21 +1076,21 @@ builder.interface.suite = new(function () {
       }
     });
     
-    jQuery('#edit-suite-recordscript').click(function() {
-      builder.dialogs.record.show(jQuery('#edit-suite-dialogs'));
+    jQuery('#suite-recordscript').click(function() {
+      builder.dialogs.record.show(jQuery('#dialog-attachment-point'));
     });
     
-    jQuery('#edit-suite-runonrc').bind('click', function () {
-      builder.dialogs.rc.show(jQuery("#edit-suite-dialogs"), /*play all*/ true);
+    jQuery('#run-suite-onrc').bind('click', function () {
+      builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ true);
     });
     
-    jQuery('#edit-suite-play').bind('click', function () {
-      builder.dialogs.runall.runLocally(jQuery("#edit-suite-dialogs"));
+    jQuery('#run-suite-locally').bind('click', function () {
+      builder.dialogs.runall.runLocally(jQuery("#dialog-attachment-point"));
     });
   
     // Discard button: discards unsaved changes in suite, if any. Returns to startup interface
     // to let user decide what to do next.
-    jQuery('#edit-suite-discard').click(
+    jQuery('#script-discard').click(
       function () {
         if (!builder.suite.getSaveRequired() ||
             confirm("If you continue, you will lose all your recent changes."))
@@ -1096,14 +1099,14 @@ builder.interface.suite = new(function () {
           builder.interface.switchTo('startup');
           builder.storage.set('testscriptpath', null);
           builder.storage.set('save_required', false);
-          jQuery('#ideForm').html('');
+          jQuery('#steps').html('');
           // Clear any error messages.
-          jQuery('#big_error').hide();
+          jQuery('#error-panel').hide();
         }
       }
     );
     
-    jQuery('#edit-suite-save').click(
+    jQuery('#suite-save').click(
       function() {
         if (builder.suite.canExport()) {
           var path = builder.seleniumadapter.exportSuite(builder.suite.getScriptEntries());
@@ -1125,15 +1128,15 @@ builder.interface.suite = new(function () {
     builder.storage.addChangeListener('suiteSaveRequired', function(suiteSaveRequired) {
       if (suiteSaveRequired) {
         if (builder.suite.canExport()) {
-          jQuery('#edit-suite-cannotsave').hide();
-          jQuery('#edit-suite-saverequired').show();
+          jQuery('#suite-cannotsave').hide();
+          jQuery('#suite-saverequired').show();
         } else {
-          jQuery('#edit-suite-cannotsave').show();
-          jQuery('#edit-suite-saverequired').hide();
+          jQuery('#suite-cannotsave').show();
+          jQuery('#suite-saverequired').hide();
         }
       } else {
-        jQuery('#edit-suite-cannotsave').hide();
-        jQuery('#edit-suite-saverequired').hide();
+        jQuery('#suite-cannotsave').hide();
+        jQuery('#suite-saverequired').hide();
       }
     });
     

@@ -71,7 +71,7 @@ builder.dialogs.runall = new(function () {
     }
     
     close_b = newNode('a', 'Close', {
-      class: 'ui-state-default ui-corner-all record-button',
+      class: 'button',
       style: 'display: none',
       click: function () {
         builder.dialogs.runall.hide();

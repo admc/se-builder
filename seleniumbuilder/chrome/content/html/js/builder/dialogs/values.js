@@ -39,7 +39,7 @@ builder.dialogs.values = new(function () {
         click: function (e) { e.stopPropagation(); }
       },
       newNode('a', 'OK', {
-        class: 'ui-state-default ui-corner-all record-button',
+        class: 'button',
         click: function () { builder.dialogs.values.hide(); },
         href: '#save'
       }),

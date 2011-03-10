@@ -20,7 +20,7 @@ builder.dialogs.rc = new(function () {
       playall = doplayall;
       
       var run_b = newNode('a', altOKText || 'Run', {
-      class: 'ui-state-default ui-corner-all record-button',
+      class: 'button',
         click: function () {
           var hostPort = jQuery('#rc-hostport').val();
           var browserString = jQuery('#rc-browserstring').val();
@@ -40,7 +40,7 @@ builder.dialogs.rc = new(function () {
         href: '#run'
       });
       var cancel_b = newNode('a', 'Cancel', {
-        class: 'ui-state-default ui-corner-all record-button',
+        class: 'button',
         click: function () {
           builder.dialogs.rc.hide();
         },

@@ -19,298 +19,182 @@ to have some difference to give the user the idea of a bit of progress
         top: 50%;
         margin-top: -9px;
         white-space: pre;
-        color: #333333;
         ">Loading Selenium Builder...</span>
 </div>
-<!-- The heading at the top -->
-<div id="heading">
-    <img id="icon" src="img/builder-masthead-horizontal.png" alt="Welcome to Selenium Builder!">
-    <span id="loading" style="display: none">Loading...</span>
 
-    <div id="heading-startup" style="display: none">
-    </div>
+<span id="loading" style="display: none">Loading...</span>
 
-    <div id="heading-record" style="display: none">
+<!-- Header and menu -->
+<div class="header">
+  <img id="header-logo" src="img/builder-logo-small.png" alt="Welcome to Selenium Builder!" />  
+  
+  <div id="header-status">
+    <span id="heading-startup" style="display: none">
+    </span>
+
+    <span id="heading-record" style="display: none">
         <span class="when-off">Currently recording at: <a id="record-url-display">http://www.example.com/</a></span>
         <span class="when-on">Waiting for page to load</span>
-    </div>
+    </span>
 
-    <div id="heading-edit" style="display: none">
+    <span id="heading-edit" style="display: none">
         <span id="edit-test-script-nopath">Current test has not been <a style="text-decoration:underline;" href="#" id="edit-test-script-nopath-save">saved</a>.</span>
         <span id="edit-test-script-path"></span>
-    </div>
-</div>
-<div id="container">
-    <div id="login" style="display: none">
-        <div id="login-failed" style="display: none">Couldn't log in with those details.</div>
-        <h1>Selenium Builder</h1>
-
-        <h2>Please log in to your account:</h2>
-        <form method="post" action="#login" id="login-form">
-            <p><label for="login-email">Email</label> <input class="texta" type="text" id="login-email" /></p>
-            <p><label for="login-password">Password</label> <input class="texta" type="password" id="login-password" /></p>
-            <p>
-                <input type="submit" name="login" value="Log in" class="ui-state-default ui-corner-all"/> 
-                <a href="#forgotten" name="#forgotten" id="login-forgotten" />Forgotten password?</a>
-                <label for="login-remember">Remember me</label>
-                <input class="texta" type="checkbox" value="1" id="login-remember" />
-            </p>
-        </form>
-    </div>
-    <div id="startup" style="display: none">
-        <h1>Selenium Builder</h1>
-
-        <p>Would you like to:</p>
-        <ul>
-            <li id="startup-open" style="display: none;">
-              <h3><a name="open" href="#open">Modify</a> an existing test</h3>
-              <div id="startup-filebrowser"></div>
-            </li>
-            <li id="startup-import">
-              <h3><a name="import" href="#import">Open</a> a test file</h3>
-            </li>
-            <li id="startup-suite-import">
-              <h3><a name="suite-import" href="#suite-import">Open</a> a test suite</h3>
-            </li>
-            <li id="startup-record">
-                <h3><a name="record" href="#record">Start recording</a> a new script at</h3>
-                <form method="get" action="#record">
-                    <p>
-                        <input id="startup-url" type="text" class="texta" size="35"/>
-                        <input type="submit" value="Go!" class="ui-state-default ui-corner-all suiteButton"/>
-                    </p>
-                </form>
-        <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
-            </li>
-        </ul>
-    </div>
-  
-    <div id="record" style="display: none">
-    <div id="edit-suite" style="display:none">
-      <h3 id="edit-suite-path"></h3>
-      <span id="edit-suite-saverequired" style="display: none">Suite has unsaved changes.<br /></span>
-      <span id="edit-suite-cannotsave" style="display: none">Can't save suite: Save all scripts to disk as HTML first.<br /></span>
-      <div id="edit-suite-dialogs"></div>
-      <p class="centered" id="edit-suite-buttons">
-        <span id="edit-suite-playing" style="display: none;">
-          <a href="#stop-suite-playback" name="stop-suite-playback" id="edit-suite-stop-playback" class="ui-state-default ui-corner-all record-button">Stop Playback</a>
-        </span>
-        <span id="edit-suite-stopping" style="display: none;">
-          Stopping...
-        </span>
-        <span id="edit-suite-editing">
-          <a href="#edit-suite-recordscript" name="edit-suite-recordscript" id="edit-suite-recordscript" class="ui-state-default ui-corner-all record-button">Record new script</a>
-          <a href="#edit-suite-addscript" name="edit-suite-addscript" id="edit-suite-addscript" class="ui-state-default ui-corner-all record-button">Add script</a>
-          <a href="#edit-suite-removescript" name="edit-suite-removescript" id="edit-suite-removescript" class="ui-state-default ui-corner-all record-button">Remove current script</a>
-          <br />
-          <a href="#edit-suite-play" name="edit-suite-play" id="edit-suite-play" class="ui-state-default ui-corner-all record-button">Run all locally</a>
-          <a href="#edit-suite-runonrc" style="display: none;" name="edit-suite-runonrc" id="edit-suite-runonrc" class="ui-state-default ui-corner-all record-button">Run all on Selenium RC</a>
-          <br />    
-          <a href="#edit-suite-save" name="edit-suite-save" id="edit-suite-save" class="ui-state-default ui-corner-all record-button">Save suite</a>
-          <a href="#edit-suite-discard" name="edit-suite-discard" id="edit-suite-discard" class="ui-state-default ui-corner-all record-button">Discard suite changes</a>
-        </span>
-      </p>
-      <div class="scriptselector">
-        <select id="edit-suite-testselector"></select>
-      </div>
-    </div>
-  
-        <div id="ide" class="tab"> <!-- the original windmill DOM -->
-            <form id="ideForm" name="ideForm" onsubmit="return false;" onscroll="scroll();">&nbsp;</form>
-        </div>
-    <div id="big_error" style="display: none; font-size: 130%; color: #ffffff; background-color: #880000; padding: 10px; margin: 4px;">
-      Some error has occurred!
-    </div>
-    <div id="edit-export-ui"></div>
-        <div id="record-bottom" style="display:none" class="ui-corner-all action">
-            <p class="centered">
-                <a href="#assert" name="assert" id="record-assert" class="ui-state-default ui-corner-all record-button"><span class="when-off">Record a verification</span><span class="when-on">Record further steps</span>
-                </a> <a href="#stop" name="stop" id="record-stop-bottom" class="ui-state-default ui-corner-all record-button">Stop recording</a>
-            </p><p>
-                <img id="record-spinner" src="img/loading.gif" />
-                <span id="record-help">Listening for events, click or type in the page to capture another action.</span>
-                <span id="record-assert-help" style="display:none">Select some text or click on an element in order to register an assertion.</span>
-                <span id="record-waitfor-help" style="display:none">Select some text or click on an element in order to instruct the test to wait for it's presence.</span>
-            </p>
-        </div>
-    
-        <div id="edit-bottom" style="display:none">
-            <p class="centered">
-                <span id="edit-local-playing" style="display: none;">
-                    <a href="#stop-local-playback" name="stop-local-playback" id="edit-stop-local-playback" class="ui-state-default ui-corner-all record-button">Stop Playback</a>
-                </span>
-                <span id="edit-rc-playing" style="display: none;">
-                    <a href="#stop-rc-playback" name="stop-rc-playback" id="edit-stop-rc-playback" class="ui-state-default ui-corner-all record-button">Stop Playback</a>
-                </span>
-                <span id="edit-rc-stopping" style="display: none;">
-                  Stopping...
-                </span>
-                <span id="edit-editing">
-                  <a href="#edit-clearresults" style="display: none;" name="edit-clearresults" id="edit-clearresults" class="ui-state-default ui-corner-all record-button">Clear results</a>
-                  <a href="#edit-record" name="edit-record" id="edit-record" class="ui-state-default ui-corner-all record-button">Record further steps</a>
-                  <a href="#edit-insert" name="edit-insert" id="edit-insert" class="ui-state-default ui-corner-all record-button">Append one step</a>
-                  <br/>
-                  <a href="#play" name="play" id="edit-play" class="ui-state-default ui-corner-all record-button">Run test locally</a>
-                  <a href="#runnow" style="display: none;" name="runnow" id="edit-runnow" class="ui-state-default ui-corner-all record-button">Run on server</a>
-                  <a href="#runonrc" style="display: none;" name="runonrc" id="edit-runonrc" class="ui-state-default ui-corner-all record-button">Run on Selenium RC</a>
-                  <br/>
-                  <a href="#save" style="display: none;" name="save" id="edit-save" class="ui-state-default ui-corner-all record-button">Save to server</a>
-                  <a href="#export" name="save" id="edit-export" class="ui-state-default ui-corner-all record-button">Save to disk</a>
-                  <a href="#discard" name="discard" id="edit-discard" class="ui-state-default ui-corner-all record-button">Discard changes</a> 
-                  <a href="#addscript" name="addscript" id="edit-addscript" class="ui-state-default ui-corner-all record-button">Record another script</a>
-                </span>
-            </p>
-        </div>
-    </div>
-    <div id="play" style="display: none">
-        <div id="play-test">
-        </div>
-        <div id="play-bottom">
-            <p class="centered">
-                <a href="#edit" name="edit" id="play-edit" class="ui-state-default ui-corner-all record-button">Return to editing</a>
-            </p>
-        </div>
-    </div>
-</div>
-
-    <div id="runningStatus" align="center" style="display: none">
-<!--      <br><br><br><br><br>
-      <center><h2>BLoading, Please Wait...</h2></center>
-      <center><div id="progressbar"></div></center> -->
+    </span>
   </div>
   
-    <div id="cover">
-      <div id="statusMessage">
-        <center><div style="font-weight:bold;font-size:14px;" id="loadMessage">Starting Up..</div></center><br>
-        <center><img src="img/loading.gif"></center>
-      </div>
-    </div>
-    
-      <div id="controllers" style="display:none">
-          <a href="#" title="Toggle Recorder">
-              <img title="Toggle Recorder" name='record' 
-                id="record" border=no src="img/record.png" onclick="/*toggleRec();*/">
-          </a>
-
-          <a href="#" title="Play All">
-              <img title="Play All" name='playback' 
-                id="playback" border=no src="img/playback.png" onclick="togglePlay();">
-          </a>
-
-          <a href="#" title="Toggle DOM Explorer">
-              <img title="Toggle DOM Explorer" name='explorer' 
-              id="explorer" border=no src="img/xon.png" onclick="toggleExplore();">
-          </a>
-
-          <a href="#" title="Toggle Assert Explorer">
-              <img title="Toggle Assert Explorer" name='assertx' 
-              id="assertx" border=no src="img/axon.png" onclick="toggleAExplore();">
-          </a>
-      </div>
-    
-      <div id="domExp"></div>
-    <div id="tabs" style="display:none">
+  <ul id="menu" style="display: none;">
+    <li><a href="#">Suite</a>
       <ul>
-          <li class="ui-tabs-nav-item tabHead"><a href="#actionsTab">Actions</a></li>
-          <li class="ui-tabs-nav-item tabHead"><a href="#outputTab">Output</a></li>
-          <li class="ui-tabs-nav-item tabHead"><a href="#performanceTab">Performance</a></li>
+        <span id="multiscript-0">
+          <li id="suite-path"></li>
+          <li><a href="#suite-save" name="suite-save" id="suite-save">Save suite</a></li>
+          <li><a href="#suite-discard" name="suite-discard" id="suite-discard">Discard suite changes</a></li>
+        </span>
+        <li><a href="#suite-recordscript" name="suite-recordscript" id="suite-recordscript">Record new script</a></li>
+        <li><a href="#suite-addscript" name="suite-addscript" id="suite-addscript">Add script from file</a></li>
+        <span id="multiscript-1">
+          <li><a href="#suite-removescript" name="suite-removescript" id="suite-removescript">Remove current script</a></li>
+          <li>Scripts</li>
+          <span id="scriptlist">
+          
+          </span>
+        </span>
       </ul>
-      
-      <div id="actionsTab" style="padding:0px;margin:0px;">
-<!--        <div id="ide" class="tab">
-                <form id="ideForm" name="ideForm" onsubmit="return false;" onscroll="scroll();">&nbsp;</form>
-            </div> -->
-      </div>
-      
-      <div id="outputTab" style="padding:0px;margin:0px;">
-        <div class="tab">
-          <form id="resOut" onsubmit="return false;"></form>
-        </div>
-      </div>
-      
-      <div id="performanceTab" style="padding:0px;margin:0px;">
-        <div class="tab">
-          <div id="perfOut"></div>
-        </div>
-      </div>
+    </li>
+    <li><a href="#">Script</a>
+        <ul>
+            <li id="script-save-li" style="display: none;"><a href="#script-save" name="script-save" id="script-save">Save to server</a></li>
+            <li><a href="#script-export" name="script-export" id="script-export">Save to disk</a></li>
+            <li id="script-discard-li"><a href="#script-discard" name="script-discard" id="script-discard">Discard changes</a></li> 
+        </ul>
+    </li>
+    <li>
+      <a href="#record" name="record" id="record">Record</a>
+    </li>
+    <li><a href="#">Run</a>
+      <ul>
+          <li><a href="#run-locally" name="run-locally" id="run-locally">Run test locally</a></li>
+          <li id="run-onrc-li" style="display: none;"><a href="#run-onrc" name="run-onrc" id="run-onrc">Run on Selenium RC</a></li>
+          <li id="run-onserver-li" style="display: none;"><a href="#run-onserver" name="run-onserver" id="run-onserver">Run on server</a></li>
+          <span id="multiscript-2">
+            <li><a href="#run-suite-locally" name="run-suite-locally" id="run-suite-locally">Run suite locally</a></li>
+            <li id="run-suite-onrc-li" style="display: none;"><a href="#run-suite-onrc" name="run-suite-onrc" id="run-suite-onrc">Run suite on Selenium RC</a></li>
+          </span>
+      </ul>
+    </li>
+  </ul>
+</div>
 
-    </div>
-        
-    <div id="dialog" style="padding-top:0px;margin-top:0px;">
-      <div>
-          <form id="fileBrowser" name="fileBrowser">
-          </form>
-      </div>
-      <div id="settings" style="font-size:12px;display:none;">
-               <form id='settingsForm' name='settingsForm'>
-                   <h3 style="color:#25444e">Windmill Settings</h3>
-                 <strong>System</strong><br>
-               <table>
-                   <tr>
-                       <td>Throw JavaScript errors, full debug:</td>
-                       <td> <INPUT TYPE=checkbox UNCHECKED ID='throwDebug'></td>
-                   </tr>
-                   <tr>
-                       <td>Break on failure:</td>
-                       <td> <INPUT TYPE=checkbox UNCHECKED ID='toggleBreak' onclick="windmill.ui.toggleBreak();"></td>
-                   </tr>
-                   <tr>
-                       <td>Suppress Javascript Alerts:</td><td> <INPUT TYPE=checkbox onclick="windmill.ui.updateAlerts()" CHECKED id='jsAlerts'></td>
-                   </tr>
-                 <tr>
-                       <td>Suite Save Formatting:</td>
-                       <td> 
-                           <SELECT id="suiteSaveFormat" NAME="suiteSaveFormat">
-                               <OPTION value="python" selected>python</option>
-                               <OPTION value="javascript">javascript</option>
-                           </SELECT>
-                       </td>
-                   </tr>
-               </table><br>
 
-               <strong>IDE/Recorder</strong>
-               <table>
-                   <tr>
-                       <td>Auto Scroll IDE to bottom:</td>
-                       <td> <INPUT TYPE=checkbox CHECKED ID='autoScroll'></td>
-                   </tr>
-                   <tr>
-                       <td>Absolute click sensitivity when recording:</td>
-                       <td><INPUT TYPE=checkbox CHECKED ID='clickOn'></td>
-                   </tr>
-                   <tr>
-                       <td>Action play button cascades:</td>
-                       <td> <INPUT TYPE=checkbox UNCHECKED ID='playCascade'></td>
-                   </tr>
-                   <tr>
-                       <td>Use XPath only for explorer/recorder:</td>
-                       <td> <INPUT TYPE=checkbox UNCHECKED ID='useXpath'></td>
-                   </tr>
-                   <tr>
-                       <td>Record only absolute XPath's (vs relative):</td>
-                       <td> <INPUT TYPE=checkbox UNCHECKED ID='absXpaths'></td>
-                   </tr>
-                     <tr>
-                       <td>Play action by hitting 'return/enter':</td>
-                       <td> <INPUT TYPE=checkbox CHECKED ID='playOnReturn'></td>
-                   </tr>
-                   <tr>
-                       <td>DOM Explorer exists on single click (vs double):</td>
-                       <td> <INPUT TYPE=checkbox CHECKED ID='domInspectorExit'></td>
-                   </tr>
-               </table><br>
-          <center>
-                 <a id="loopLink" class="ui-state-default ui-corner-all" href="#" style="padding:2px" onclick="toggleLoop();">
-                     Toggle Service Loop
-                 </a>&nbsp;
-                 <a href="#" class="ui-state-default ui-corner-all" style="padding:2px" onclick="windmill.testWin().document.location.reload()">
-                   Reload Testing Application
-                 </a><br><br>
-                 <a href="#" class="ui-state-default ui-corner-all" style="padding:2px" onclick="dumpOutput();">
-                   Dump Error Log To Output Tab
-                 </a>
-             </center>
-           </form>
-       </div>
-      
+<!-- Login -->
+<div id="login" style="display: none">
+  <div id="login-failed" style="display: none">Couldn't log in with those details.</div>
+  <h1>Selenium Builder</h1>
+
+  <h2>Please log in to your account:</h2>
+  <form method="post" action="#login" id="login-form">
+    <p><label for="login-email">Email</label> <input class="texta" type="text" id="login-email" /></p>
+    <p><label for="login-password">Password</label> <input class="texta" type="password" id="login-password" /></p>
+    <p>
+      <input type="submit" name="login" value="Log in" class="button"/> 
+      <a href="#forgotten" name="#forgotten" id="login-forgotten" />Forgotten password?</a>
+      <label for="login-remember">Remember me</label>
+      <input class="texta" type="checkbox" value="1" id="login-remember" />
+    </p>
+  </form>
+</div>
+
+
+<!-- Startup screen -->
+<div id="startup" style="display: none">
+    <h1>Selenium Builder</h1>
+
+    <p>Would you like to:</p>
+    <ul>
+        <li id="startup-open" style="display: none;">
+          <h3><a name="open" href="#open">Modify</a> an existing test</h3>
+          <div id="startup-filebrowser"></div>
+        </li>
+        <li id="startup-import">
+          <h3><a name="import" href="#import">Open</a> a test file</h3>
+        </li>
+        <li id="startup-suite-import">
+          <h3><a name="suite-import" href="#suite-import">Open</a> a test suite</h3>
+        </li>
+        <li id="startup-record">
+            <h3><a name="record" href="#record">Start recording</a> a new script at</h3>
+            <form method="get" action="#record">
+              <p>
+                <input id="startup-url" type="text" class="texta" size="35"/>
+                <input type="submit" value="Go!" class="button"/>
+              </p>
+            </form>
+            <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
+        </li>
+    </ul>
+</div>
+
+<!-- Panels of buttons and informational displays. -->
+<div id="panels">
+  
+  <div id="suite-panel" style="display: none;" class="panel">
+    <div id="suite-saverequired" style="display: none">Suite has unsaved changes.</div>
+    <div id="suite-cannotsave" style="display: none">Can't save suite: Save all scripts to disk as HTML first.</div>
+    <div id="edit-suite-playing" style="display: none;">
+      <a href="#stop-suite-playback" name="stop-suite-playback" id="edit-suite-stop-playback" class="button">Stop Playback</a>
     </div>
+    <div id="edit-suite-stopping" style="display: none;">
+      Stopping...
+    </div>
+  </div>
+
+  <div id="edit-panel" style="display: none;" class="panel">
+    <span id="edit-local-playing" style="display: none;">
+      <a href="#edit-stop-local-playback" name="edit-stop-local-playback" id="edit-stop-local-playback" class="button">Stop Playback</a>
+    </span>
+    <span id="edit-ondemand-playing" style="display: none;">
+      <a href="#stop-ondemand-playback" name="stop-ondemand-playback" id="edit-stop-ondemand-playback" class="button">Stop Playback</a>
+    </span>
+    <span id="edit-ondemand-stopping" style="display: none;">
+      Stopping...
+    </span>
+    <a href="#edit-clearresults" style="display: none;" name="edit-clearresults" id="edit-clearresults" class="button">Clear results</a>
+  </div>
+  
+  <div id="record-panel" style="display: none;" class="panel">
+    <a href="#assert" name="assert" id="record-assert" class="button">
+      <span class="when-off">Record a verification</span><span class="when-on">Record further steps</span>
+    </a>
+    <a href="#stop" name="stop" id="record-stop-button" class="button">Stop recording</a>
+    <img id="record-spinner" src="img/loading.gif" />
+    <div>
+      <span id="record-help"><br/>Listening for events, click or type in the page to capture another action.</span>
+      <span id="record-assert-help" style="display:none"><br/>Select some text or click on an element in order to register an assertion.</span>
+      <span id="record-waitfor-help" style="display:none"><br/>Select some text or click on an element in order to instruct the test to wait for its presence.</span>
+    </div>
+  </div>
+  
+  <div id="error-panel" style="display: none; font-size: 130%; color: #ffffff; background-color: #880000; padding: 10px; margin: 4px;">
+    Some error has occurred!
+  </div>
+  
+  <div id="dialog-attachment-point">
+    <!-- Incidential dialogs put themselves into this div. -->
+  </div>
+</div>
+
+
+<!-- The steps -->
+<div id="steplist" style="display:none;">
+  <div id="steps"></div>
+  <div id="bottom"></div>
+</div>
+
+<!-- Splash screen -->
+<div id="cover">
+  <div id="statusMessage">
+    <center><div style="font-weight:bold;font-size:14px;" id="loadMessage">Starting Up..</div></center><br>
+    <center><img src="img/loading.gif"></center>
+  </div>
+</div>
