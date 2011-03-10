@@ -1,0 +1,424 @@
+body, html
+{  
+  font-size: 11px;
+  margin: 0px;
+  padding: 0px;
+  text-align: left;
+  font-family:Verdana, Helvetica, Arial, sans-serif;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0; 
+  width:100%;
+  height:100%;
+  position:absolute;
+  color: #111111;
+}
+
+a               {text-decoration:none; color:#66AA66;}
+a:hover         {color:#88bb88; text-decoration:underline;}
+
+img {
+  border:none;
+}
+
+#loading {
+    background-color: #FF3333;
+    color: white;
+    font-weight: bold;
+    position: absolute;
+    right: 0px;
+    font-size: 1.2em;
+    padding: 3px;
+    z-index: 10000;
+}
+
+.button {
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 3px;
+  background-color: #cccccc;
+  border: 1px solid #333333;
+  -moz-border-radius: 5px;
+  cursor: hand;
+  color: #333333;
+  text-decoration: none;
+}
+.button:hover {
+  color: #555555;
+  text-decoration: none;
+  background-color: #eeeeee;
+}
+
+.tab {
+  height:100%;
+}
+
+#loading {
+  background-color: #333333;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  right: 0px;
+  padding: 3px;
+  z-index: 10000;
+}
+
+/** toggles **/
+
+.when-on {
+    display: none;
+}
+.is-on > .when-on {
+    display: inline;
+}
+.is-on > .when-off {
+    display: none;
+}
+
+/** Method editor **/
+.method-dialog {
+    display: block;
+    vertical-align: text-top;
+    width: auto;
+    overflow: hidden;
+    margin: 5px;
+}
+.method-dialog .tab-bar {
+    border-bottom: 1px dashed #CCCCCC;
+    vertical-align: middle;
+    width: 100%;
+    margin-bottom: 2px;
+}
+.method-dialog .select-helper + .select-helper {
+    margin-left: 10px;
+}
+.method-dialog .tab-container {
+    margin-bottom: 2px;
+}
+.method-dialog .tab-bar input {
+    position: relative;
+    top: 2px;
+    margin-left: 10px;
+}
+.method-dialog .help {
+    margin-top: 5px;
+}
+.method-dialog .tab-container div {
+    float: left;
+}
+.method-dialog .tab-container .method-select {
+    margin-left: 10px;
+}
+.method-dialog #after-filter, .method-dialog #before-filter {
+    clear: both;
+    margin-bottom: 2px;
+}
+#after-filter input, #before-filter input {
+    position: relative;
+    top: 3px;
+}
+#before-filter.disabled {
+    opacity: 1;
+}
+
+#new-method {
+    width: 26em; /* enough room for "waitForNotWhetherThisWindowMatchWindowExpression" */
+}
+
+#method-dialog-help {
+    clear: both;
+    line-height: normal;
+    margin: 5px;
+    background-color: white;
+    padding: 10px;
+}
+
+.url-warning {
+  color: #aa0000;
+}
+
+.cookie-warning {
+  color: #aa0000;
+}
+
+/** locator dialog **/
+.find-new {
+    float: right;
+    margin-right: 3em;
+}
+
+.locator-dialog .warning, .locator-dialog ul {
+    line-height: normal;
+}
+
+
+/** Remove scroll-bar from selects **/
+.select-helper {
+    overflow: hidden;
+    border: 1px solid #cccccc;
+    /* width: set by javascript to the same as the width of an option at display time */
+}
+.select-helper select {
+    overflow: hidden;
+    border: none;
+    padding: 0px;
+}
+
+.method-dialog .select-helper {
+    float: left;
+}
+
+.method-dialog .category-select option {
+    width: 120px;
+}
+
+#booting.error {
+    color: red;
+}
+
+#startup {
+  padding: 5px;
+}
+
+/** suite **/
+div.scriptselector {
+  padding: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #ffffff;
+  background: transparent url(../img/builder-header.png) repeat-x scroll 0 0;
+  margin-bottom: 5px;
+}
+
+div.scriptselector select {
+  width: 100%;
+}
+
+/**
+New step styling.
+**/
+
+#steplist {
+  counter-reset: line-number;
+  position: absolute;
+  top: 85px; /* adjusted as needed - should be 85 or so*/
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: auto;
+  background: white;
+}
+
+.b-step {
+  position: relative;
+  padding: 2px;
+}
+
+.b-step-content, .b-baseurl {
+  background: #dddddd;
+  -moz-border-radius: 5px;
+  margin-left: 100px;
+  padding: 1px;
+}
+
+.b-step-container {
+  padding-left: 1.5em;
+}
+
+/* Compensate for b-baseurl not being wrapped in b-step and its label being wider. */
+.b-baseurl {
+  margin: 2px;
+  margin-left: 102px;
+}
+
+.b-step-number:before {
+  position: absolute;
+  left: 104px;
+  content: counter(line-number) ". ";
+  counter-increment: line-number;
+  color: #555555;
+}
+
+.b-method {
+  color: black;
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+
+.b-param-row {
+  display: block;
+}
+
+.b-param-type {
+  margin-right: 0.5em;
+  color: #555555;
+  text-decoration:underline;
+}
+
+.b-param {
+  color: black;
+}
+
+.b-param-input {
+  width: 20em;
+}
+
+.b-param-input {
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
+
+.b-method:hover, .b-param:hover, .b-param-type:hover {
+  text-decoration: none;
+}
+
+.b-step-error, .b-step-warning, .b-step-message {
+  display: block;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.b-alt-locators {
+  margin-top: 10px;
+}
+
+/** Tasks */
+.b-step .b-tasks {
+  display: none;
+}
+
+.b-step:hover .b-tasks {
+  background-color: #cccccc;
+  padding: 3px;
+  -moz-border-radius: 5px;
+  display: block;
+  position: absolute;
+  top: 2px;
+  left: 0px;
+  z-index: 1000;
+}
+
+.b-tasks .b-task {
+  display: block;
+  padding: 2px;
+}
+
+/**
+ * Header
+ */
+.header {
+  height: 60px;
+  margin-bottom: 5px;
+  color: #333333;
+  background: transparent url(../img/selenium-header.png) repeat-x scroll 0 0;
+}
+
+#header-logo {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+
+#header-status {
+  position: absolute;
+  left: 86px;
+  top: 5px;
+}
+
+#menu {
+  position: absolute;
+  left: 86px;
+  top: 40px;
+  width: 400px;
+}
+
+/**
+ * Informational displays
+ */
+#panels .panel {
+  padding: 5px;
+}
+
+#record-spinner {
+  float: right;
+}
+
+#dialog-attachment-point {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/**
+ * Menu
+*/
+
+#menu {
+  margin: 0px;
+  padding: 0px;
+  font-size: 13px;
+}
+
+#menu li {
+  list-style: none;
+  float: left;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+#menu li a {
+  display: block;
+  color: #333333;
+  text-decoration: none;
+}
+
+#menu li:hover a {
+  color: #111111;
+}
+
+#menu li {
+  padding: 3px;
+  padding-bottom: 8px;
+}
+
+#menu li:hover {
+  background-color: #cccccc;
+  -moz-border-radius: 5px;
+  cursor: hand;
+}
+
+#menu li ul {
+  display: none;
+}
+
+#menu li:hover ul {
+  z-index: 100;
+  display: block;
+  position: absolute;
+  margin: 0px;
+  margin-left: -3px;
+  background-color: #cccccc;
+  padding: 3px;
+  -moz-border-radius: 5px;
+}
+
+#menu li:hover li {
+  float: none;
+  padding: 4px;
+  margin: 0px;
+  color: #333333;
+}
+
+#menu li:hover li a {
+  text-decoration:none;
+  color:#66AA66;
+}
+
+#menu li:hover li a:hover {
+  color:#88bb88;
+  text-decoration: underline;
+}
+
+.currentScript, .suite-path {
+  font-style: italic;
+}
