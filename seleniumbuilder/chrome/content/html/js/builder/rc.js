@@ -17,6 +17,7 @@ builder.rc = new (function () {
    * @return Result object: {success:, errormessage:, url:}
    */
   this.runtest = function(a_hostport, browserstring, postRunCallback) {
+    jQuery('#steps-top')[0].scrollIntoView(false);
     jQuery('#edit-editing').hide();
     jQuery('#edit-rc-playing').show();
     jQuery('#edit-rc-stopping').hide();

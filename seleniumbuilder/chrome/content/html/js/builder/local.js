@@ -54,7 +54,11 @@ builder.local = new (function() {
       jQuery('#' + script[step_index].uuid + '-content').css('background-color', '#ccffcc');
     }
     if (step_index != end_step_index && ++step_index < script.length && !stopRequest) {
-      this.play_step(script[step_index]);
+      if (speed > 0) {
+        window.setTimeout(function() { builder.local.play_step(script[step_index]); }, speed);
+      } else {
+        this.play_step(script[step_index]);
+      }
     } else {
       jQuery('#edit-editing').show();
       jQuery('#edit-local-playing').hide();
@@ -173,6 +177,12 @@ builder.local = new (function() {
    * @param thePostPlayCallback Optional callback to call after the run
    */
   this.runtestbetween = function(start_step_uuid, end_step_uuid, thePostPlayCallback) {
+    speed = 0;
+    
+    if (!start_step_uuid && !end_step_uuid) {
+      jQuery('#steps-top')[0].scrollIntoView(false);
+    }
+    
     jQuery('#edit-editing').hide();
     jQuery('#edit-local-playing').show();
     stopRequest = false;

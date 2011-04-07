@@ -11,6 +11,8 @@
 // Called by the windmill loading code
 function incProgressBar() {}
 
+var prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+
 /**
  * Create a new DOM node for the current document.
  * @param tagname The name of the node
@@ -112,6 +114,8 @@ var builder = {
   }
 };
 
+builder.extensions = [];
+
 // The windmill namespace
 var windmill = {};
 
@@ -135,6 +139,18 @@ builder.Loader = (function /* load */ () {
       }));
     }
   }
+  
+  if (prefManager.prefHasUserValue("extensions.seleniumbuilder.extensions")) {
+    var exts = prefManager.getCharPref("extensions.seleniumbuilder.extensions").split(",");
+    for (var i = 0; i < exts.length; i++) {
+      document.getElementsByTagName("head")[0].appendChild(
+        newNode('script', {
+          src: exts[i],
+          type: "text/javascript"
+        }));
+    }
+  }
+  
   // Windmill by default will compress this lot into one blob - so should we!
   // I think the order is reasonably important, but I haven't analysed the dependencies
   importScripts(

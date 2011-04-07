@@ -3,6 +3,7 @@
 <!DOCTYPE seleniumbuilder SYSTEM "chrome://seleniumbuilder/locale/translations.dtd">
 <overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
         <script src="seleniumBuilder.js" />
+        <script src="seleniumBuilderExtensions.js" />
 
         <menupopup id="menu_ToolsPopup"> 
             <menuitem

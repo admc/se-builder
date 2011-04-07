@@ -2,3 +2,4 @@ pref("extensions.seleniumbuilder.recorderurl", "chrome://seleniumbuilder/content
 pref("extensions.seleniumbuilder.domainname", "(none)");
 pref("extensions.seleniumbuilder.rc.hostport", "localhost:4444");
 pref("extensions.seleniumbuilder.rc.browserstring", "*chrome");
+pref("extensions.seleniumbuilder.extensions", "");

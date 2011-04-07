@@ -57,6 +57,12 @@
   StepWrapper = function (id) {
     this.id = id;
   };
+  
+  function clickOn(el) {
+    return function() {
+      el.click();
+    }
+  }
 
   StepWrapper.prototype = {
     /**
@@ -186,11 +192,19 @@
           } else {
             fieldWrap.unbind('click', editLocator).bind('click', editParam);
           }
+          
+          jQuery('#' + this.id + 'edit-p' + i + '-name').html(func.parameters[i]).unbind('click').
+            bind('click', clickOn(fieldWrap));
+          jQuery('#' + this.id + 'edit-p' + i).show();
         } else {
+          jQuery('#' + this.id + 'edit-p' + i).hide();
           this._query(paramNames[i] + 'Wrap').hide();
         }
       }
       
+      /*
+      qqDPS Toggle stops working after hiding and unhiding the wrap, for some reason.
+      So we have a more primitive version below.
       // Show/hide param names: If we have 2 params, or they are empty, we want them named.
       this._query('locatorType').toggle(
         func.parameters[0] && (shownParams == 2 || this.locator() == ""));
@@ -200,6 +214,25 @@
       // And if we have two params, display them in rows below the method.
       this._query('locatorWrap').toggleClass('b-param-row', shownParams == 2);
       this._query('optionWrap').toggleClass('b-param-row', shownParams == 2);
+      */
+      if (func.parameters[0] && (shownParams == 2 || this.locator() == "")) {
+        this._query('locatorType').show();
+      } else {
+        this._query('locatorType').hide();
+      }
+      if (func.parameters[1] && (shownParams == 2 || this.option() == "")) {
+        this._query('optionType').show();
+      } else {
+        this._query('optionType').hide();
+      }
+      
+      if (shownParams == 2) {
+        this._query('locatorWrap').css("display", "block");
+        this._query('optionWrap').css("display", "block");
+      } else {
+        this._query('locatorWrap').css("display", "inline");
+        this._query('optionWrap').css("display", "inline");
+      }
 
       /*
       // If the domain name for this step doesn't match up with the base URL's domain name,
@@ -471,6 +504,22 @@
       // List of options that materialises on rollover.
       newNode('div', {id: uuid, class: 'b-step'},
         newNode('span', {class: 'b-tasks'},
+          newNode('a', "edit action", {
+            id: uuid + 'edit',
+            href: '#',
+            class: 'b-task',
+            click: function () {builder.dialogs.method.show(builder.getStep(uuid), jQuery('#' + uuid + '-container')[0]);},
+          }),
+          newNode('a', "edit ", newNode('span', 'p0', {id: uuid + 'edit-p0-name'}), {
+            id: uuid + 'edit-p0',
+            href: '#',
+            class: 'b-task'
+          }),
+          newNode('a', "edit ", newNode('span', 'p1', {id: uuid + 'edit-p1-name'}), {
+            id: uuid + 'edit-p1',
+            href: '#',
+            class: 'b-task'
+          }),
           newNode('a', "delete step", {
             id: uuid + 'delete',
             href: '#',
@@ -503,7 +552,7 @@
           })
         ),
         newNode('div', {class: 'b-step-content', id: uuid + '-content'},
-          newNode('div', {class: 'b-step-container'},
+          newNode('div', {class: 'b-step-container', id: uuid + '-container'},
             // The step number
             newNode('span', {class:'b-step-number'}),
         

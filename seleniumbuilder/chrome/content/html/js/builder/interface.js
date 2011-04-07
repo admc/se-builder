@@ -150,6 +150,11 @@ builder.interface = new(function () {
       for (var i = 0; i < onloadHooks.length; i++) {
         onloadHooks[i]();
       }
+      dump(builder.extensions.length);
+      for (var i = 0; i < builder.extensions.length; i++) {
+        dump(builder.extensions[i].getName());
+        builder.extensions[i].guiLoaded();
+      }
     },
     error: function () {
       for (a in arguments) {

@@ -299,6 +299,11 @@ New step styling.
   z-index: 1000;
 }
 
+.b-step:hover {
+  background-color: #cccccc;
+  -moz-border-radius: 5px;
+}
+
 .b-tasks .b-task {
   display: block;
   padding: 2px;

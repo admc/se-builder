@@ -244,6 +244,7 @@ builder.dialogs.locator = new(function () {
       jQuery(window).unbind('click', builder.dialogs.locator.hide);
       jQuery(dom).unbind('click', prevent_hide);
       jQuery(locator_input).unbind('click', prevent_hide);
+      current_step._updateDisplay();
     }
   };
 })();

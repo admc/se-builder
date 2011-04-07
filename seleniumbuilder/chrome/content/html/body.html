@@ -44,29 +44,11 @@ to have some difference to give the user the idea of a bit of progress
   </div>
   
   <ul id="menu" style="display: none;">
-    <li><a href="#">Suite</a>
-      <ul>
-        <span id="multiscript-0">
-          <li id="suite-path"></li>
-          <li><a href="#suite-save" name="suite-save" id="suite-save">Save suite</a></li>
-          <li><a href="#suite-discard" name="suite-discard" id="suite-discard">Discard suite changes</a></li>
-        </span>
-        <li><a href="#suite-recordscript" name="suite-recordscript" id="suite-recordscript">Record new script</a></li>
-        <li><a href="#suite-addscript" name="suite-addscript" id="suite-addscript">Add script from file</a></li>
-        <span id="multiscript-1">
-          <li><a href="#suite-removescript" name="suite-removescript" id="suite-removescript">Remove current script</a></li>
-          <li>Scripts</li>
-          <span id="scriptlist">
-          
-          </span>
-        </span>
-      </ul>
-    </li>
     <li><a href="#">Script</a>
         <ul>
             <li id="script-save-li" style="display: none;"><a href="#script-save" name="script-save" id="script-save">Save to server</a></li>
             <li><a href="#script-export" name="script-export" id="script-export">Save to disk</a></li>
-            <li id="script-discard-li"><a href="#script-discard" name="script-discard" id="script-discard">Discard changes</a></li> 
+            <li id="script-discard-li"><a href="#script-discard" name="script-discard" id="script-discard">Discard and start over</a></li> 
         </ul>
     </li>
     <li>
@@ -81,6 +63,24 @@ to have some difference to give the user the idea of a bit of progress
             <li><a href="#run-suite-locally" name="run-suite-locally" id="run-suite-locally">Run suite locally</a></li>
             <li id="run-suite-onrc-li" style="display: none;"><a href="#run-suite-onrc" name="run-suite-onrc" id="run-suite-onrc">Run suite on Selenium RC</a></li>
           </span>
+      </ul>
+    </li>
+    <li><a href="#">Suite</a>
+      <ul>
+        <span id="multiscript-0">
+          <li id="suite-path"></li>
+          <li><a href="#suite-save" name="suite-save" id="suite-save">Save suite</a></li>
+          <li><a href="#suite-discard" name="suite-discard" id="suite-discard">Discard and start over</a></li>
+        </span>
+        <li><a href="#suite-recordscript" name="suite-recordscript" id="suite-recordscript">Record new script</a></li>
+        <li><a href="#suite-addscript" name="suite-addscript" id="suite-addscript">Add script from file</a></li>
+        <span id="multiscript-1">
+          <li><a href="#suite-removescript" name="suite-removescript" id="suite-removescript">Remove current script</a></li>
+          <li>Scripts</li>
+          <span id="scriptlist">
+          
+          </span>
+        </span>
       </ul>
     </li>
   </ul>
@@ -187,6 +187,7 @@ to have some difference to give the user the idea of a bit of progress
 
 <!-- The steps -->
 <div id="steplist" style="display:none;">
+  <div id="steps-top"></div>
   <div id="steps"></div>
   <div id="bottom"></div>
 </div>
