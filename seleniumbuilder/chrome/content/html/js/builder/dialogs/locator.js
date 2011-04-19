@@ -112,7 +112,7 @@ builder.dialogs.locator = new(function () {
 
   /** @return Creates and caches the GUI for the locator selection dialog. */
   function getDom() {
-    if (dom) { return dom; }
+    //if (dom) { return dom; }
 
     dom = newNode(
       'span',
@@ -244,7 +244,9 @@ builder.dialogs.locator = new(function () {
       jQuery(window).unbind('click', builder.dialogs.locator.hide);
       jQuery(dom).unbind('click', prevent_hide);
       jQuery(locator_input).unbind('click', prevent_hide);
-      current_step._updateDisplay();
+      
+      try { current_step._updateDisplay(); }
+      catch(err){}
     }
   };
 })();

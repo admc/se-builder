@@ -231,7 +231,7 @@
         this._query('optionWrap').css("display", "block");
       } else {
         this._query('locatorWrap').css("display", "inline");
-        this._query('optionWrap').css("display", "inline");
+        this._query('optionWrap').css("display", "block");
       }
 
       /*
