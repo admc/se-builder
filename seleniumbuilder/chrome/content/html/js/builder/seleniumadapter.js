@@ -170,6 +170,7 @@ builder.seleniumadapter = new (function () {
     var script = {
       steps: [],
       version: "0.3",
+      seleniumVersion: "1",
       path: {
         where: "local",
         path: (testCase.file ? testCase.file.path : null),

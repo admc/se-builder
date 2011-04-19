@@ -28,6 +28,18 @@ builder.dialogs.exportscript = new(function () {
     return li_node;
   };
   
+  function create_sel2_format_li() {
+    var li_node = newNode('li',
+      newNode('a', "Test Selenium 2 Export", {
+        click: function(event) {
+          dump(JSON.stringify(builder.convertSel1To2(builder.getScript())));
+        },
+        href: '#export-sel2'
+      })
+    );
+    return li_node;
+  };
+  
   /** Creates a li node for overwriting the existing file. */
   function create_overwrite_li() {
     return newNode('li', newNode('a', "Save as " + builder.storage.get('testscriptpath').format.name + " to " + builder.storage.get('testscriptpath').path, {
@@ -101,6 +113,7 @@ builder.dialogs.exportscript = new(function () {
         jQuery(format_list).append(create_overwrite_li());
       }
       var formats = builder.seleniumadapter.availableFormats();
+      jQuery(format_list).append(create_sel2_format_li());
       for (var i = 0; i < formats.length; i++) {
         jQuery(format_list).append(create_format_li(formats[i]));
       }

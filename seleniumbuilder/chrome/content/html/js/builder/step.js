@@ -364,6 +364,7 @@
    * Structure of the script:
    * {
    *   version: "0.3",
+   *   seleniumVersion: "1",
    *   baseUrl: "http://www.google.com/" (may be undefined),
    *   steps: [
    *     method:     String (the name of the command)
@@ -379,7 +380,8 @@
     var suiteNode = builder.interface.getSuite();
     var script = {
       steps: [],
-      version: "0.3"
+      version: "0.3",
+      seleniumVersion: "1"
     };
 
     if (builder.storage.get('baseurl')) {
