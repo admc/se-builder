@@ -28,11 +28,12 @@ builder.dialogs.exportscript = new(function () {
     return li_node;
   };
   
-  function create_sel2_format_li() {
+  function create_sel2_format_li(myFormat) {
     var li_node = newNode('li',
-      newNode('a', "Test Selenium 2 Export", {
+      newNode('a', myFormat.name, {
         click: function(event) {
-          dump(JSON.stringify(builder.convertSel1To2(builder.getScript())));
+          builder.saveSel2Script(builder.convertSel1To2(builder.getScript()), myFormat);
+          builder.dialogs.exportscript.hide();
         },
         href: '#export-sel2'
       })
@@ -113,7 +114,15 @@ builder.dialogs.exportscript = new(function () {
         jQuery(format_list).append(create_overwrite_li());
       }
       var formats = builder.seleniumadapter.availableFormats();
-      jQuery(format_list).append(create_sel2_format_li());
+      if (builder.isSel1ScriptConvertible(builder.getScript())) {
+        jQuery(format_list).append(newNode("span", "Selenium 2:"));
+        for (var i = 0; i < builder.sel2Formats.length; i++) {
+          jQuery(format_list).append(create_sel2_format_li(builder.sel2Formats[i]));
+        }
+        jQuery(format_list).append(newNode("span", "Selenium 1:"));
+      } else {
+        jQuery(format_list).append(newNode("span", "This script contains steps that can't be saved as Selenium 2 (yet)."));
+      }
       for (var i = 0; i < formats.length; i++) {
         jQuery(format_list).append(create_format_li(formats[i]));
       }

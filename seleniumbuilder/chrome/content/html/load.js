@@ -197,7 +197,8 @@ builder.Loader = (function /* load */ () {
     "user-extensions.js",
     // Deal with the changes it made
     "builder/extensions.js",
-    "builder/versionconverter.js",
+    "builder/selenium2/versionconverter.js",
+    "builder/selenium2/io.js",
     "builder/dialogs/dialogs.js",
     "builder/dialogs/method.js",
     "builder/dialogs/locator.js",
