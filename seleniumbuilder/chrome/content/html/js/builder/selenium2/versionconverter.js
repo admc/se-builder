@@ -18,7 +18,7 @@ var supportedSel1Steps = [
   "type",
   "select",
   "check",
-  "typeKeys",
+//  "typeKeys", [not implemented in Python]
 //  "doubleClick", [not implemented yet: issue 244], can maybe fake with executeScript
   "verifyTextPresent",
   "selectPopUp"
@@ -39,7 +39,7 @@ var sel1To2 = {
   "type":              ["element.sendKeys",     "locator", "value"],
   "select":            ["element.setSelected",  "locator", "value"],
   "check":             ["element.setSelected",  "locator", "value"],
-  "typeKeys":          ["getKeyboard.sendKeys", "value",   null   ],
+  //"typeKeys":          ["getKeyboard.sendKeys", "value",   null   ],
   "verifyTextPresent": ["verifyTextPresent",    "value",   null   ],
   "selectPopUp":       ["switchTo",             "value",   null   ]
 };
@@ -91,7 +91,7 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
 };
 
 function extractSel2LocatorInfo(locator) {
-  return locator.split("\"", 2);
+  return locator.split("=", 2);
 }
 
 builder.convertSel2StepTo1Steps = function(step) {
