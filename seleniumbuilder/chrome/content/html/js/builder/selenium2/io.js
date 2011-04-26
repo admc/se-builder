@@ -48,11 +48,18 @@ builder.createLangSel2Formatter = function(lang_info) {
         var step = script.steps[i];
         var line = lang_info.lineForType[step.type];
         if (typeof step.value != 'undefined') {
-          line = line.replace("{value}", lang_info.escapeValue(step.type, step.value));
+          line = line.replace("{value}", lang_info.escapeValue(step.type, step.value, 1));
+        }
+        if (typeof step.value2 != 'undefined') {
+          line = line.replace("{value2}", lang_info.escapeValue(step.type, step.value2, 2));
         }
         if (typeof step.locator != 'undefined') {
           line = line.replace("{locator}", step.locator);
-          line = line.replace("{locateBy}", lang_info.locateByForType[step.locatorType])
+          line = line.replace("{locateBy}", lang_info.locateByForType(step.type, step.locatorType, 1));
+        }
+        if (typeof step.locator2 != 'undefined') {
+          line = line.replace("{locator2}", step.locator2);
+          line = line.replace("{locateBy2}", lang_info.locateByForType(step.type, step.locator2Type, 2));
         }
         t += line;
       }
@@ -84,7 +91,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "\n" +
     "public class {name} {\n" +
     "    public static void main(String[] args) {\n" +
-    "        WebDriver wd = new FirefoxDriver();\n",
+    "        FirefoxDriver wd = new FirefoxDriver();\n",
   end:
     "        wd.close();\n" +
     "    }\n" +
@@ -96,25 +103,121 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "element.click": "        wd.findElement(By.{locateBy}(\"{locator}\")).click();\n",
     "element.sendKeys": "        wd.findElement(By.{locateBy}(\"{locator}\")).sendKeys(\"{value}\");\n",
     "element.setSelected":
-    "        if ({value}wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "            wd.findElement(By.{locateBy}(\"{locator}\")).toggle();\n" +
+    "        }\n",
+    "element.setNotSelected":
+    "        if (wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
     "            wd.findElement(By.{locateBy}(\"{locator}\")).toggle();\n" +
     "        }\n",
     /*"getKeyboard.sendKeys": "        wd.getKeyboard().sendKeys(\"{value}\");\n",*/
-    "verifyTextPresent": "        wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\");\n",
-    "switchTo": "        wd = wd.switchTo().window(\"{value}\");\n"
+    "verifyTextPresent":
+    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyTextPresent failed\");\n" +
+    "        }\n",
+    /*"switchToWindow": "        wd = wd.switchTo().window(\"{value}\");\n",*/
+    "element.clickWithOffset": "        wd.actionsBuilder().moveToElement(wd.findElement(By.{locateBy}(\"{locator}\"))).moveByOffset({value}).click().build().perform();\n",
+    "element.doubleClick": "        wd.actionsBuilder().doubleClick(wd.findElement(By.{locateBy}(\"{locator}\"))).build().perform();\n",
+    "element.dragToAndDrop": "        wd.actionsBuilder().dragAndDrop(wd.findElement(By.{locateBy}(\"{locator}\")), wd.findElement(By.{locateBy2}(\"{locator2}\"))).build().perform();\n",
+    "element.clickAndHold": "        wd.actionsBuilder().clickAndHold(wd.findElement(By.{locateBy}(\"{locator}\"))).build.perform();\n",
+    "element.release": "        wd.actionsBuilder().release(wd.findElement(By.{locateBy}(\"{locator}\"))).build.perform();\n",
+    "select.select": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).select{locateBy2}(\"{locator2}\");\n",
+    "select.deselectAll": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).deselectAll();\n",
+    "select.deselect": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).deselect{locateBy2}(\"{locator2}\");\n",
+    "element.submit": "        wd.findElement(By.{locateBy}(\"{locator}\")).submit();\n",
+    "close": "        wd.close();\n",
+    "navigate.refresh": "        wd.navigate().refresh();\n",
+    "assertBodyText":
+    "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"assertBodyText failed\");\n" +
+    "        }\n",
+    "verifyBodyText":
+    "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyBodyText failed\");\n" +
+    "        }\n",
+    "element.assertPresent":
+    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"element.assertPresent failed\");\n" +
+    "        }\n",
+    "element.verifyPresent":
+    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
+    "            System.err.println(\"element.verifyPresent failed\");\n" +
+    "        }\n",
+    "assertHTMLSource":
+    "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"assertHTMLSource failed\");\n" +
+    "        }\n",
+    "verifyHTMLSource":
+    "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyHTMLSource failed\");\n" +
+    "        }\n",
+    "element.assertText":
+    "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"element.assertText failed\");\n" +
+    "        }\n",
+    "element.verifyText":
+    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"element.verifyText failed\");\n" +
+    "        }\n",
+    "assertCurrentUrl":
+    "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"assertCurrentUrl failed\");\n" +
+    "        }\n",
+    "verifyCurrentURL":
+    "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyCurrentURL failed\");\n" +
+    "        }\n",
+    "assertTitle":
+    "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"assertTitle failed\");\n" +
+    "        }\n",
+    "verifyTitle":
+    "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyTitle failed\");\n" +
+    "        }\n",
+    "assertChecked":
+    "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"assertChecked failed\");\n" +
+    "        }\n",
+    "verifyChecked":
+    "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "            System.err.println(\"verifyChecked failed\");\n" +
+    "        }\n",
+    "element.assertValue":
+    "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"element.assertValue failed\");\n" +
+    "        }\n",
+    "element.verifyValue":
+    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+    "            System.err.println(\"element.verifyValue failed\");\n" +
+    "        }\n"
   },
-  locateByForType: {
-    "class": "className",
-    "id": "id",
-    "link": "linkText",
-    "xpath": "xpath",
-    "css": "cssSelector",
-    "name": "name"
-  },
-  escapeValue: function(stepType, value) {
-    if (stepType == "element.setSelected") {
-      return value ? "" : "!";
+  locateByForType: function(stepType, locatorType, locatorIndex) {
+    if ({"select.select":1, "select.deselect":1}[stepType] && locatorIndex == 2) {
+      return {
+        "index": "ByIndex",
+        "value": "ByValue",
+        "label": "ByVisibleText",
+        "id":    "[NOT IMPLEMENTED]"
+      };
     }
+    return {
+      "class": "className",
+      "id": "id",
+      "link": "linkText",
+      "xpath": "xpath",
+      "css": "cssSelector",
+      "name": "name"}[locatorType];
+  },
+  escapeValue: function(stepType, value, valueIndex) {
     return value.replace(/\\/, "\\\\").replace(/"/, "\\\"");
   }
 }));
@@ -143,15 +246,16 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "    raise Exception(\"Text not found in page.\")\n",
     "switchTo": "        wd = wd.switch_to_window(\"{value}\")\n"
   },
-  locateByForType: {
-    "class": "find_element_by_class_name",
-    "id": "find_element_by_id",
-    "link": "find_element_by_link_text",
-    "xpath": "find_element_by_xpath",
-    "css": "find_element_by_css_selector",
-    "name": "find_element_by_name"
+  locateByForType: function(stepType, locatorType, locatorIndex) {
+    return {
+      "class": "find_element_by_class_name",
+      "id": "find_element_by_id",
+      "link": "find_element_by_link_text",
+      "xpath": "find_element_by_xpath",
+      "css": "find_element_by_css_selector",
+      "name": "find_element_by_name"}[locatorType];
   },
-  escapeValue: function(stepType, value) {
+  escapeValue: function(stepType, value, valueIndex) {
     if (stepType == "element.setSelected") {
       return value ? "" : "not ";
     }
