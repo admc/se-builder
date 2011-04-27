@@ -52,7 +52,9 @@ var supportedSel1Steps = [
   "assertValue",
   "verifyValue",
   "assertCookieByName",
-  "verifyCookieByName"
+  "verifyCookieByName",
+  "assertCookiePresent",
+  "verifyCookiePresent"
 ];
 
 /**
@@ -62,47 +64,49 @@ var supportedSel1Steps = [
  * the locator is always a locator, and the value is always not.
  */
 var sel1To2 = {
-  "open":                 ["get",                            "value",   null      ],
+  "open":                 ["get",                             "value",   null      ],
   "waitForPageToLoad":    null,
-  "goBack":               ["navigate.back",                  null,      null      ],
-  "goForward":            ["navigate.forward",               null,      null      ],
-  "click":                ["element.click",                  "locator", null      ],
-  "type":                 ["element.sendKeys",               "locator", "value"   ],
-  "select":               ["element.setSelected",            "locator", null      ],
-  "check":                ["element.setSelected",            "locator", null      ],
-  "verifyTextPresent":    ["verifyTextPresent",              "value",   null      ],
-//"selectPopUp":          ["switchToWindow",                 "value",   null      ],
-  "clickAt":              ["element.clickWithOffset",        "locator", "value"   ],
-  "doubleClick":          ["element.doubleClick",            "locator", null      ],
-  "dragAndDropToObject":  ["element.dragToAndDrop",          "locator", "locator2"],
-  "mouseDown":            ["element.clickAndHold",           "locator", null      ],
-  "mouseUp":              ["element.release",                "locator", null      ],
-  "typeKeys":             ["element.sendKeys",               "locator", "value"   ],
-  "addSelection":         ["select.select",                  "locator", "locator2"],
-  "removeAllSelections":  ["select.deselectAll",             "locator", null      ],
-  "removeSelection":      ["select.deselect",                "locator", "locator2"],
-  "uncheck":              ["element.setNotSelected",         "locator", null      ],
-  "submit":               ["element.submit",                 "locator", null      ],
-  "close":                ["close",                          null,      null      ],
-  "refresh":              ["navigate.refresh",               null,      null      ],
-  "assertBodyText":       ["assertBodyText",                 "value",   null      ],
-  "verifyBodyText":       ["verifyBodyText",                 "value",   null      ],
-  "assertElementPresent": ["element.assertPresent",          "locator", null      ],
-  "verifyElementPresent": ["element.verifyPresent",          "locator", null      ],
-  "assertHTMLSource":     ["assertHTMLSource",               "value",   null      ],
-  "verifyHTMLSource":     ["verifyHTMLSource",               "value",   null      ],
-  "assertText":           ["element.assertText",             "locator", "value"   ],
-  "verifyText":           ["element.verifyText",             "locator", "value"   ],
-  "assertLocation":       ["assertCurrentUrl",               "value",   null      ],
-  "verifyLocation":       ["verifyCurrentUrl",               "value",   null      ],
-  "assertTitle":          ["assertTitle",                    "value",   null      ],
-  "verifyTitle":          ["verifyTitle",                    "value",   null      ],
-  "assertChecked":        ["element.assertChecked",          "locator", null      ],
-  "verifyChecked":        ["element.verifyChecked",          "locator", null      ],
-  "assertValue":          ["element.assertValue",            "locator", null      ],
-  "verifyValue":          ["element.verifyValue",            "locator", null      ],
-  "assertCookieByName":   ["manage.assertCookieNamed",       "value",   "value2"  ],
-  "verifyCookieByName":   ["manage.verifyCookieNamed",       "value",   "value2"  ]
+  "goBack":               ["navigate.back",                   null,      null      ],
+  "goForward":            ["navigate.forward",                null,      null      ],
+  "click":                ["element.click",                   "locator", null      ],
+  "type":                 ["element.sendKeys",                "locator", "value"   ],
+  "select":               ["element.setSelected",             "locator", null      ],
+  "check":                ["element.setSelected",             "locator", null      ],
+  "verifyTextPresent":    ["verifyTextPresent",               "value",   null      ],
+//"selectPopUp":          ["switchToWindow",                  "value",   null      ],
+  "clickAt":              ["element.clickWithOffset",         "locator", "value"   ],
+  "doubleClick":          ["element.doubleClick",             "locator", null      ],
+  "dragAndDropToObject":  ["element.dragToAndDrop",           "locator", "locator2"],
+  "mouseDown":            ["element.clickAndHold",            "locator", null      ],
+  "mouseUp":              ["element.release",                 "locator", null      ],
+  "typeKeys":             ["element.sendKeys",                "locator", "value"   ],
+  "addSelection":         ["select.select",                   "locator", "locator2"],
+  "removeAllSelections":  ["select.deselectAll",              "locator", null      ],
+  "removeSelection":      ["select.deselect",                 "locator", "locator2"],
+  "uncheck":              ["element.setNotSelected",          "locator", null      ],
+  "submit":               ["element.submit",                  "locator", null      ],
+  "close":                ["close",                           null,      null      ],
+  "refresh":              ["navigate.refresh",                null,      null      ],
+  "assertBodyText":       ["assertBodyText",                  "value",   null      ],
+  "verifyBodyText":       ["verifyBodyText",                  "value",   null      ],
+  "assertElementPresent": ["element.assertPresent",           "locator", null      ],
+  "verifyElementPresent": ["element.verifyPresent",           "locator", null      ],
+  "assertHTMLSource":     ["assertHTMLSource",                "value",   null      ],
+  "verifyHTMLSource":     ["verifyHTMLSource",                "value",   null      ],
+  "assertText":           ["element.assertText",              "locator", "value"   ],
+  "verifyText":           ["element.verifyText",              "locator", "value"   ],
+  "assertLocation":       ["assertCurrentUrl",                "value",   null      ],
+  "verifyLocation":       ["verifyCurrentUrl",                "value",   null      ],
+  "assertTitle":          ["assertTitle",                     "value",   null      ],
+  "verifyTitle":          ["verifyTitle",                     "value",   null      ],
+  "assertChecked":        ["element.assertChecked",           "locator", null      ],
+  "verifyChecked":        ["element.verifyChecked",           "locator", null      ],
+  "assertValue":          ["element.assertValue",             "locator", null      ],
+  "verifyValue":          ["element.verifyValue",             "locator", null      ],
+  "assertCookieByName":   ["manage.assertCookieNamed",        "value",   "value2"  ],
+  "verifyCookieByName":   ["manage.verifyCookieNamed",        "value",   "value2"  ],
+  "assertCookiePresent":  ["manage.assertCookieNamedPresent", "value",   null      ],
+  "verifyCookiePresent":  ["manage.verifyCookieNamedPresent", "value",   null      ]
 };
 
 builder.isSel1ScriptConvertible = function(script) {
@@ -112,6 +116,25 @@ builder.isSel1ScriptConvertible = function(script) {
     }
   }
   return true;
+};
+
+builder.getInconvertibleSel1Steps = function(script) {
+  var steps = [];
+  for (var i = 0; i < script.steps.length; i++) {
+    if (supportedSel1Steps.indexOf(script.steps[i].method) == -1 &&
+        steps.indexOf(script.steps[i].method) == -1)
+    {
+      steps.push(script.steps[i].method);
+    }
+  }
+  
+  var result = "";
+  for (var i = 0; i < steps.length; i++) {
+    if (i != 0) { result += ", "; }
+    result += steps[i];
+  }
+  
+  return result;
 };
 
 builder.convertSel1To2 = function(script) {

@@ -121,7 +121,7 @@ builder.dialogs.exportscript = new(function () {
         }
         jQuery(format_list).append(newNode("span", "Selenium 1:"));
       } else {
-        jQuery(format_list).append(newNode("span", "This script contains steps that can't be saved as Selenium 2 (yet)."));
+        jQuery(format_list).append(newNode("span", "This script contains steps that can't be saved as Selenium 2 yet:", newNode("br"), builder.getInconvertibleSel1Steps(builder.getScript())));
       }
       for (var i = 0; i < formats.length; i++) {
         jQuery(format_list).append(create_format_li(formats[i]));

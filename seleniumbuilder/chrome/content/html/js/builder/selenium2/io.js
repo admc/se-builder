@@ -198,6 +198,24 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "element.verifyValue":
     "        if (wd.findElements(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
     "            System.err.println(\"element.verifyValue failed\");\n" +
+    "        }\n",
+    "manage.assertCookieNamed":
+    "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"manage.assertCookieNamed failed\");\n" +
+    "        }\n",
+    "manage.verifyCookieNamed":
+    "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
+    "            System.err.println(\"manage.verifyCookieNamed failed\");\n" +
+    "        }\n",
+    "manage.assertCookieNamedPresent":
+    "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"manage.assertCookieNamedPresent failed\");\n" +
+    "        }\n",
+    "manage.verifyCookieNamedPresent":
+    "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
+    "            System.err.println(\"manage.verifyCookieNamedPresent failed\");\n" +
     "        }\n"
   },
   locateByForType: function(stepType, locatorType, locatorIndex) {
