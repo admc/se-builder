@@ -2,6 +2,22 @@
  * Code for exporting Selenium 2 scripts in a variety of formats.
 */
 
+builder.loadSel2Script = function(path) {
+  var file = null;
+  if (path == null) {
+    file = showFilePicker(window, "Select a File", 
+                          Components.interfaces.nsIFilePicker.modeOpen,
+                          Format.TEST_CASE_DIRECTORY_PREF,
+                          function(fp) { return fp.file; });
+  } else {
+    file = FileUtils.getFile(path);
+  }
+  var sis = FileUtils.openFileInputStream(file);
+  var script = JSON.parse(FileUtils.getUnicodeConverter('UTF-8').ConvertToUnicode(sis.read(sis.available())));
+  sis.close();
+  return script;
+};
+
 builder.saveSel2Script = function(script, format, path) {
   try {
     var file = null;

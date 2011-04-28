@@ -32,7 +32,9 @@ builder.dialogs.exportscript = new(function () {
     var li_node = newNode('li',
       newNode('a', myFormat.name, {
         click: function(event) {
-          builder.saveSel2Script(builder.convertSel1To2(builder.getScript()), myFormat);
+          if (builder.saveSel2Script(builder.convertSel1To2(builder.getScript()), myFormat)) {
+            builder.storage.set('save_required', false);
+          }
           builder.dialogs.exportscript.hide();
         },
         href: '#export-sel2'

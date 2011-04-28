@@ -109,6 +109,67 @@ var sel1To2 = {
   "verifyCookiePresent":  ["manage.verifyCookieNamedPresent", "value",   null      ]
 };
 
+builder.conv2To1 = function(step) {
+  var m = builder.findSel1Method(step.type);
+  var stepInfo = sel1To2[m];
+  var newStep = {
+    method: m,
+    locator: null,
+    option: null
+  };
+  var pNames = ["locator", "option"];
+  for (var i = 0; i < 2; i++) {
+    if (stepInfo[i + 1]) {
+      if (stepInfo[i + 1].startsWith("locator")) {
+        newStep[pNames[i]] = step[stepInfo[i + 1] + "Type"] + "=" + step[stepInfo[i + 1]];
+      } else {
+        newStep[pNames[i]] = step[stepInfo[i + 1]];
+      }
+    }
+  }
+  var steps = [newStep];
+  if (m == "open") {
+    newStep.locator = new builder.Url(newStep.locator).path();
+    steps.push({method: "waitForPageToLoad", locator: "60000", option: null});
+  }
+  return steps;*
+};
+
+builder.convertSel2To1 = function(script) {
+  var newScript = {
+    steps: [],
+    version: "0.3",
+    seleniumVersion: "1"
+  };
+  newScript.baseUrl = builder.findBaseUrl(script);
+  for (var i = 0; i < script.steps.length; i++) {
+    var newSteps = builder.conv2To1(script.steps[i]);
+    for (var i = 0; i < newSteps.length; i++) {
+      newScript.steps.push(newSteps[i]);
+    }
+  }
+  return newScript;
+};
+
+builder.findBaseUrl = function(script) {
+  for (var i = 0; i < script.steps.length; i++) {
+    if (script.steps[i].type == "get") {
+      return new builder.Url(script.steps[i].value).server();
+    }
+  }
+  return "";
+};
+
+builder.findSel1Method = function(type) {
+  for (var sel1Method in sel1To2) {
+    if (sel1To2[sel1Method][0] == type) {
+      return sel1Method;
+    }
+  }
+  
+  return null;
+};
+
 builder.isSel1ScriptConvertible = function(script) {
   for (var i = 0; i < script.steps.length; i++) {
     if (supportedSel1Steps.indexOf(script.steps[i].method) == -1) {
@@ -147,10 +208,6 @@ builder.convertSel1To2 = function(script) {
     newScript.steps = newScript.steps.concat(builder.convertSel1StepTo2Steps(script.steps[i], script.baseUrl));
   }
   return newScript;
-};
-
-builder.convertSel2To1 = function(script) {
-  
 };
 
 builder.convertSel1StepTo2Steps = function(step, baseURL) {

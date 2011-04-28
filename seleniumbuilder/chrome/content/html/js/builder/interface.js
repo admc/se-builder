@@ -454,6 +454,16 @@ builder.interface.startup = new(function () {
   }
   
   /**
+   * Imports a Selenium2 file.
+   */
+  function import_sel2_file() {
+    var script = builder.loadSel2Script();
+    if (script) {
+      open_file(null, builder.convertSel2To1(script));
+    }
+  }
+  
+  /**
    * Imports an entire test suite.
    */
   function import_suite() {
@@ -526,6 +536,7 @@ builder.interface.startup = new(function () {
     jQuery('#startup-record a').click(start_recording);
     jQuery('#startup-open a').click(toggle_file_dialog);
     jQuery('#startup-import a').click(import_file);
+    jQuery('#startup-import-sel2 a').click(import_sel2_file);
     jQuery('#startup-suite-import a').click(import_suite);
     // Display the user's username at the top of the interface.
     builder.storage.addChangeListener('username', function (v) {
@@ -1077,6 +1088,18 @@ builder.interface.suite = new(function () {
         // builder.suite.
         builder.suite.saveAndDeselectCurrentScript();
         builder.openScript(script.path, script);
+        builder.suite.addAndSelectCurrentScript();
+      }
+    });
+    
+    jQuery('#suite-addscript-sel2').click(function() {
+      var script = builder.loadSel2Script();
+      if (script) {
+        // Save the current script and unselect it to make sure that when we overwrite its
+        // info in the GUI by opening the new script, we don't overwrite its info in
+        // builder.suite.
+        builder.suite.saveAndDeselectCurrentScript();
+        builder.openScript(null, builder.convertSel2To1(script));
         builder.suite.addAndSelectCurrentScript();
       }
     });
