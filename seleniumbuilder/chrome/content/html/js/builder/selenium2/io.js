@@ -269,7 +269,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "name": "name"}[locatorType];
   },
   escapeValue: function(stepType, value, valueIndex) {
-    return value.replace(/\\/, "\\\\").replace(/"/, "\\\"");
+    return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
   }
 }));
 
@@ -310,6 +310,6 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     if (stepType == "element.setSelected") {
       return value ? "" : "not ";
     }
-    return value.replace(/\\/, "\\\\").replace(/"/, "\\\"");
+    return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
   }
 }));
