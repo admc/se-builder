@@ -107,7 +107,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "\n" +
     "public class {name} {\n" +
     "    public static void main(String[] args) {\n" +
-    "        FirefoxDriver wd = new FirefoxDriver();\n",
+    "        FirefoxDriver wd = new FirefoxDriver();\n" +
+    "        wd.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);\n",
   end:
     "        wd.close();\n" +
     "    }\n" +
@@ -127,10 +128,6 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "            wd.findElement(By.{locateBy}(\"{locator}\")).toggle();\n" +
     "        }\n",
     /*"getKeyboard.sendKeys": "        wd.getKeyboard().sendKeys(\"{value}\");\n",*/
-    "verifyTextPresent":
-    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyTextPresent failed\");\n" +
-    "        }\n",
     /*"switchToWindow": "        wd = wd.switchTo().window(\"{value}\");\n",*/
     "element.clickWithOffset": "        wd.actionsBuilder().moveToElement(wd.findElement(By.{locateBy}(\"{locator}\"))).moveByOffset({value}).click().build().perform();\n",
     "element.doubleClick": "        wd.actionsBuilder().doubleClick(wd.findElement(By.{locateBy}(\"{locator}\"))).build().perform();\n",
@@ -143,6 +140,16 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "element.submit": "        wd.findElement(By.{locateBy}(\"{locator}\")).submit();\n",
     "close": "        wd.close();\n",
     "navigate.refresh": "        wd.navigate().refresh();\n",
+    "assertTextPresent":
+    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
+    "            wd.close();\n" +
+    "            throw new RuntimeException(\"element.assertTextPresent failed\");\n" +
+    "        }\n",
+    "verifyTextPresent":
+    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
+    "            System.err.println(\"verifyTextPresent failed\");\n" +
+    "        }\n",
+    "waitForTextPresent": "",
     "assertBodyText":
     "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -152,6 +159,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
     "            System.err.println(\"verifyBodyText failed\");\n" +
     "        }\n",
+    "waitForBodyText": "",
     "element.assertPresent":
     "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
     "            wd.close();\n" +
@@ -161,6 +169,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
     "            System.err.println(\"element.verifyPresent failed\");\n" +
     "        }\n",
+    "element.waitForPresent": "",
     "assertHTMLSource":
     "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -170,6 +179,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
     "            System.err.println(\"verifyHTMLSource failed\");\n" +
     "        }\n",
+    "waitForHTMLSource": "",
     "element.assertText":
     "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -179,6 +189,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (wd.findElements(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
     "            System.err.println(\"element.verifyText failed\");\n" +
     "        }\n",
+    "element.waitForText": "",
     "assertCurrentUrl":
     "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -188,6 +199,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
     "            System.err.println(\"verifyCurrentURL failed\");\n" +
     "        }\n",
+    "waitForCurrentURL": "",
     "assertTitle":
     "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -197,6 +209,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
     "            System.err.println(\"verifyTitle failed\");\n" +
     "        }\n",
+    "waitForTitle": "",
     "assertChecked":
     "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
     "            wd.close();\n" +
@@ -206,6 +219,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
     "            System.err.println(\"verifyChecked failed\");\n" +
     "        }\n",
+    "waitForChecked": "",
     "element.assertValue":
     "        if (!wd.findElements(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
     "            wd.close();\n" +
@@ -215,6 +229,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (wd.findElements(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
     "            System.err.println(\"element.verifyValue failed\");\n" +
     "        }\n",
+    "element.waitForValue": "",
     "manage.assertCookieNamed":
     "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
     "            wd.close();\n" +
@@ -224,6 +239,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
     "            System.err.println(\"manage.verifyCookieNamed failed\");\n" +
     "        }\n",
+    "manage.waitForCookieNamed": "",
     "manage.assertCookieNamedPresent":
     "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
     "            wd.close();\n" +
@@ -232,7 +248,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "manage.verifyCookieNamedPresent":
     "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
     "            System.err.println(\"manage.verifyCookieNamedPresent failed\");\n" +
-    "        }\n"
+    "        }\n",
+    "manage.waitForCookieNamedPresent": ""
   },
   locateByForType: function(stepType, locatorType, locatorIndex) {
     if ({"select.select":1, "select.deselect":1}[stepType] && locatorIndex == 2) {
