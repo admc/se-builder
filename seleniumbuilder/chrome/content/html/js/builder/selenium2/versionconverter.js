@@ -113,18 +113,18 @@ var sel1To2 = {
   "assertText":           ["element.assertText",              "locator", "value"   ],
   "verifyText":           ["element.verifyText",              "locator", "value"   ],
   "waitForText":          ["element.waitForText",             "locator", "value"   ],
-  "assertLocation":       ["assertCurrentUrl",                "value",   null      ],
-  "verifyLocation":       ["verifyCurrentUrl",                "value",   null      ],
-  "waitForLocation":      ["waitForCurrentUrl",               "value",   null      ],
+  "assertLocation":       ["assertCurrentURL",                "value",   null      ],
+  "verifyLocation":       ["verifyCurrentURL",                "value",   null      ],
+  "waitForLocation":      ["waitForCurrentURL",               "value",   null      ],
   "assertTitle":          ["assertTitle",                     "value",   null      ],
   "verifyTitle":          ["verifyTitle",                     "value",   null      ],
   "waitForTitle":         ["waitForTitle",                    "value",   null      ],
-  "assertChecked":        ["element.assertChecked",           "locator", null      ],
-  "verifyChecked":        ["element.verifyChecked",           "locator", null      ],
-  "waitForChecked":       ["element.waitForChecked",          "locator", null      ],
-  "assertValue":          ["element.assertValue",             "locator", null      ],
-  "verifyValue":          ["element.verifyValue",             "locator", null      ],
-  "waitForValue":         ["element.waitForValue",            "locator", null      ],
+  "assertChecked":        ["element.assertSelected",          "locator", null      ],
+  "verifyChecked":        ["element.verifySelected",          "locator", null      ],
+  "waitForChecked":       ["element.waitForSelected",         "locator", null      ],
+  "assertValue":          ["element.assertValue",             "locator", "value"   ],
+  "verifyValue":          ["element.verifyValue",             "locator", "value"   ],
+  "waitForValue":         ["element.waitForValue",            "locator", "value"   ],
   "assertCookieByName":   ["manage.assertCookieNamed",        "value",   "value2"  ],
   "verifyCookieByName":   ["manage.verifyCookieNamed",        "value",   "value2"  ],
   "waitForCookieByName":  ["manage.waitForCookieNamed",       "value",   "value2"  ],
@@ -260,9 +260,5 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
 };
 
 function extractSel2LocatorInfo(locator) {
-  return locator.split("=", 2);
+  return [locator.substring(0, locator.indexOf("=")), locator.substring(locator.indexOf("=") + 1)];
 }
-
-builder.convertSel2StepTo1Steps = function(step) {
-  
-};
