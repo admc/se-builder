@@ -63,6 +63,9 @@ builder.createLangSel2Formatter = function(lang_info) {
       for (var i = 0; i < script.steps.length; i++) {
         var step = script.steps[i];
         var line = lang_info.lineForType[step.type];
+        if (typeof step.value == 'undefined') {
+          throw("Cannot export step of type \"" + step.type + "\".");
+        }
         if (typeof step.value != 'undefined') {
           line = line.replace(/\{value\}/g, lang_info.escapeValue(step.type, step.value, 1));
         }
@@ -81,6 +84,17 @@ builder.createLangSel2Formatter = function(lang_info) {
       }
       t += lang_info.end;
       return t;
+    },
+    nonExportables: function(script) {
+      var nes = [];
+      for (var i = 0; i < script.steps.length; i++) {
+        var step = script.steps[i];
+        var line = lang_info.lineForType[step.type];
+        if (typeof line == 'undefined') {
+          nes.push(step.type);
+        }
+      }
+      return nes;
     }
   };
 };
@@ -95,6 +109,9 @@ builder.sel2Formats.push({
       steps: script.steps
     };
     return JSON.stringify(cleanScript, null, /* indent */ 2);
+  },
+  nonExportables: function(script) {
+    return [];
   }
 });
 

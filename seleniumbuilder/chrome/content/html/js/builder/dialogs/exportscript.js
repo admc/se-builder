@@ -29,6 +29,15 @@ builder.dialogs.exportscript = new(function () {
   };
   
   function create_sel2_format_li(myFormat) {
+    var nonExportables = myFormat.nonExportables(builder.convertSel1To2(builder.getScript()));
+    if (nonExportables.length > 0) {
+      var l = "";
+      for (var i = 0; i < nonExportables.length; i++) {
+        if (i != 0) { l += ", "; }
+        l += nonExportables[i];
+      }
+      return newNode('li', "Cannot export as " + myFormat.name + ". The following steps are not supported: " + l + ".");
+    }
     var li_node = newNode('li',
       newNode('a', myFormat.name, {
         click: function(event) {
