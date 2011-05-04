@@ -128,7 +128,7 @@ builder.dialogs.locator = new(function () {
       },
       locator_input = newNode('input', {type: 'text', class:'b-param-input', value: current_property.html()}),
       newNode('a', 'OK', {
-        class: 'ui-state-default ui-corner-all record-button',
+        class: 'button',
         click: function () {
           builder.dialogs.locator.hide();
         },
@@ -239,14 +239,12 @@ builder.dialogs.locator = new(function () {
           current_step[current_property_name](jQuery(locator_input).val());
           current_step[alt_property](current_alts);
         }
+        current_step._updateDisplay();
         current_step = null;
       }
       jQuery(window).unbind('click', builder.dialogs.locator.hide);
       jQuery(dom).unbind('click', prevent_hide);
       jQuery(locator_input).unbind('click', prevent_hide);
-      
-      try { current_step._updateDisplay(); }
-      catch(err){}
     }
   };
 })();
