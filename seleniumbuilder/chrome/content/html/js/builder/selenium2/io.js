@@ -63,7 +63,7 @@ builder.createLangSel2Formatter = function(lang_info) {
       for (var i = 0; i < script.steps.length; i++) {
         var step = script.steps[i];
         var line = lang_info.lineForType[step.type];
-        if (typeof step.value == 'undefined') {
+        if (typeof line == 'undefined') {
           throw("Cannot export step of type \"" + step.type + "\".");
         }
         if (typeof step.value != 'undefined') {
