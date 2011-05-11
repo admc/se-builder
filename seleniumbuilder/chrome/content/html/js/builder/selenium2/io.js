@@ -227,12 +227,12 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "        }\n",
     "waitForTitle": "",
     "element.assertSelected":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).is_selected()) {\n" +
     "            wd.close();\n" +
     "            throw new RuntimeException(\"assertSelected failed\");\n" +
     "        }\n",
     "element.verifySelected":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
+    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).is_selected()) {\n" +
     "            System.err.println(\"verifySelected failed\");\n" +
     "        }\n",
     "element.waitForSelected": "",
