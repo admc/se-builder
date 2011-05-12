@@ -505,7 +505,7 @@
     builder.interface.getSuite().appendChild(
       // List of options that materialises on rollover.
       newNode('div', {id: uuid, class: 'b-step'},
-        newNode('span', {class: 'b-tasks'},
+        newNode('span', {id: uuid + '-b-tasks', class: 'b-tasks'},
           newNode('a', "edit action", {
             id: uuid + 'edit',
             href: '#',
@@ -604,6 +604,20 @@
         )
       )
     );
+    
+    // Prevent tasks menu from going off the bottom of the list.
+    jQuery('#' + uuid).mouseenter(function(evt) {
+      var step = jQuery('#' + uuid);
+      var menu = jQuery('#' + uuid + '-b-tasks');
+      var bottom = jQuery('#bottom');
+      if (step.position().top + menu.height() > bottom.position().top &&
+          bottom.position().top > 120)
+      {
+        menu.css("top", bottom.position().top - step.position().top - menu.height() - 6);
+      } else {
+        menu.css("top", 2);
+      }
+    });
 
     step = builder.getStep(uuid);
     step._updateDisplay();
