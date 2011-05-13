@@ -362,7 +362,6 @@ function triggerKeyEvent(element, eventType, keySequence, canBubble, controlKeyD
             evt.keyCode = keycode;
             evt.which = keycode;
         }
-
         element.dispatchEvent(evt);
     }
 }

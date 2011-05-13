@@ -139,7 +139,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "element.sendKeys": "        wd.findElement(By.{locateBy}(\"{locator}\")).sendKeys(\"{value}\");\n",
     "element.setSelected":
     "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
-    "            wd.findElement(By.{locateBy}(\"{locator}\")).toggle();\n" +
+    "            wd.findElement(By.{locateBy}(\"{locator}\")).setSelected();\n" +
     "        }\n",
     "element.setNotSelected":
     "        if (wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
@@ -306,10 +306,10 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "element.click": "wd.{locateBy}(\"{locator}\").click()\n",
     "element.sendKeys": "wd.{locateBy}(\"{locator}\").send_keys(\"{value}\")\n",
     "element.setSelected":
-    "if not wd.{locateBy}(\"{locator}\").isSelected():\n" +
-    "    wd.{locateBy}(\"{locator}\").toggle()\n",
+    "if not wd.{locateBy}(\"{locator}\").is_selected():\n" +
+    "    wd.{locateBy}(\"{locator}\").select()\n",
     "element.setNotSelected":
-    "if wd.{locateBy}(\"{locator}\").isSelected():\n" +
+    "if wd.{locateBy}(\"{locator}\").is_selected():\n" +
     "    wd.{locateBy}(\"{locator}\").toggle()\n",
     "element.submit":
     "wd.{locateBy}(\"{locator}\").submit()\n",
