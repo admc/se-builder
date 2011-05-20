@@ -5,7 +5,7 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>seleniumbuilder@saucelabs.com</em:id>
         <em:name>Selenium Builder</em:name>
-        <em:version>0.5.3</em:version>
+        <em:version>0.5.5</em:version>
         <em:type>2</em:type>
         <em:creator>Sauce Labs</em:creator>
         <em:description>Create automated cross-browser functional tests easily and quickly.</em:description>
