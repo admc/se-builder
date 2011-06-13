@@ -65,22 +65,6 @@ var seleniumBuilder = new(function () {
     return data;
   }
 
-  // If we are on <customer>.go-test.it, tell the page that we exist. This way, the frontend site
-  // can be aware of whether the recorder is running.
-  window.addEventListener("load", function () {
-    document.getElementById("appcontent").addEventListener("DOMContentLoaded", function (event) {			
-      var doc = event.originalTarget;
-      if (doc.location &&
-        doc.location.href.indexOf("http") == 0 &&
-        doc.location.host &&
-        endsWith(doc.location.host, "." + seleniumBuilder.serverDomainName()) &&
-        doc.wrappedJSObject.haveSeleniumBuilder)
-      {
-        doc.wrappedJSObject.haveSeleniumBuilder(seleniumBuilder);
-      }
-    }, true);
-  }, false);
-
   return {
     /**
      * Starts a new recorder instance associated with the current content tab.
@@ -267,16 +251,6 @@ var seleniumBuilder = new(function () {
      */
     setCustomRecordingWindow: function(newWindow) {
       recordingWindow = newWindow;
-    },
-    
-    /** @return Whether a server domain name has been set. */
-    hasServer: function() {
-      return prefManager.prefHasUserValue("extensions.seleniumbuilder.domainname");
-    },
-
-    /** @return The domain name of the server to connect to. */
-    serverDomainName: function () {
-      return prefManager.getCharPref("extensions.seleniumbuilder.domainname");
     },
 
     /**

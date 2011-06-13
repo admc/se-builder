@@ -409,33 +409,6 @@ builder.Recorder = function (target_window, record_action) {
     deactivateAutocomplete(frame.document.getElementsByTagName('form'));
     deactivateAutocomplete(frame.document.getElementsByTagName('input'));
     deactivateAutocomplete(frame.document.getElementsByTagName('textarea'));
-
-    // If this is a top-level frame sure we can access this page from the frontend.
-    if (level == 0) {
-      checkPageAccessible(frame.document.location);
-    }
-  }
-
-  /**
-   * Check if the frontend can access the given URL. If not, show a big warning to the user. This
-   * can happen if the user is recording e.g on an intranet accessible by their browser but not
-   * by the Internet at large.
-   */
-  function checkPageAccessible(url) {
-    // Check if we can actually reach the page from the frontend.
-    builder.frontend.pageHttpStatus(url, function (status) {
-      // Negative statuses mean that ruby couldn't parse the URL or had a mysterious
-      // "undefined method `request_uri'". A status of 0 means that ruby had some other
-      // exception. A positive status is an actual HTTP status, and we're allowing all
-      // 2xx statuses. In summary: a status between 200 and 299 is good.
-      if (status >= 0 && !(status >= 200 && status < 300)) {
-        var msg = "Warning: Selenium Builder cannot access " + url + ". Unless the preceding steps ensure access to that page, this script will fail to run on the server.";
-        if (status != 0) {
-          msg = msg + "<br>(Attempting to load the page produced a " + status + " status code.)";
-        }
-        jQuery("#error-panel").html(msg).show();
-      }
-    });
   }
 
   /** Turns off autocomplete for the given fields. */

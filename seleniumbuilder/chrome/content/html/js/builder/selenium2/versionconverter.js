@@ -156,7 +156,7 @@ builder.conv2To1 = function(step) {
     newStep.locator = new builder.Url(newStep.locator).path();
     steps.push({method: "waitForPageToLoad", locator: "60000", option: null});
   }
-  return steps;*
+  return steps;
 };
 
 builder.convertSel2To1 = function(script) {

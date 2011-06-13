@@ -88,35 +88,12 @@ to have some difference to give the user the idea of a bit of progress
 </div>
 
 
-<!-- Login -->
-<div id="login" style="display: none">
-  <div id="login-failed" style="display: none">Couldn't log in with those details.</div>
-  <h1>Selenium Builder</h1>
-
-  <h2>Please log in to your account:</h2>
-  <form method="post" action="#login" id="login-form">
-    <p><label for="login-email">Email</label> <input class="texta" type="text" id="login-email" /></p>
-    <p><label for="login-password">Password</label> <input class="texta" type="password" id="login-password" /></p>
-    <p>
-      <input type="submit" name="login" value="Log in" class="button"/> 
-      <a href="#forgotten" name="#forgotten" id="login-forgotten" />Forgotten password?</a>
-      <label for="login-remember">Remember me</label>
-      <input class="texta" type="checkbox" value="1" id="login-remember" />
-    </p>
-  </form>
-</div>
-
-
 <!-- Startup screen -->
 <div id="startup" style="display: none">
     <h1>Selenium Builder</h1>
 
     <p>Would you like to:</p>
     <ul>
-        <li id="startup-open" style="display: none;">
-          <h3><a name="open" href="#open">Modify</a> an existing test</h3>
-          <div id="startup-filebrowser"></div>
-        </li>
         <li id="startup-import">
           <h3><a name="import" href="#import">Open</a> a test file</h3>
         </li>

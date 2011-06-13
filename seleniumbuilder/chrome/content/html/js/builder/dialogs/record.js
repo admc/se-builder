@@ -37,11 +37,6 @@ builder.dialogs.record = new(function () {
           )
       ));
       var v = builder.storage.get('currenturl');
-      if (!/^http/.test(v) ||
-          (window.bridge.hasServer() && v.indexOf(window.bridge.serverDomainName()) > 0))
-      {
-        v = 'http://';
-      }
       jQuery('#startup-url-2').val(v);  
     },
     hide: function () {

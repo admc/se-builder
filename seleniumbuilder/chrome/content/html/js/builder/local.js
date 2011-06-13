@@ -170,6 +170,70 @@ builder.local = new (function() {
     stopRequest = true;
   };
   
+  function experimental_webdriver_run() {
+    try {
+      var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
+      var server = handle.wrappedJSObject;
+      
+      var driver = server.newDriver(window.bridge.content());
+      /*
+      for (var x in driver) {
+        dump(x);
+        dump("    ");
+      }*/
+      
+      /*driver.get("http://www.zarkonnen.com");
+      driver.findElement({linkText: 'Software'}).click();*/
+      
+      var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
+      var commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
+            
+      var newSessionCommand = {
+        'name': 'newSession',
+        'context': '',
+        'parameters': {
+          'window_title':window.bridge.content().document.title
+        }
+      };
+      commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+        var sessionId = JSON.parse(result).value;
+        dump(sessionId);
+        var getcommand = {
+          'name': 'get',
+          'context': '',
+          'parameters': {url:"http://www.zarkonnen.com"},
+          'sessionId': {"value": sessionId}
+        };
+        commandProcessor.execute(JSON.stringify(getcommand), function(result) {
+          //alert("got result: " + result);
+          dump(result);
+          //return true;
+          var findcommand = {
+            'name': 'findElement',
+            'context': '',
+            'parameters': {using:"id", value:"kpitlink"},
+            'sessionId': {"value": sessionId}
+          };
+          commandProcessor.execute(JSON.stringify(findcommand), function(result) {
+            //alert(result);
+            var el_uuid = JSON.parse(result).value.ELEMENT;
+            var clickcommand = {
+              'name': 'clickElement',
+              'context': '',
+              'parameters': {id:el_uuid},
+              'sessionId': {"value": sessionId}
+            };
+            commandProcessor.execute(JSON.stringify(clickcommand), function(result) {
+              alert(result);
+            });
+          });
+        });
+      });
+    } catch (error) {
+      alert(error);
+    }
+  }
+  
   /**
    * Plays the current script from a particular step.
    * @param start_step_uuid The UUID of the step to start playing on, or 0 to start at the beginning
@@ -177,6 +241,7 @@ builder.local = new (function() {
    * @param thePostPlayCallback Optional callback to call after the run
    */
   this.runtestbetween = function(start_step_uuid, end_step_uuid, thePostPlayCallback) {
+    //experimental_webdriver_run();
     speed = 0;
     
     if (!start_step_uuid && !end_step_uuid) {

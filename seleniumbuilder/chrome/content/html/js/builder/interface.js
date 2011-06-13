@@ -12,7 +12,6 @@
  * Contains the following interfaces:
  * - booting  (identical to chrome/content/recorder.html)
  * - shutdown (dummy interface for turning off other ones)
- * - login    (login dialog, if login successful goes on to startup interface)
  * - startup  (allows user to choose between loading script or recording new one)
  * - record   (listening to content page)
  * - edit     (not listening to content page)
@@ -43,9 +42,7 @@ builder.interface = new(function () {
     }
   };
 
-  // Start off with a screen that looks identical to the bootstrap html file. The check_login()
-  // function in frontend.js installs an onload hook that then changes the screen to either the
-  // startup screen or the login screen.
+  // Start off with a screen that looks identical to the bootstrap html file.
   /** The name of the interface screen is currently being shown. */
   var current_interface = 'booting';
   
@@ -150,11 +147,10 @@ builder.interface = new(function () {
       for (var i = 0; i < onloadHooks.length; i++) {
         onloadHooks[i]();
       }
-      dump(builder.extensions.length);
       for (var i = 0; i < builder.extensions.length; i++) {
-        dump(builder.extensions[i].getName());
         builder.extensions[i].guiLoaded();
       }
+      builder.interface.switchTo('startup');
     },
     error: function () {
       for (a in arguments) {
@@ -307,50 +303,6 @@ builder.interface.shutdown = new(function () {
   return {
     show: function () {},
     hide: function () {}
-  };
-})();
-
-
-/** Login form. */
-builder.interface.login = new(function () {
-  builder.interface.addOnloadHook(function () {
-    jQuery('#login-forgotten').click(function () {
-      window.bridge.content().location.href = builder.urlFor("/forgotten_password");
-      window.bridge.focusContent();
-      return false;
-    });
-
-    jQuery('#login-form').submit(function (event) {
-      jQuery('#login-failed').hide();
-      builder.frontend.attemptLogin(
-        {
-          email: jQuery('#login-email').val(),
-          password: jQuery('#login-password').val(),
-          remember_me: jQuery('#login-remember').attr('checked')
-        },
-        /* success */
-        function (logged_in) {
-          if (logged_in) {
-            builder.interface.switchTo('startup');
-          } else {
-            jQuery('#login-failed').show();
-          }
-        },
-        /* failure */
-        function () {
-          builder.dialogs.xhrfailed.show(true);
-        })
-      ;
-      event.preventDefault();
-    });
-  });
-  return {
-    show: function () {
-      jQuery('#login').show();
-    },
-    hide: function () {
-      jQuery('#login, #login-failed').hide();
-    }
   };
 })();
 
@@ -511,75 +463,23 @@ builder.interface.startup = new(function () {
   
   /** Export this into the builder namespace: */
   builder.openScript = open_file;
-  
-  /** Whether the file dialog is open. */
-  var file_dialog = false;
-
-  /** Toggles the open file dialog. */
-  function toggle_file_dialog(e) {
-    if (file_dialog) {
-      builder.dialogs.open.hide();
-      file_dialog = null;
-    } else {
-      builder.dialogs.open.show(jQuery('#startup-filebrowser'), /* post-open */ open_file);
-      file_dialog = true;
-    }
-  }
 
   // Attach listeners to the relevant links and buttons.
   builder.interface.addOnloadHook(function () {
-    // Make the option to open a script visible if a backend domain name is available.
-    if (window.bridge.hasServer()) {
-      jQuery("#startup-open").show();
-    }
     jQuery('#startup-record form').submit(start_recording);
     jQuery('#startup-record a').click(start_recording);
-    jQuery('#startup-open a').click(toggle_file_dialog);
     jQuery('#startup-import a').click(import_file);
     jQuery('#startup-import-sel2 a').click(import_sel2_file);
     jQuery('#startup-suite-import a').click(import_suite);
-    // Display the user's username at the top of the interface.
-    builder.storage.addChangeListener('username', function (v) {
-      jQuery('#heading-startup').html(newNode('span', "Welcome, ", v));
-    });
     // Populate the input field for the URL to record from.
     builder.storage.addChangeListener('currenturl', function (v) {
-      if (!/^http/.test(v) ||
-          (window.bridge.hasServer() && v.indexOf(window.bridge.serverDomainName()) > 0))
-      {
-        v = 'http://';
-      }
       jQuery('#startup-url').val(v);
     });
   });
 
-  // Put a functioning version of openScript onto the window. It's part of the interface to
-  // bridge.
-  window.openScript = function (script) {
-    if (!builder.storage.get('save_required', false) || confirm("Current changes to will be lost if you continue.")) {
-      builder.frontend.openScript(
-        script,
-        open_file,
-        function () { builder.dialog.xhrfailed.show(); }
-      );
-    }
-  };
-
   return {
     show: function () {
-      file_dialog = false;
-      if (window.scriptBootedWith) {
-        builder.frontend.openScript(
-          window.scriptBootedWith,
-          /* success */
-          open_file,
-          /* failure */
-          function () { jQuery('#startup, #heading-startup').show(); }
-        );
-        window.scriptBootedWith = null;
-      } else {
-        jQuery('#startup, #heading-startup').show();
-      }
+      jQuery('#startup, #heading-startup').show();
     },
     hide: function () {
       jQuery('#startup, #heading-startup').hide();
@@ -867,71 +767,14 @@ builder.interface.record = new(function () {
 /** The mode in which you can edit the script when you're not recording it. */
 builder.interface.edit = new(function () {
   builder.interface.addOnloadHook(function () {
-    /**
-     * Saves the current script. If it's already been saved, update the version on the server,
-     * otherwise ask the user to save it.
-     * @param post_save Function to run after successful save.
-     */
-    function save_script(post_save) {
-      // Clear any error messages.
-      jQuery('#error-panel').hide();
-
-      if (builder.storage.get('testscriptpath') && builder.storage.get('testscriptpath').where == "remote") {
-        builder.frontend.updateScript(
-          builder.storage.get('testscriptpath'),
-          JSON.stringify(builder.getScript()),
-          function onsuccess(res) {
-            if (typeof post_save == 'function') {
-              post_save();
-            } else {
-              alert('Saved');
-            }
-          },
-          function onfailure(res) {
-            if (res) {
-              alert('Saving failed:\n\n' + res.errors.join("\n"));
-            } else {
-              builder.dialogs.xhrfailed.show();
-            }
-          }
-        );
-        builder.storage.set('save_required', false);
-      } else {
-        builder.dialogs.save.show(post_save);
-      }
-      builder.interface.suite.update();
-    }
     // The following code attaches event listeners to all the buttons below the list of steps
     // in the script. Not all these buttons are visible all the time.
-    
-    // Save button
-    // If there is a backend server, enable the save button.
-    if (window.bridge.hasServer()) {
-      jQuery("#script-save-li").show();
-    }
     
     jQuery("#run-onrc-li").show();
     jQuery("#run-suite-onrc-li").show();
     jQuery('#run-onrc').bind('click', function () {
       builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ false);
     });
-    jQuery('#run-onserver').bind('click', function () {
-      // Save the script, then navigate the main browser window to the saved script's "run
-      // now" page.
-            save_script(
-        /* post save*/
-        function () {
-                  var tsp = builder.storage.get('testscriptpath');
-                  window.bridge.content().document.location = "http://" + tsp.customer_subdomain + "." + window.bridge.serverDomainName() + "/projects/" + encodeURIComponent(tsp.project_name) + "/run_now?test_script=" + encodeURIComponent(tsp.test_script);
-                  setTimeout(window.bridge.shutdown, 500);
-              }
-      );
-    });
-    jQuery('#script-save').bind('click', function () { save_script(); });
-    // Run now button: saves script to server, then allows user to run it there
-    if (window.bridge.hasServer()) {
-      jQuery("#run-onserver-li").show();
-    }
     // Export button: allows user to export script using Selenium IDE's formatting code.
     jQuery('#script-export').click(
       function() {
