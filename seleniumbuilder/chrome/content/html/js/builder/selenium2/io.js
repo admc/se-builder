@@ -1,6 +1,27 @@
 /**
- * Code for exporting Selenium 2 scripts in a variety of formats.
+ * Code for exporting/importing Selenium 2 scripts in a variety of formats.
 */
+
+builder.sel2.loadScript = function(path) {
+  var scriptJSON = builder.loadSel2Script(path);
+  var script = new builder.sel2.Sel2Script();
+  script.path = {
+    where: "local",
+    path: path
+  };
+  script.seleniumVersion = scriptJSON.seleniumVersion;
+  script.version = scriptJSON.version;
+
+  for (var i = 0; i < scriptJSON.steps.length; i++) {
+    var step = new builder.sel2.Sel2Step(scriptJSON.steps[i].type);
+    var pNames = step.getParamNames();
+    for (var j = 0; j < pNames.length; j++) {
+      step[pNames[j]] = scriptJSON[pNames[j]];
+    }
+  }
+  
+  return script;
+};
 
 builder.loadSel2Script = function(path) {
   var file = null;

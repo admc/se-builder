@@ -470,6 +470,10 @@ builder.interface.startup = new(function () {
     jQuery('#startup-record a').click(start_recording);
     jQuery('#startup-import a').click(import_file);
     jQuery('#startup-import-sel2 a').click(import_sel2_file);
+    jQuery('#startup-open-sel2 a').click(function() {
+      var script = builder.sel2.loadScript();
+      alert(script);
+    });
     jQuery('#startup-suite-import a').click(import_suite);
     // Populate the input field for the URL to record from.
     builder.storage.addChangeListener('currenturl', function (v) {
