@@ -14,12 +14,13 @@ builder.sel2.loadScript = function(path) {
 
   for (var i = 0; i < scriptJSON.steps.length; i++) {
     var step = new builder.sel2.Sel2Step(scriptJSON.steps[i].type);
+    script.steps.push(step);
     var pNames = step.getParamNames();
     for (var j = 0; j < pNames.length; j++) {
-      step[pNames[j]] = scriptJSON[pNames[j]];
+      step[pNames[j]] = scriptJSON.steps[i][pNames[j]];
     }
   }
-  
+    
   return script;
 };
 

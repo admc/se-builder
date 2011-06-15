@@ -461,6 +461,20 @@ builder.interface.startup = new(function () {
     builder.interface.suite.update();
   }
   
+  function open_sel2_file(script) {
+    // NB Edit interface must be open before we can write into the edit form (jQuery relies on
+    // the steps being shown).
+    builder.interface.switchTo('edit');
+    
+    builder.setCurrentScript(script);
+    builder.sel2.updateStepsDisplay();
+
+    builder.storage.set('testscriptpath', script.path);
+    builder.storage.set('save_required', false);
+    
+    builder.interface.suite.update();
+  }
+  
   /** Export this into the builder namespace: */
   builder.openScript = open_file;
 
@@ -472,7 +486,7 @@ builder.interface.startup = new(function () {
     jQuery('#startup-import-sel2 a').click(import_sel2_file);
     jQuery('#startup-open-sel2 a').click(function() {
       var script = builder.sel2.loadScript();
-      alert(script);
+      open_sel2_file(script);
     });
     jQuery('#startup-suite-import a').click(import_suite);
     // Populate the input field for the URL to record from.
