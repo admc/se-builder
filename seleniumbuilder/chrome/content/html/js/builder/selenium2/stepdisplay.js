@@ -28,11 +28,33 @@ builder.sel2.updateStepDisplay = function(stepID) {
   }
 };
 
-builder.sel2.addNewStep = function(afterStepID) {
+builder.sel2.addNewStep = function() {
   var newStep = new builder.sel2.Sel2Step('element.click');
-  script.steps.push(newStep);
+  builder.getCurrentScript().addStep(newStep);
   addStep(newStep);
+  return newStep.id;
 };
+
+function addNewStepBefore(beforeStepID) {
+  var id = builder.sel2.addNewStep();
+  var beforeStepDOM = jQuery('#' + beforeStepID)[0];
+  var newStepDOM = jQuery("#" + id)[0];
+  newStepDOM.parentNode.removeChild(newStepDOM);
+  beforeStepDOM.parentNode.insertBefore(newStepDOM, beforeStepDOM);
+}
+
+function addNewStepAfter(afterStepID) {
+  var id = builder.sel2.addNewStep();
+  var afterStep = jQuery('#' + afterStepID);
+  var newStepDOM = jQuery("#" + id)[0];
+  newStepDOM.parentNode.removeChild(newStepDOM);
+  afterStep.after(newStepDOM);
+}
+
+function deleteStep(stepID) {
+  builder.getCurrentScript().removeStepWithID(stepID);
+  jQuery('#' + stepID).remove();
+}
 
 /** Adds the given step to the GUI. */
 function addStep(step) {
@@ -62,31 +84,31 @@ function addStep(step) {
           id: step.id + 'delete',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { deleteStep(step.id); }
         }),
         newNode('a', "new step above", {
           id: step.id + 'insert-above',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { addNewStepBefore(step.id); }
         }),
         newNode('a', "new step below", {
           id: step.id + 'insert-below',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { addNewStepAfter(step.id); }
         }),
         newNode('a', "run step", {
           id: step.id + 'run-step',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { alert("TODO"); /* todo */ }
         }),
         newNode('a', "run from here", {
           id: step.id + 'run-from-here',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { alert("TODO"); /* todo */ }
         })
       ),
       newNode('div', {class: 'b-step-content', id: step.id + '-content'},
@@ -144,13 +166,13 @@ function addStep(step) {
   
   // Prevent tasks menu from going off the bottom of the list.
   jQuery('#' + step.id).mouseenter(function(evt) {
-    var step = jQuery('#' + step.id);
+    var stepEl = jQuery('#' + step.id);
     var menu = jQuery('#' + step.id + '-b-tasks');
     var bottom = jQuery('#bottom');
-    if (step.position().top + menu.height() > bottom.position().top &&
+    if (stepEl.position().top + menu.height() > bottom.position().top &&
         bottom.position().top > 120)
     {
-      menu.css("top", bottom.position().top - step.position().top - menu.height() - 6);
+      menu.css("top", bottom.position().top - stepEl.position().top - menu.height() - 6);
     } else {
       menu.css("top", 2);
     }

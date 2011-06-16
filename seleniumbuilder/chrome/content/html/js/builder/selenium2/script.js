@@ -17,15 +17,34 @@ builder.sel2.Sel2Script = function() {
 };
 
 builder.sel2.Sel2Script.prototype = {
-  getStepWithID: function(id) {
+  getStepIndexForID: function(id) {
     for (var i = 0; i < this.steps.length; i++) {
-      if (this.steps[i].id == id) { return this.steps[i]; }
+      if (this.steps[i].id == id) { return i; }
     }
-    return null;
+    return -1;
+  },
+  getStepWithID: function(id) {
+    var index = this.getStepIndexForID(id);
+    return index == -1 ? null : this.steps[index];
+  },
+  removeStepWithID: function(id) {
+    var index = this.getStepIndexForID(id);
+    if (index != -1) {
+      this.steps.splice(index, 1);
+    }
+  },
+  addStep: function(step, afterID) {
+    if (afterID) {
+      var index = this.getStepIndexForID(afterID);
+      if (index != -1) {
+        this.steps.splice(index, 0, step);
+      }
+    }
+    this.steps.push(step);
   }
 };
 
-builder.sel2.__idCounter = 0;
+builder.sel2.__idCounter = 1; // Start at 1 so the ID is always true.
 
 /**
  * @param type The type of step
