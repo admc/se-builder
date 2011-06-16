@@ -66,10 +66,12 @@ builder.sel2.sel1To2 = {
 
 // Rearrange the information for lookup.
 builder.sel2.paramNames = {};
+builder.sel2.types = [];
 
 for (var k in builder.sel2.sel1To2) {
   var v = builder.sel2.sel1To2[k];
   if (!v) { continue; }
+  builder.sel2.types.push(v[0]);
   var pNames = [];
   if (v[1]) { pNames.push(v[1]); }
   if (v[2]) { pNames.push(v[2]); }

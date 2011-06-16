@@ -14,6 +14,7 @@ builder.sel2.updateStepsDisplay = function() {
 builder.sel2.updateStepDisplay = function(stepID) {
   var step = builder.getCurrentScript().getStepWithID(stepID);
   var paramNames = step.getParamNames();
+  jQuery('#' + stepID + '-type').text(step.type);
   for (var i = 0; i < 2; i++) {
     if (paramNames.length > i) {
       jQuery('#' + stepID + 'edit-p' + i).show();
@@ -21,6 +22,13 @@ builder.sel2.updateStepDisplay = function(stepID) {
       jQuery('#' + stepID + '-p' + i).show();
       jQuery('#' + stepID + '-p' + i + '-name').text(paramNames[i]);
       jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
+      if (paramNames.length > 1) {
+        jQuery('#' + stepID + '-p' + i).css("display", "block");
+        jQuery('#' + stepID + '-p' + i + '-name').show();
+      } else {
+        jQuery('#' + stepID + '-p' + i).css("display", "inline");
+        jQuery('#' + stepID + '-p' + i + '-name').hide();
+      }
     } else {
       jQuery('#' + stepID + 'edit-p' + i).hide();
       jQuery('#' + stepID + '-p' + i).hide();
@@ -56,6 +64,63 @@ function deleteStep(stepID) {
   jQuery('#' + stepID).remove();
 }
 
+function editType(stepID) {
+  var sel = newNode('select');
+  var step = builder.getCurrentScript().getStepWithID(stepID);
+  for (var i = 0; i < builder.sel2.types.length; i++) {
+    if (builder.sel2.types[i] == step.type) {
+      sel.appendChild(newNode('option', builder.sel2.types[i], { value: builder.sel2.types[i], selected: 'true' }));
+    } else {
+      sel.appendChild(newNode('option', builder.sel2.types[i], { value: builder.sel2.types[i] }));
+    }
+  }
+  var editDiv = newNode(
+    'div',
+    {
+      id: stepID + '-edit-div'
+    },
+    sel,
+    newNode('a', "OK", {
+      class: 'button',
+      href: '#',
+      click: function (e) {
+        step.changeType(jQuery('#' + stepID + '-edit-div select').val());
+        jQuery('#' + stepID + '-edit-div').remove();
+        jQuery('#' + stepID + '-type').show();
+        builder.sel2.updateStepDisplay(stepID);
+      }
+    })
+  );
+  
+  jQuery('#' + stepID + '-type').after(editDiv);
+  jQuery('#' + stepID + '-type').hide();
+}
+
+function editParam(stepID, pIndex) {
+  var step = builder.getCurrentScript().getStepWithID(stepID);
+  var pName = step.getParamNames()[pIndex];
+  var editDiv = newNode(
+    'div',
+    {
+      id: stepID + '-p' + pIndex + '-edit-div'
+    },
+    newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName]}),
+    newNode('a', "OK", {
+      class: 'button',
+      href: '#',
+      click: function (e) {
+        step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+        jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+        jQuery('#' + stepID + '-p' + pIndex).show();
+        builder.sel2.updateStepDisplay(stepID);
+      }
+    })
+  );
+    
+  jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
+  jQuery('#' + stepID + '-p' + pIndex).hide();
+}
+
 /** Adds the given step to the GUI. */
 function addStep(step) {
   jQuery("#steps").append(
@@ -66,19 +131,19 @@ function addStep(step) {
           id: step.id + 'edit',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { editType(step.id); }
         }),
         newNode('a', "edit ", newNode('span', 'p0', {id: step.id + 'edit-p0-name'}), {
           id: step.id + 'edit-p0',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { editParam(step.id, 0); }
         }),
         newNode('a', "edit ", newNode('span', 'p1', {id: step.id + 'edit-p1-name'}), {
           id: step.id + 'edit-p1',
           href: '#',
           class: 'b-task',
-          click: function() { /* todo */ }
+          click: function() { editParam(step.id, 1); }
         }),
         newNode('a', "delete step", {
           id: step.id + 'delete',
@@ -121,7 +186,7 @@ function addStep(step) {
             id: step.id + '-type',
             href: '#',
             class:'b-method',
-            click: function () { /* todo */ }
+            click: function() { editType(step.id); }
           }),
       
           // The first parameter
@@ -130,13 +195,13 @@ function addStep(step) {
               id: step.id + '-p0-name',
               class:'b-param-type',
               href: '#',
-              click: function() { /* todo */ }
+              click: function() { editParam(step.id, 0); }
             }),
             newNode('a', '', {
               id: step.id + '-p0-value',
               class:'b-param',
               href: '#',
-              click: function() { /* todo */ }
+              click: function() { editParam(step.id, 0); }
             })
           ),
           
@@ -146,13 +211,13 @@ function addStep(step) {
               id: step.id + '-p1-name',
               class:'b-param-type',
               href: '#',
-              click: function() { /* todo */ }
+              click: function() { editParam(step.id, 1); }
             }),
             newNode('a', '', {
               id: step.id + '-p1-value',
               class:'b-param',
               href: '#',
-              click: function() { /* todo */ }
+              click: function() { editParam(step.id, 1); }
             })
           ),
       
