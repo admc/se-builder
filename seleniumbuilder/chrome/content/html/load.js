@@ -202,6 +202,7 @@ builder.Loader = (function /* load */ () {
     "builder/selenium2/io.js",
     "builder/selenium2/script.js",
     "builder/selenium2/stepdisplay.js",
+    "builder/selenium2/playback.js",
     "builder/dialogs/dialogs.js",
     "builder/dialogs/method.js",
     "builder/dialogs/locator.js",

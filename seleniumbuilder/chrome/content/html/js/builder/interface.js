@@ -464,6 +464,7 @@ builder.interface.startup = new(function () {
   function open_sel2_file(script) {
     // NB Edit interface must be open before we can write into the edit form (jQuery relies on
     // the steps being shown).
+    builder.storage.set('selMajorVersion', 2);
     builder.interface.switchTo('edit');
     
     builder.setCurrentScript(script);
@@ -828,7 +829,11 @@ builder.interface.edit = new(function () {
     });
     // Play button: Play back the script in this browser
     jQuery('#run-locally').click(function () {
-      builder.local.runtest();
+      if (builder.storage.get('selMajorVersion') == 2) {
+        builder.sel2.playback.runTest();
+      } else {
+        builder.local.runtest();
+      }
     });
     // Stop playback buttons
     jQuery('#edit-stop-local-playback').click(function() {
