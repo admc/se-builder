@@ -5,6 +5,10 @@
 builder.sel2.playback = {};
 pb = builder.sel2.playback;
 
+/** The WebDriver session ID. */
+pb.sessionId = null;
+/** The CommandProcessor used to talk to WebDriver with. */
+pb.commandProcessor = null;
 /** The script being played back. */
 pb.script = null;
 /** The step being played back. */
@@ -41,13 +45,46 @@ pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
   pb.currentStep = pb.script.getStepWithID(startStepID);
   pb.finalStep = pb.script.getStepWithID(endStepID);
   pb.playResult = {success: true};
-  pb.playStep();
+  pb.startSession();
+};
+
+pb.startSession = function() {
+  // Set up Webdriver
+  var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
+  var server = handle.wrappedJSObject;
+  var driver = server.newDriver(window.bridge.content());
+  var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
+  pb.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
+  var newSessionCommand = {
+    'name': 'newSession',
+    'context': '',
+    'parameters': {
+      'window_title':window.bridge.content().document.title
+    }
+  };
+  pb.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+    pb.sessionId = JSON.parse(result).value;
+    pb.playStep();
+  });
 };
 
 pb.playStep = function() {
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffffaa');
   // Actually play the step, eventually!
-  window.setTimeout(function() { pb.recordResult({success: true}); }, 500);
+  if (pb.currentStep.type == "get") {
+    var cmd = {
+      'name': 'get',
+      'context': '',
+      'parameters': {url: pb.currentStep.value},
+      'sessionId': {"value": pb.sessionId}
+    };
+    pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
+      dump(result);
+      pb.recordResult({success: true});
+    });
+  } else {
+    window.setTimeout(function() { pb.recordResult({success: true}); }, 500);
+  }
 };
 
 pb.recordResult = function(result) {
