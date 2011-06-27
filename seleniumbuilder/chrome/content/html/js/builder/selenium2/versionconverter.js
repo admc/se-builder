@@ -1,10 +1,9 @@
 /**
  * Converts Selenium 1 scripts into Selenium 2 scripts and back. If possible.
- * Selenium 2 steps have the following shape:
+ * Selenium 2 steps have the following shape or similar:
  * {
  *   type: e.g "get",
- *   locatorType: one of ["class", "id", "link", "xpath", "css"] 
- *   locator: e.g "my-id",
+ *   locator: e.g { type: "id", value: "my-id" }
  *   value: e.g "someTextToTypeIn"
  * }
 */
@@ -69,6 +68,32 @@ var supportedSel1Steps = [
   "waitForCookiePresent"
 ];
 
+var loc_type_1_2 = [
+  ["id", "id"],
+  ["name", "name"],
+  ["link", "link text"],
+  ["css", "css selector"],
+  ["xpath", "xpath"]
+];
+
+function conv2LocTypeTo1(t) {
+  for (var i = 0; i < loc_type_1_2.length; i++) {
+    if (loc_type_1_2[i][1] == t) {
+      return loc_type_1_2[i][0];
+    }
+  }
+  throw new Exception("No suitable Selenium 1 locator type for \"" + t + "\" found.");
+}
+
+function conv1LocTypeTo2(t) {
+  for (var i = 0; i < loc_type_1_2.length; i++) {
+    if (loc_type_1_2[i][0] == t) {
+      return loc_type_1_2[i][1];
+    }
+  }
+  throw new Exception("No suitable Selenium 2 locator type for \"" + t + "\" found.");
+}
+
 builder.conv2To1 = function(step) {
   var m = builder.findSel1Method(step.type);
   var stepInfo = builder.sel2.sel1To2[m];
@@ -81,7 +106,7 @@ builder.conv2To1 = function(step) {
   for (var i = 0; i < 2; i++) {
     if (stepInfo[i + 1]) {
       if (stepInfo[i + 1].startsWith("locator")) {
-        newStep[pNames[i]] = step[stepInfo[i + 1] + "Type"] + "=" + step[stepInfo[i + 1]];
+        newStep[pNames[i]] = conv2LocTypeTo1(step[stepInfo[i + 1]].type) + "=" + step[stepInfo[i + 1]].value;
       } else {
         newStep[pNames[i]] = step[stepInfo[i + 1]];
       }
@@ -181,16 +206,14 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
       var param_name = ["locator", "option"][param_n];
       if (stepInfo[param_n + 1].startsWith("locator")) {
         var locInfo = extractSel2LocatorInfo(step[param_name]);
-        newStep[stepInfo[param_n + 1] + "Type"] = locInfo[0];
-        newStep[stepInfo[param_n + 1]] = locInfo[1];
-      }
-      if (stepInfo[param_n + 1].startsWith("value")) {
+        newStep[stepInfo[param_n + 1]] = { type: conv1LocTypeTo2(locInfo[0]), value: locInfo[1] };
+      } else {
         newStep[stepInfo[param_n + 1]] = step[param_name];
       }
     }
   }
   if (step.method == "open") {
-    newStep.value = baseURL.substring(0, baseURL.length - 1) + newStep.value;
+    newStep.url = baseURL.substring(0, baseURL.length - 1) + newStep.url;
   }
   return [newStep];
 };

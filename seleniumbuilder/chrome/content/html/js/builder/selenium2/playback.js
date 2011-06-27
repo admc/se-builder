@@ -68,6 +68,16 @@ pb.startSession = function() {
   });
 };
 
+pb.findElement = function(locator, callback) {
+  var findcommand = {
+    'name': 'findElement',
+    'context': '',
+    'parameters': {using: locator.type, value: locator.value},
+    'sessionId': {"value": pb.sessionId}
+  };
+  pb.commandProcessor.execute(JSON.stringify(findcommand), callback);
+};
+
 pb.playStep = function() {
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffffaa');
   // Actually play the step, eventually!
@@ -75,12 +85,37 @@ pb.playStep = function() {
     var cmd = {
       'name': 'get',
       'context': '',
-      'parameters': {url: pb.currentStep.value},
+      'parameters': {url: pb.currentStep.url},
       'sessionId': {"value": pb.sessionId}
     };
     pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
-      dump(result);
       pb.recordResult({success: true});
+    });
+  } else if (pb.currentStep.type == "element.click") {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      var el_uuid = JSON.parse(result).value.ELEMENT;
+      var clickcommand = {
+        'name': 'clickElement',
+        'context': '',
+        'parameters': {id: el_uuid},
+        'sessionId': {"value": pb.sessionId}
+      };
+      pb.commandProcessor.execute(JSON.stringify(clickcommand), function(result) {
+        pb.recordResult({success: true});
+      });
+    });
+  } else if (pb.currentStep.type == "element.sendKeys") {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      var el_uuid = JSON.parse(result).value.ELEMENT;
+      var sendKeysCommand = {
+        'name': 'sendKeysToElement',
+        'context': '',
+        'parameters': {id: el_uuid, value: pb.currentStep.value.split("")},
+        'sessionId': {"value": pb.sessionId}
+      };
+      pb.commandProcessor.execute(JSON.stringify(sendKeysCommand), function(result) {
+        pb.recordResult({success: true});
+      });
     });
   } else {
     window.setTimeout(function() { pb.recordResult({success: true}); }, 500);

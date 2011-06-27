@@ -21,7 +21,11 @@ builder.sel2.updateStepDisplay = function(stepID) {
       jQuery('#' + stepID + 'edit-p' + i + '-name').text(paramNames[i]);
       jQuery('#' + stepID + '-p' + i).show();
       jQuery('#' + stepID + '-p' + i + '-name').text(paramNames[i]);
-      jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
+      if (paramNames[i].startsWith("locator")) {
+        jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]].type + ": " + step[paramNames[i]].value);
+      } else {
+        jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
+      }
       if (paramNames.length > 1) {
         jQuery('#' + stepID + '-p' + i).css("display", "block");
         jQuery('#' + stepID + '-p' + i + '-name').show();
@@ -99,26 +103,71 @@ function editType(stepID) {
 function editParam(stepID, pIndex) {
   var step = builder.getCurrentScript().getStepWithID(stepID);
   var pName = step.getParamNames()[pIndex];
-  var editDiv = newNode(
-    'div',
-    {
-      id: stepID + '-p' + pIndex + '-edit-div'
-    },
-    newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName]}),
-    newNode('a', "OK", {
-      class: 'button',
-      href: '#',
-      click: function (e) {
-        step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
-        jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
-        jQuery('#' + stepID + '-p' + pIndex).show();
-        builder.sel2.updateStepDisplay(stepID);
+  if (pName.startsWith("locator")) {
+    var typeDropDown = newNode(
+      'select',
+      {
+        id: stepID + '-p' + pIndex + '-locator-type-chooser'
       }
-    })
-  );
+    );
+    var editDiv = newNode(
+      'div',
+      {
+        id: stepID + '-p' + pIndex + '-edit-div'
+      },
+      typeDropDown,
+      ": ",
+      newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName].value}),
+      newNode('a', "OK", {
+        class: 'button',
+        href: '#',
+        click: function (e) {
+          step[pName].type = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
+          step[pName].value = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+          jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+          jQuery('#' + stepID + '-p' + pIndex).show();
+          builder.sel2.updateStepDisplay(stepID);
+        }
+      })
+    );
     
-  jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
-  jQuery('#' + stepID + '-p' + pIndex).hide();
+    for (var i = 0; i < builder.sel2.locatorTypes.length; i++) {
+      var lType = builder.sel2.locatorTypes[i];
+      if (lType == step[pName].type) {
+        jQuery(typeDropDown).append(newNode(
+          'option', lType, { selected: "true" }
+        ));
+      } else {
+        jQuery(typeDropDown).append(newNode(
+          'option', lType
+        ));
+      }
+    }
+    
+    jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
+    jQuery('#' + stepID + '-p' + pIndex).hide();
+  } else {
+    var editDiv = newNode(
+      'div',
+      {
+        id: stepID + '-p' + pIndex + '-edit-div'
+      },
+      newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName]}),
+      newNode('a', "OK", {
+        class: 'button',
+        href: '#',
+        click: function (e) {
+          step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+          jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+          jQuery('#' + stepID + '-p' + pIndex).show();
+          builder.sel2.updateStepDisplay(stepID);
+        }
+      })
+    );
+    
+    jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
+    jQuery('#' + stepID + '-p' + pIndex).hide();
+  }
 }
 
 /** Adds the given step to the GUI. */

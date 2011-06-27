@@ -7,7 +7,7 @@ builder.sel2 = {};
  * the locator is always a locator, and the value is always not.
  */
 builder.sel2.sel1To2 = {
-  "open":                 ["get",                             "value",   null      ],
+  "open":                 ["get",                             "url",   null      ],
   "waitForPageToLoad":    null,
   "goBack":               ["navigate.back",                   null,      null      ],
   "goForward":            ["navigate.forward",                null,      null      ],
@@ -77,3 +77,14 @@ for (var k in builder.sel2.sel1To2) {
   if (v[2]) { pNames.push(v[2]); }
   builder.sel2.paramNames[v[0]] = pNames;
 }
+
+builder.sel2.locatorTypes = [
+  "id",
+  "name",
+  "class name",
+  "css selector",
+  "tag name",
+  "link text",
+  "partial link text",
+  "xpath"
+];
