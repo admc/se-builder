@@ -106,7 +106,6 @@ pb.playStep = function() {
     });
   } else if (pb.currentStep.type == "element.sendKeys") {
     pb.findElement(pb.currentStep.locator, function(result) {
-      alert(result);
       var el_uuid = JSON.parse(result).value.ELEMENT;
       var sendKeysCommand = {
         'name': 'sendKeysToElement',
