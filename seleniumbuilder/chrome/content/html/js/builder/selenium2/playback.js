@@ -49,6 +49,9 @@ pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
 };
 
 pb.startSession = function() {
+  pb.clearResults();
+  jQuery('#edit-clearresults').show();
+  
   // Set up Webdriver
   var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
   var server = handle.wrappedJSObject;
@@ -97,16 +100,29 @@ var playback = {
   "get": function() {
     pb.execute('get', {url: pb.currentStep.url});
   },
-  "element.click": function() {
+  "goBack": function() {
+    pb.execute('goBack', {});
+  },
+  "goForward": function() {
+    pb.execute('goForward', {});
+  },
+  "clickElement": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
-  "element.sendKeys": function() {
+  "sendKeysToElement": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.value.split("")});
     });
-  }
+  },
+  "setElementSelected": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('setElementSelected', {id: result.value.ELEMENT});
+    });
+  },
+  // element.clickWithOffset: Don't know how to implement
+  
 };
 
 pb.playStep = function() {

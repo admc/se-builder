@@ -7,14 +7,14 @@ builder.sel2 = {};
  * the locator is always a locator, and the value is always not.
  */
 builder.sel2.sel1To2 = {
-  "open":                 ["get",                             "url",   null      ],
+  "open":                 ["get",                             "url",     null      ],
   "waitForPageToLoad":    null,
-  "goBack":               ["navigate.back",                   null,      null      ],
-  "goForward":            ["navigate.forward",                null,      null      ],
-  "click":                ["element.click",                   "locator", null      ],
-  "type":                 ["element.sendKeys",                "locator", "value"   ],
-  "select":               ["element.setSelected",             "locator", null      ],
-  "check":                ["element.setSelected",             "locator", null      ],
+  "goBack":               ["goBack",                          null,      null      ],
+  "goForward":            ["goForward",                       null,      null      ],
+  "click":                ["clickElement",                    "locator", null      ],
+  "type":                 ["sendKeysToElement",               "locator", "value"   ],
+  "select":               ["setElementSelected",              "locator", null      ],
+  "check":                ["setElementSelected",              "locator", null      ],
 //"selectPopUp":          ["switchToWindow",                  "value",   null      ],
   "clickAt":              ["element.clickWithOffset",         "locator", "value"   ],
   "doubleClick":          ["element.doubleClick",             "locator", null      ],

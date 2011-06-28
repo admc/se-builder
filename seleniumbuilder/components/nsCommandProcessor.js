@@ -96,13 +96,14 @@ Response.prototype = {
    * Sends the encapsulated response to the registered callback.
    */
   send: function() {
+    // qqDPS
     try {
-      dump("||||  SENDING RESPONSE: ");
+      //dump("||||  SENDING RESPONSE: ");
       //dump(arguments.caller.callee);
-      dump("  ");
+      //dump("  ");
       if (this.responseSent_) {
         // We shouldn't ever send the same response twice.
-        dump("twice");
+        //dump("twice");
         return;
       }
       // Indicate that we are no longer executing a command.
@@ -110,15 +111,15 @@ Response.prototype = {
         this.statusBarLabel_.style.color = 'black';
       }
 
-      dump("handle-me-response    ");
-      dump(JSON.stringify(this.json_));
+      //dump("handle-me-response    ");
+      //dump(JSON.stringify(this.json_));
       this.responseHandler_.handleResponse(JSON.stringify(this.json_));
 
       // Neuter ourselves
       this.responseSent_ = true;
-      dump("neutralised");
+      //dump("neutralised");
     } catch (e) {
-      dump(e); dump("        ");
+      //dump(e); dump("        ");
     }
   },
 
@@ -574,6 +575,7 @@ nsCommandProcessor.prototype.searchWindows_ = function(search_criteria,
  */
 nsCommandProcessor.prototype.newSession = function(response, parameters) {
   var win = this.wm.getMostRecentWindow("navigator:browser");
+  // qqDPS
   try {
     var en = this.wm.getZOrderDOMWindowEnumerator("navigator:browser", false);
     while (en.hasMoreElements()) {
@@ -588,7 +590,7 @@ nsCommandProcessor.prototype.newSession = function(response, parameters) {
           w.document.title == parameters['window_title'])
       {
         win = w;
-        dump("CHING");
+        //dump("CHING");
       }
     }
   } catch (e) {

@@ -853,7 +853,14 @@ builder.interface.edit = new(function () {
       jQuery('#edit-clearresults').hide();
     };
     // Clear play results:
-    jQuery('#edit-clearresults').click(builder.clearResults);
+    jQuery('#edit-clearresults').click(function() {
+      if (builder.storage.get('selMajorVersion') == 2) {
+        builder.sel2.playback.clearResults();
+        jQuery('#edit-clearresults').hide();
+      } else {
+        builder.clearResults();
+      }
+    });
     // Insert button: Insert step
     jQuery('#edit-insert').click(function () {
       builder.createStep("click", {});
