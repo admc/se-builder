@@ -69,56 +69,52 @@ pb.startSession = function() {
 };
 
 pb.findElement = function(locator, callback) {
-  var findcommand = {
-    'name': 'findElement',
+  pb.execute('findElement', {using: locator.type, value: locator.value}, callback);
+};
+
+pb.execute = function(name, parameters, callback) {
+  var cmd = {
+    'name': name,
     'context': '',
-    'parameters': {using: locator.type, value: locator.value},
+    'parameters': parameters,
     'sessionId': {"value": pb.sessionId}
   };
-  pb.commandProcessor.execute(JSON.stringify(findcommand), callback);
+  pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
+    result = JSON.parse(result);
+    if (result.status != 0) {
+      pb.recordError(result.value.message);
+    } else {
+      if (callback) {
+        callback(result);
+      } else {
+        pb.recordResult({success: true});
+      }
+    }
+  });
+};
+
+var playback = {
+  "get": function() {
+    pb.execute('get', {url: pb.currentStep.url});
+  },
+  "element.click": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('clickElement', {id: result.value.ELEMENT});
+    });
+  },
+  "element.sendKeys": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.value.split("")});
+    });
+  }
 };
 
 pb.playStep = function() {
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffffaa');
-  // Actually play the step, eventually!
-  if (pb.currentStep.type == "get") {
-    var cmd = {
-      'name': 'get',
-      'context': '',
-      'parameters': {url: pb.currentStep.url},
-      'sessionId': {"value": pb.sessionId}
-    };
-    pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
-      pb.recordResult({success: true});
-    });
-  } else if (pb.currentStep.type == "element.click") {
-    pb.findElement(pb.currentStep.locator, function(result) {
-      var el_uuid = JSON.parse(result).value.ELEMENT;
-      var clickcommand = {
-        'name': 'clickElement',
-        'context': '',
-        'parameters': {id: el_uuid},
-        'sessionId': {"value": pb.sessionId}
-      };
-      pb.commandProcessor.execute(JSON.stringify(clickcommand), function(result) {
-        pb.recordResult({success: true});
-      });
-    });
-  } else if (pb.currentStep.type == "element.sendKeys") {
-    pb.findElement(pb.currentStep.locator, function(result) {
-      var el_uuid = JSON.parse(result).value.ELEMENT;
-      var sendKeysCommand = {
-        'name': 'sendKeysToElement',
-        'context': '',
-        'parameters': {id: el_uuid, value: pb.currentStep.value.split("")},
-        'sessionId': {"value": pb.sessionId}
-      };
-      pb.commandProcessor.execute(JSON.stringify(sendKeysCommand), function(result) {
-        pb.recordResult({success: true});
-      });
-    });
+  if (playback[pb.currentStep.type]) {
+    playback[pb.currentStep.type]();
   } else {
-    window.setTimeout(function() { pb.recordResult({success: true}); }, 500);
+    pb.recordError(pb.currentStep.type + " not implemented for playback");
   }
 };
 
