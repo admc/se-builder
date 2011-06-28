@@ -15,6 +15,11 @@ builder.sel2.updateStepDisplay = function(stepID) {
   var step = builder.getCurrentScript().getStepWithID(stepID);
   var paramNames = step.getParamNames();
   jQuery('#' + stepID + '-type').text(step.type);
+  if (builder.sel2.playback.playbackFunctions[step.type]) {
+    jQuery('#' + stepID + '-unplayable').hide();
+  } else {
+    jQuery('#' + stepID + '-unplayable').show();
+  }
   for (var i = 0; i < 2; i++) {
     if (paramNames.length > i) {
       jQuery('#' + stepID + 'edit-p' + i).show();
@@ -28,9 +33,12 @@ builder.sel2.updateStepDisplay = function(stepID) {
       }
       if (paramNames.length > 1) {
         jQuery('#' + stepID + '-p' + i).css("display", "block");
-        jQuery('#' + stepID + '-p' + i + '-name').show();
       } else {
         jQuery('#' + stepID + '-p' + i).css("display", "inline");
+      }
+      if (paramNames.length > 1 || step[paramNames[i]] == "") {
+        jQuery('#' + stepID + '-p' + i + '-name').show();
+      } else {
         jQuery('#' + stepID + '-p' + i + '-name').hide();
       }
     } else {
@@ -41,7 +49,7 @@ builder.sel2.updateStepDisplay = function(stepID) {
 };
 
 builder.sel2.addNewStep = function() {
-  var newStep = new builder.sel2.Sel2Step('element.click');
+  var newStep = new builder.sel2.Sel2Step('clickElement');
   builder.getCurrentScript().addStep(newStep);
   addStep(newStep);
   return newStep.id;
@@ -272,7 +280,8 @@ function addStep(step) {
       
           // Message display
           newNode('div', {class:"b-step-message", id: step.id + "-message", style:'display: none'}),
-          newNode('div', {class:"b-step-error", id: step.id + "-error", style:'display: none'})
+          newNode('div', {class:"b-step-error", id: step.id + "-error", style:'display: none'}),
+          newNode('div', "Warning: playback not supported for this step type.", {class:"b-step-error", id: step.id + "-unplayable", style:'display: none'})
         )
       )
     )

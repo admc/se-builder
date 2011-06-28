@@ -31,6 +31,10 @@ pb.clearResults = function() {
   }
 };
 
+pb.stopTest = function() {
+  pb.stopRequest = true;
+};
+
 pb.runTest = function(postPlayCallback) {
   pb.runTestBetween(
     postPlayCallback,
@@ -50,7 +54,10 @@ pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
 
 pb.startSession = function() {
   pb.clearResults();
+  pb.stopRequest = false;
   jQuery('#edit-clearresults').show();
+  jQuery('#edit-local-playing').show();
+  jQuery('#edit-stop-local-playback').show();
   
   // Set up Webdriver
   var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
@@ -96,7 +103,7 @@ pb.execute = function(name, parameters, callback) {
   });
 };
 
-var playback = {
+pb.playbackFunctions = {
   "get": function() {
     pb.execute('get', {url: pb.currentStep.url});
   },
@@ -121,14 +128,33 @@ var playback = {
       pb.execute('setElementSelected', {id: result.value.ELEMENT});
     });
   },
-  // element.clickWithOffset: Don't know how to implement
-  
+  "refresh": function() {
+    pb.execute('refresh', {});
+  },
+  "assertTextPresent": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      if (result.value.indexOf(pb.currentStep.value) != -1) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordResult({success: false, message: "Text not present."});
+      }
+    });
+  },
+  "verifyTextPresent": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      if (result.value.indexOf(pb.currentStep.value) != -1) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordError("Text not present.");
+      }
+    });
+  }
 };
 
 pb.playStep = function() {
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffffaa');
-  if (playback[pb.currentStep.type]) {
-    playback[pb.currentStep.type]();
+  if (pb.playbackFunctions[pb.currentStep.type]) {
+    pb.playbackFunctions[pb.currentStep.type]();
   } else {
     pb.recordError(pb.currentStep.type + " not implemented for playback");
   }
@@ -144,6 +170,8 @@ pb.recordResult = function(result) {
     pb.playResult.message = result.message;
   }
   if (pb.stopRequest || pb.currentStep == pb.finalStep) {
+    jQuery('#edit-local-playing').hide();
+    jQuery('#edit-stop-local-playback').hide();
     if (pb.postPlayCallback) {
       pb.postPlayCallback(pb.playResult);
     }
@@ -158,6 +186,8 @@ pb.recordError = function(message) {
   pb.playResult.success = false;
   jQuery('#' + pb.currentStep.id + '-error').html(message).show();
   pb.playResult.message = message;
+  jQuery('#edit-local-playing').hide();
+  jQuery('#edit-stop-local-playback').hide();
   if (pb.postPlayCallback) {
     pb.postPlayCallback(pb.playResult);
   }

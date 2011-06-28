@@ -837,7 +837,11 @@ builder.interface.edit = new(function () {
     });
     // Stop playback buttons
     jQuery('#edit-stop-local-playback').click(function() {
-      builder.local.stoptest();
+      if (builder.storage.get('selMajorVersion') == 2) {
+        builder.sel2.playback.stopTest();
+      } else {
+        builder.local.stoptest();
+      }
     });
     jQuery('#edit-stop-rc-playback').click(function() {
       builder.rc.stoptest();

@@ -55,11 +55,11 @@ builder.sel2.Sel2Step = function(type) {
   this.id = builder.sel2.__idCounter;
   builder.sel2.__idCounter++;
   var pNames = builder.sel2.paramNames[this.type];
-  for (var i = 0; i < pNames; i++) {
+  for (var i = 0; i < pNames.length; i++) {
     if (i + 1 < arguments.length) {
       this[pNames[i]] = arguments[i + 1];
     } else {
-      this[pNames[i]] = "";
+      this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
     }
   }
 };
@@ -71,9 +71,9 @@ builder.sel2.Sel2Step.prototype = {
   changeType: function(newType) {
     this.type = newType;
     var pNames = builder.sel2.paramNames[this.type];
-    for (var i = 0; i < pNames; i++) {
-      if (!(pNames[i] in this)) {
-        this[pNames[i]] = "";
+    for (var i = 0; i < pNames.length; i++) {
+      if (!this[pNames[i]]) {
+        this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
       }
     }
   }
