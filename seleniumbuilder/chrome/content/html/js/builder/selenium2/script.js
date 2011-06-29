@@ -62,6 +62,7 @@ builder.sel2.Sel2Step = function(type) {
       this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
     }
   }
+  this.changeType(this.type);
 };
 
 builder.sel2.Sel2Step.prototype = {

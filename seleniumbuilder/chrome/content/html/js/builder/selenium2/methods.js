@@ -50,18 +50,18 @@ builder.sel2.sel1To2 = {
   "assertTitle":          ["assertTitle",                     "title",   null      ],
   "verifyTitle":          ["verifyTitle",                     "title",   null      ],
   "waitForTitle":         ["waitForTitle",                    "title",   null      ],
-  "assertChecked":        ["element.assertSelected",          "locator", null      ],
-  "verifyChecked":        ["element.verifySelected",          "locator", null      ],
-  "waitForChecked":       ["element.waitForSelected",         "locator", null      ],
-  "assertValue":          ["element.assertValue",             "locator", "value"   ],
-  "verifyValue":          ["element.verifyValue",             "locator", "value"   ],
-  "waitForValue":         ["element.waitForValue",            "locator", "value"   ],
-  "assertCookieByName":   ["manage.assertCookieNamed",        "value",   "value2"  ],
-  "verifyCookieByName":   ["manage.verifyCookieNamed",        "value",   "value2"  ],
-  "waitForCookieByName":  ["manage.waitForCookieNamed",       "value",   "value2"  ],
-  "assertCookiePresent":  ["manage.assertCookieNamedPresent", "value",   null      ],
-  "verifyCookiePresent":  ["manage.verifyCookieNamedPresent", "value",   null      ],
-  "waitForCookiePresent": ["manage.waitForCookieNamedPresent","value",   null      ]
+  "assertChecked":        ["assertElementSelected",           "locator", null      ],
+  "verifyChecked":        ["verifyElementSelected",           "locator", null      ],
+  "waitForChecked":       ["waitForElementSelected",          "locator", null      ],
+  "assertValue":          ["assertElementValue",              "locator", "value"   ],
+  "verifyValue":          ["verifyElementValue",              "locator", "value"   ],
+  "waitForValue":         ["waitForElementValue",             "locator", "value"   ],
+  "assertCookieByName":   ["manage.assertCookieNamed",        "name",    "value"  ],
+  "verifyCookieByName":   ["manage.verifyCookieNamed",        "name",    "value"  ],
+  "waitForCookieByName":  ["manage.waitForCookieNamed",       "name",    "value"  ],
+  "assertCookiePresent":  ["manage.assertCookieNamedPresent", "name",    null      ],
+  "verifyCookiePresent":  ["manage.verifyCookieNamedPresent", "name",    null      ],
+  "waitForCookiePresent": ["manage.waitForCookieNamedPresent","name",    null      ]
 };
 
 // Rearrange the information for lookup.

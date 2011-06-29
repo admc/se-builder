@@ -17,7 +17,9 @@ builder.sel2.loadScript = function(path) {
     script.steps.push(step);
     var pNames = step.getParamNames();
     for (var j = 0; j < pNames.length; j++) {
-      step[pNames[j]] = scriptJSON.steps[i][pNames[j]];
+      if (scriptJSON.steps[i][pNames[j]]) {
+        step[pNames[j]] = scriptJSON.steps[i][pNames[j]];
+      }
     }
   }
     

@@ -330,6 +330,70 @@ pb.playbackFunctions = {
       });
     });
   },
+  
+  "assertElementSelected": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        if (result.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Element not selected."});
+        }
+      });
+    });
+  },
+  "verifyElementSelected": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        if (result.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Element not selected.");
+        }
+      });
+    });
+  },
+  "waitForElementSelected": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.currentStep.locator, function(result) {
+        pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value);
+        });
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  },
+  
+  "assertElementValue": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Element value does not match."});
+        }
+      });
+    });
+  },
+  "verifyElementValue": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Element value does not match.");
+        }
+      });
+    });
+  },
+  "waitForElementValue": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.currentStep.locator, function(result) {
+        pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == pb.currentStep.value);
+        });
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  },
 };
 
 pb.wait = function(testFunction) {
