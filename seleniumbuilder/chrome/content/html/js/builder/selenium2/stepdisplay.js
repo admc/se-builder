@@ -1,6 +1,7 @@
 /** Functions for displaying Selenium 2 steps. */
 builder.sel2.clearStepsDisplay = function() {
   jQuery("#steps").empty();
+  jQuery('#recordingSuite0').empty();
 };
 
 builder.sel2.updateStepsDisplay = function() {
@@ -296,7 +297,7 @@ function addStep(step) {
       
           // Message display
           newNode('div', {style:"width: 100px; height: 3px; background: #333333; display: none", id: step.id + "-progress-done"}),
-          newNode('div', {style:"width: 0px; height: 3px; background: #aaaaaa; position: relative; top: -3px; left: 100px; display: none", id: step.id + "-progress-notdone"}),
+          newNode('div', {style:"width: 0px; height: 3px; background: #bbbbbb; position: relative; top: -3px; left: 100px; display: none", id: step.id + "-progress-notdone"}),
           newNode('div', {class:"b-step-message", id: step.id + "-message", style:'display: none'}),
           newNode('div', {class:"b-step-error", id: step.id + "-error", style:'display: none'}),
           newNode('div', "Warning: playback not supported for this step type.", {class:"b-step-error", id: step.id + "-unplayable", style:'display: none'})

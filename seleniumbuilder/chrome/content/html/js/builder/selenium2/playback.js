@@ -86,11 +86,11 @@ pb.startSession = function() {
   });
 };
 
-pb.findElement = function(locator, callback) {
-  pb.execute('findElement', {using: locator.type, value: locator.value}, callback);
+pb.findElement = function(locator, callback, errorCallback) {
+  pb.execute('findElement', {using: locator.type, value: locator.value}, callback, errorCallback);
 };
 
-pb.execute = function(name, parameters, callback) {
+pb.execute = function(name, parameters, callback, errorCallback) {
   var cmd = {
     'name': name,
     'context': '',
@@ -100,7 +100,11 @@ pb.execute = function(name, parameters, callback) {
   pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
     result = JSON.parse(result);
     if (result.status != 0) {
-      pb.recordError(result.value.message);
+      if (errorCallback) {
+        errorCallback(result);
+      } else {
+        pb.recordError(result.value.message);
+      }
     } else {
       if (callback) {
         callback(result);
@@ -128,7 +132,7 @@ pb.playbackFunctions = {
   },
   "sendKeysToElement": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.value.split("")});
+      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.text.split("")});
     });
   },
   "setElementSelected": function() {
@@ -139,9 +143,10 @@ pb.playbackFunctions = {
   "refresh": function() {
     pb.execute('refresh', {});
   },
+  
   "assertTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.currentStep.value) != -1) {
+      if (result.value.indexOf(pb.currentStep.text) != -1) {
         pb.recordResult({success: true});
       } else {
         pb.recordResult({success: false, message: "Text not present."});
@@ -150,7 +155,7 @@ pb.playbackFunctions = {
   },
   "verifyTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.currentStep.value) != -1) {
+      if (result.value.indexOf(pb.currentStep.text) != -1) {
         pb.recordResult({success: true});
       } else {
         pb.recordError("Text not present.");
@@ -160,10 +165,171 @@ pb.playbackFunctions = {
   "waitForTextPresent": function() {
     pb.wait(function(callback) {
       pb.execute('getPageSource', {}, function(result) {
-        callback(result.value.indexOf(pb.currentStep.value) != -1);
+        callback(result.value.indexOf(pb.currentStep.text) != -1);
       });
     });
-  }
+  },
+  
+  "assertBodyText": function() {
+    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.text) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Body text does not match."});
+        }
+      });
+    });
+  },
+  "verifyBodyText": function() {
+    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.text) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Body text does not match.");
+        }
+      });
+    });
+  },
+  "waitForBodyText": function() {
+    pb.wait(function(callback) {
+      pb.findElement({type: 'tag name', value: 'body'}, function(result) {
+        pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == pb.currentStep.text);
+        });
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  },
+  
+  "assertElementPresent": function() {
+    pb.findElement(pb.currentStep.locator, null, function(result) {
+      pb.recordResult({success: false, message: "Element not found."});
+    });
+  },
+  "verifyElementPresent": function() {
+    pb.findElement(pb.currentStep.locator, null, function(result) {
+      pb.recordError("Element not found.");
+    });
+  },
+  "waitForElementPresent": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.currentStep.locator,
+        /*success*/ function(result) { callback(true);  },
+        /*error  */ function(result) { callback(false); }
+      );
+    });
+  },
+  
+  "assertPageSource": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      if (result.value == pb.currentStep.source) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordResult({success: false, message: "Source does not match."});
+      }
+    });
+  },
+  "verifyPageSource": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      if (result.value == pb.currentStep.source) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordError("Source does not match.");
+      }
+    });
+  },
+  "waitForPageSource": function() {
+    pb.wait(function(callback) {
+      pb.execute('getPageSource', {}, function(result) {
+        callback(result.value == pb.currentStep.source);
+      });
+    });
+  },
+  
+  "assertText": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.text) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Element text does not match."});
+        }
+      });
+    });
+  },
+  "verifyText": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == pb.currentStep.text) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Element text does not match.");
+        }
+      });
+    });
+  },
+  "waitForText": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.currentStep.locator, function(result) {
+        pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == pb.currentStep.text);
+        });
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  },
+  
+  "assertCurrentUrl": function() {
+    pb.execute('getCurrentUrl', {}, function(result) {
+      if (result.value == pb.currentStep.url) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordResult({success: false, message: "URL does not match."});
+      }
+    });
+  },
+  "verifyCurrentUrl": function() {
+    pb.execute('getCurrentUrl', {}, function(result) {
+      if (result.value == pb.currentStep.url) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordError("URL does not match.");
+      }
+    });
+  },
+  "waitForCurrentUrl": function() {
+    pb.wait(function(callback) {
+      pb.execute('getCurrentUrl', {}, function(result) {
+        callback(result.value == pb.currentStep.url);
+      });
+    });
+  },
+  
+  "assertTitle": function() {
+    pb.execute('getTitle', {}, function(result) {
+      if (result.value == pb.currentStep.title) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordResult({success: false, message: "Title does not match."});
+      }
+    });
+  },
+  "verifyTitle": function() {
+    pb.execute('getTitle', {}, function(result) {
+      if (result.value == pb.currentStep.title) {
+        pb.recordResult({success: true});
+      } else {
+        pb.recordError("Title does not match.");
+      }
+    });
+  },
+  "waitForTitle": function() {
+    pb.wait(function(callback) {
+      pb.execute('getTitle', {}, function(result) {
+        callback(result.value == pb.currentStep.title);
+      });
+    });
+  },
 };
 
 pb.wait = function(testFunction) {
