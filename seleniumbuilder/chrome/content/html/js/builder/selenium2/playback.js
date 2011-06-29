@@ -21,6 +21,14 @@ pb.postPlayCallback = null;
 pb.playResult = null;
 /** Whether the user has requested test stoppage. */
 pb.stopRequest = false;
+/** What interval to check waits for. */
+pb.waitIntervalAmount = 300;
+/** How many wait cycles are run before waits time out. */
+pb.maxWaitCycles = 60000 / pb.waitIntervalAmount;
+/** How many wait cycles have been run. */
+pb.waitCycle = 0;
+/** The wait interval. */
+pb.waitInterval = null;
 
 pb.clearResults = function() {
   var sc = builder.getCurrentScript();
@@ -148,7 +156,42 @@ pb.playbackFunctions = {
         pb.recordError("Text not present.");
       }
     });
+  },
+  "waitForTextPresent": function() {
+    pb.wait(function(callback) {
+      pb.execute('getPageSource', {}, function(result) {
+        callback(result.value.indexOf(pb.currentStep.value) != -1);
+      });
+    });
   }
+};
+
+pb.wait = function(testFunction) {
+  builder.sel2.setProgressBar(pb.currentStep.id, 0);
+  pb.waitCycle = 0;
+  pb.waitInterval = window.setInterval(function() {
+    testFunction(function(success) {
+      if (success) {
+        window.clearInterval(pb.waitInterval);
+        builder.sel2.hideProgressBar(pb.currentStep.id);
+        pb.recordResult({success: true});
+        return;
+      }
+      if (pb.waitCycle++ >= pb.maxWaitCycles) {
+        window.clearInterval(pb.waitInterval);
+        builder.sel2.hideProgressBar(pb.currentStep.id);
+        pb.recordError("Wait timed out.");
+        return;
+      }
+      if (pb.stopRequest) {
+        window.clearInterval(pb.waitInterval);
+        builder.sel2.hideProgressBar(pb.currentStep.id);
+        pb.shutdown();
+        return;
+      }
+      builder.sel2.setProgressBar(pb.currentStep.id, pb.waitCycle * 100 / pb.maxWaitCycles);
+    });
+  }, pb.waitIntervalAmount);
 };
 
 pb.playStep = function() {
@@ -169,15 +212,20 @@ pb.recordResult = function(result) {
     jQuery('#' + pb.currentStep.id + '-message').html(result.message).show();
     pb.playResult.message = result.message;
   }
+  
   if (pb.stopRequest || pb.currentStep == pb.finalStep) {
-    jQuery('#edit-local-playing').hide();
-    jQuery('#edit-stop-local-playback').hide();
-    if (pb.postPlayCallback) {
-      pb.postPlayCallback(pb.playResult);
-    }
+    pb.shutdown();
   } else {
     pb.currentStep = pb.script.steps[pb.script.getStepIndexForID(pb.currentStep.id) + 1];
     pb.playStep();
+  }
+};
+
+pb.shutdown = function() {
+  jQuery('#edit-local-playing').hide();
+  jQuery('#edit-stop-local-playback').hide();
+  if (pb.postPlayCallback) {
+    pb.postPlayCallback(pb.playResult);
   }
 };
 
@@ -186,9 +234,5 @@ pb.recordError = function(message) {
   pb.playResult.success = false;
   jQuery('#' + pb.currentStep.id + '-error').html(message).show();
   pb.playResult.message = message;
-  jQuery('#edit-local-playing').hide();
-  jQuery('#edit-stop-local-playback').hide();
-  if (pb.postPlayCallback) {
-    pb.postPlayCallback(pb.playResult);
-  }
+  pb.shutdown();
 };

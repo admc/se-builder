@@ -48,6 +48,22 @@ builder.sel2.updateStepDisplay = function(stepID) {
   }
 };
 
+builder.sel2.showProgressBar = function(stepID) {
+  jQuery('#' + stepID + '-progress-done').show();
+  jQuery('#' + stepID + '-progress-notdone').show();
+};
+
+builder.sel2.hideProgressBar = function(stepID) {
+  jQuery('#' + stepID + '-progress-done').hide();
+  jQuery('#' + stepID + '-progress-notdone').hide();
+};
+
+builder.sel2.setProgressBar = function(stepID, percent) {
+  jQuery('#' + stepID + '-progress-done').css('width', percent);
+  jQuery('#' + stepID + '-progress-notdone').css('left', percent).css('width', 100 - percent);
+  builder.sel2.showProgressBar(stepID);
+};
+
 builder.sel2.addNewStep = function() {
   var newStep = new builder.sel2.Sel2Step('clickElement');
   builder.getCurrentScript().addStep(newStep);
@@ -279,6 +295,8 @@ function addStep(step) {
           ),
       
           // Message display
+          newNode('div', {style:"width: 100px; height: 3px; background: #333333; display: none", id: step.id + "-progress-done"}),
+          newNode('div', {style:"width: 0px; height: 3px; background: #aaaaaa; position: relative; top: -3px; left: 100px; display: none", id: step.id + "-progress-notdone"}),
           newNode('div', {class:"b-step-message", id: step.id + "-message", style:'display: none'}),
           newNode('div', {class:"b-step-error", id: step.id + "-error", style:'display: none'}),
           newNode('div', "Warning: playback not supported for this step type.", {class:"b-step-error", id: step.id + "-unplayable", style:'display: none'})

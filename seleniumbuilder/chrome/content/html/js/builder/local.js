@@ -30,7 +30,7 @@ builder.local = new (function() {
           window.bridge.content().content.addEventListener("load", function() {
             // Now we just wait for 300 ms to hopefully allow any javascript that was waiting on
             // load to finish manipulating the page DOM.
-            setTimeout(new function() {
+            setTimeout(function() {
               browserbot.recordPageLoad(window.bridge.content());
             }, 300);
           }, false);
