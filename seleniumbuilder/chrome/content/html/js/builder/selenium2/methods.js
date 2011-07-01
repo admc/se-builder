@@ -56,12 +56,12 @@ builder.sel2.sel1To2 = {
   "assertValue":          ["assertElementValue",              "locator", "value"   ],
   "verifyValue":          ["verifyElementValue",              "locator", "value"   ],
   "waitForValue":         ["waitForElementValue",             "locator", "value"   ],
-  "assertCookieByName":   ["manage.assertCookieNamed",        "name",    "value"  ],
-  "verifyCookieByName":   ["manage.verifyCookieNamed",        "name",    "value"  ],
-  "waitForCookieByName":  ["manage.waitForCookieNamed",       "name",    "value"  ],
-  "assertCookiePresent":  ["manage.assertCookieNamedPresent", "name",    null      ],
-  "verifyCookiePresent":  ["manage.verifyCookieNamedPresent", "name",    null      ],
-  "waitForCookiePresent": ["manage.waitForCookieNamedPresent","name",    null      ]
+  "assertCookieByName":   ["assertCookieByName",              "name",    "value"   ],
+  "verifyCookieByName":   ["verifyCookieByName",              "name",    "value"   ],
+  "waitForCookieByName":  ["waitForCookieByName",             "name",    "value"   ],
+  "assertCookiePresent":  ["assertCookiePresent",             "name",    null      ],
+  "verifyCookiePresent":  ["verifyCookiePresent",             "name",    null      ],
+  "waitForCookiePresent": ["waitForCookiePresent",            "name",    null      ]
 };
 
 // Rearrange the information for lookup.

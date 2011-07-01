@@ -166,7 +166,7 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getPageSource', {}, function(result) {
         callback(result.value.indexOf(pb.currentStep.text) != -1);
-      });
+      }, /*error*/ function() { callback(false); });
     });
   },
   
@@ -197,9 +197,9 @@ pb.playbackFunctions = {
       pb.findElement({type: 'tag name', value: 'body'}, function(result) {
         pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
           callback(result.value == pb.currentStep.text);
-        });
+        }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
-    }, /*error*/ function() { callback(false); });
+    });
   },
   
   "assertElementPresent": function() {
@@ -243,7 +243,7 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getPageSource', {}, function(result) {
         callback(result.value == pb.currentStep.source);
-      });
+      }, /*error*/ function() { callback(false); });
     });
   },
   
@@ -274,9 +274,9 @@ pb.playbackFunctions = {
       pb.findElement(pb.currentStep.locator, function(result) {
         pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
           callback(result.value == pb.currentStep.text);
-        });
+        }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
-    }, /*error*/ function() { callback(false); });
+    });
   },
   
   "assertCurrentUrl": function() {
@@ -301,7 +301,7 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getCurrentUrl', {}, function(result) {
         callback(result.value == pb.currentStep.url);
-      });
+      }, /*error*/ function() { callback(false); });
     });
   },
   
@@ -327,7 +327,7 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getTitle', {}, function(result) {
         callback(result.value == pb.currentStep.title);
-      });
+      }, /*error*/ function() { callback(false); });
     });
   },
   
@@ -358,9 +358,9 @@ pb.playbackFunctions = {
       pb.findElement(pb.currentStep.locator, function(result) {
         pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
           callback(result.value);
-        });
+        }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
-    }, /*error*/ function() { callback(false); });
+    });
   },
   
   "assertElementValue": function() {
@@ -390,9 +390,91 @@ pb.playbackFunctions = {
       pb.findElement(pb.currentStep.locator, function(result) {
         pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
           callback(result.value == pb.currentStep.value);
-        });
+        }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
-    }, /*error*/ function() { callback(false); });
+    });
+  },
+  
+  "assertCookieByName": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.currentStep.name) {
+          if (result.value[i].value == pb.currentStep.value) {
+            pb.recordResult({success: true});
+          } else {
+            pb.recordResult({success: false, message: "Element value does not match."});
+          }
+          return;
+        }
+      }
+      pb.recordResult({success: false, message: "No cookie found with this name."});
+    });
+  },
+  "verifyCookieByName": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.currentStep.name) {
+          if (result.value[i].value == pb.currentStep.value) {
+            pb.recordResult({success: true});
+          } else {
+            pb.recordError("Element value does not match.");
+          }
+          return;
+        }
+      }
+      pb.recordError("No cookie found with this name.");
+    });
+  },
+  "waitForCookieByName": function() {
+    pb.wait(function(callback) {
+      pb.execute('getCookies', {}, function(result) {
+        for (var i = 0; i < result.value.length; i++) {
+          if (result.value[i].name == pb.currentStep.name) {
+            callback(result.value[i].value == pb.currentStep.value);
+            return;
+          }
+        }
+        callback(false);
+      },
+      /*error*/ function() { callback(false); });
+    });
+  },
+  
+  "assertCookiePresent": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.currentStep.name) {
+          pb.recordResult({success: true});
+          return;
+        }
+      }
+      pb.recordResult({success: false, message: "No cookie found with this name."});
+    });
+  },
+  "verifyCookiePresent": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.currentStep.name) {
+          pb.recordResult({success: true});
+          return;
+        }
+      }
+      pb.recordError("No cookie found with this name.");
+    });
+  },
+  "waitForCookiePresent": function() {
+    pb.wait(function(callback) {
+      pb.execute('getCookies', {}, function(result) {
+        for (var i = 0; i < result.value.length; i++) {
+          if (result.value[i].name == pb.currentStep.name) {
+            callback(true);
+            return;
+          }
+        }
+        callback(false);
+      },
+      /*error*/ function() { callback(false); });
+    });
   },
 };
 

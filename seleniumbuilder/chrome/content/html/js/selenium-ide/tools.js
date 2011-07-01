@@ -98,7 +98,7 @@ function showFilePicker(window, title, mode, defaultDirPrefName, handler, defaul
   if (defaultDir) {
     fp.displayDirectory = FileUtils.getFile(defaultDir);
   }
-  fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterAll);
+  //fp.appendFilters(nsIFilePicker.filterHTML | nsIFilePicker.filterAll);
   if (defaultFileName) {
     fp.defaultString = defaultFileName;
   }
