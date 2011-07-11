@@ -55,11 +55,13 @@ builder.sel2.Sel2Step = function(type) {
   this.id = builder.sel2.__idCounter;
   builder.sel2.__idCounter++;
   var pNames = builder.sel2.paramNames[this.type];
-  for (var i = 0; i < pNames.length; i++) {
-    if (i + 1 < arguments.length) {
-      this[pNames[i]] = arguments[i + 1];
-    } else {
-      this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
+  if (pNames) {
+    for (var i = 0; i < pNames.length; i++) {
+      if (i + 1 < arguments.length) {
+        this[pNames[i]] = arguments[i + 1];
+      } else {
+        this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
+      }
     }
   }
   this.changeType(this.type);

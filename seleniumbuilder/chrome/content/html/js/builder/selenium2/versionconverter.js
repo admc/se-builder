@@ -184,11 +184,13 @@ builder.getInconvertibleSel1Steps = function(script) {
 };
 
 builder.convertSel1To2 = function(script) {
+  var newScript = new builder.sel2.Sel2Script();
+  /*
   var newScript = {
     version: "selenium2",
     seleniumVersion: "2",
     steps: []
-  };
+  };*/
   for (var i = 0; i < script.steps.length; i++) {
     newScript.steps = newScript.steps.concat(builder.convertSel1StepTo2Steps(script.steps[i], script.baseUrl));
   }
@@ -198,7 +200,7 @@ builder.convertSel1To2 = function(script) {
 builder.convertSel1StepTo2Steps = function(step, baseURL) {
   var stepInfo = builder.sel2.sel1To2[step.method];
   if (!stepInfo) { return []; }
-  var newStep = { type: stepInfo[0] };
+  var newStep = new builder.sel2.Sel2Step(stepInfo[0]);
   // The Selenium 1 step has 0-2 parameters, which are always called "locator" and "option",
   // independently of whether they actually *are* locators/not locators.
   for (var param_n = 0; param_n < 2; param_n++) {

@@ -29,7 +29,11 @@ builder.dialogs.exportscript = new(function () {
   };
   
   function create_sel2_format_li(myFormat) {
-    var nonExportables = myFormat.nonExportables(builder.convertSel1To2(builder.getScript()));
+    var script =
+      builder.storage.get('selMajorVersion') == 2
+      ? builder.getCurrentScript()
+      : builder.convertSel1To2(builder.getScript());
+    var nonExportables = myFormat.nonExportables(script);
     if (nonExportables.length > 0) {
       var l = "";
       for (var i = 0; i < nonExportables.length; i++) {
@@ -41,7 +45,7 @@ builder.dialogs.exportscript = new(function () {
     var li_node = newNode('li',
       newNode('a', myFormat.name, {
         click: function(event) {
-          if (builder.saveSel2Script(builder.convertSel1To2(builder.getScript()), myFormat)) {
+          if (builder.saveSel2Script(script, myFormat)) {
             builder.storage.set('save_required', false);
           }
           builder.dialogs.exportscript.hide();
@@ -124,18 +128,24 @@ builder.dialogs.exportscript = new(function () {
       {
         jQuery(format_list).append(create_overwrite_li());
       }
-      var formats = builder.seleniumadapter.availableFormats();
-      if (builder.isSel1ScriptConvertible(builder.getScript())) {
-        jQuery(format_list).append(newNode("span", "Selenium 2:"));
+      if (builder.storage.get('selMajorVersion') == 2) {
         for (var i = 0; i < builder.sel2Formats.length; i++) {
           jQuery(format_list).append(create_sel2_format_li(builder.sel2Formats[i]));
         }
-        jQuery(format_list).append(newNode("span", "Selenium 1:"));
       } else {
-        jQuery(format_list).append(newNode("span", "This script contains steps that can't be saved as Selenium 2 yet:", newNode("br"), builder.getInconvertibleSel1Steps(builder.getScript())));
-      }
-      for (var i = 0; i < formats.length; i++) {
-        jQuery(format_list).append(create_format_li(formats[i]));
+        if (builder.isSel1ScriptConvertible(builder.getScript())) {
+          jQuery(format_list).append(newNode("span", "Selenium 2:"));
+          for (var i = 0; i < builder.sel2Formats.length; i++) {
+            jQuery(format_list).append(create_sel2_format_li(builder.sel2Formats[i]));
+          }
+          jQuery(format_list).append(newNode("span", "Selenium 1:"));
+        } else {
+          jQuery(format_list).append(newNode("span", "This script contains steps that can't be saved as Selenium 2 yet:", newNode("br"), builder.getInconvertibleSel1Steps(builder.getScript())));
+        }
+        var formats = builder.seleniumadapter.availableFormats();
+        for (var i = 0; i < formats.length; i++) {
+          jQuery(format_list).append(create_format_li(formats[i]));
+        }
       }
     },
     hide: function () {

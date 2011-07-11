@@ -5,10 +5,8 @@
 builder.sel2.loadScript = function(path) {
   var scriptJSON = builder.loadSel2Script(path);
   var script = new builder.sel2.Sel2Script();
-  script.path = {
-    where: "local",
-    path: path
-  };
+  script.path = scriptJSON.path;
+  script.path.format = builder.sel2Formats[0];
   script.seleniumVersion = scriptJSON.seleniumVersion;
   script.version = scriptJSON.version;
 
@@ -39,6 +37,10 @@ builder.loadSel2Script = function(path) {
   var sis = FileUtils.openFileInputStream(file);
   var script = JSON.parse(FileUtils.getUnicodeConverter('UTF-8').ConvertToUnicode(sis.read(sis.available())));
   sis.close();
+  script.path = {
+    where: "local",
+    path: file.path
+  };
   return script;
 };
 
@@ -90,19 +92,14 @@ builder.createLangSel2Formatter = function(lang_info) {
         if (typeof line == 'undefined') {
           throw("Cannot export step of type \"" + step.type + "\".");
         }
-        if (typeof step.value != 'undefined') {
-          line = line.replace(/\{value\}/g, lang_info.escapeValue(step.type, step.value, 1));
-        }
-        if (typeof step.value2 != 'undefined') {
-          line = line.replace(/\{\value2\}/g, lang_info.escapeValue(step.type, step.value2, 2));
-        }
-        if (typeof step.locator != 'undefined') {
-          line = line.replace(/\{locator\}/g, step.locator);
-          line = line.replace(/\{locateBy\}/g, lang_info.locateByForType(step.type, step.locatorType, 1));
-        }
-        if (typeof step.locator2 != 'undefined') {
-          line = line.replace(/\{locator2\}/g, step.locator2);
-          line = line.replace(/\{locateBy2\}/g, lang_info.locateByForType(step.type, step.locator2Type, 2));
+        var pNames = script.steps[i].getParamNames();
+        for (var j = 0; j < pNames.length; j++) {
+          if (pNames[j].startsWith("locator")) {
+            line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]].value, j + 1));
+            line = line.replace(new RegExp("\{" + pNames[j] + "By\}", "g"), lang_info.locatorByForType(step.type, step[pNames[j]].type, j + 1));
+          } else {
+            line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]], j + 1));
+          }
         }
         t += line;
       }
@@ -130,8 +127,16 @@ builder.sel2Formats.push({
     var cleanScript = {
       seleniumVersion: "2",
       formatVersion: 1,
-      steps: script.steps
+      steps: []
     };
+    for (var i = 0; i < script.steps.length; i++) {
+      var cleanStep = { type: script.steps[i].type };
+      var pNames = script.steps[i].getParamNames();
+      for (var j = 0; j < pNames.length; j++) {
+        cleanStep[pNames[j]] = script.steps[i][pNames[j]];
+      }
+      cleanScript.steps.push(cleanStep);
+    }
     return JSON.stringify(cleanScript, null, /* indent */ 2);
   },
   nonExportables: function(script) {
@@ -156,142 +161,169 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "    }\n" +
     "}\n",
   lineForType: {
-    "get": "        wd.get(\"{value}\");\n",
-    "navigate.back": "        wd.navigate().back();\n",
-    "navigate.forward": "        wd.navigate().forward();\n",
-    "element.click": "        wd.findElement(By.{locateBy}(\"{locator}\")).click();\n",
-    "element.sendKeys": "        wd.findElement(By.{locateBy}(\"{locator}\")).sendKeys(\"{value}\");\n",
-    "element.setSelected":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
-    "            wd.findElement(By.{locateBy}(\"{locator}\")).setSelected();\n" +
-    "        }\n",
-    "element.setNotSelected":
-    "        if (wd.findElement(By.{locateBy}(\"{locator}\")).isSelected()) {\n" +
-    "            wd.findElement(By.{locateBy}(\"{locator}\")).toggle();\n" +
-    "        }\n",
-    "element.clickWithOffset": "        wd.actionsBuilder().moveToElement(wd.findElement(By.{locateBy}(\"{locator}\"))).moveByOffset({value}).click().build().perform();\n",
-    "element.doubleClick": "        wd.actionsBuilder().doubleClick(wd.findElement(By.{locateBy}(\"{locator}\"))).build().perform();\n",
-    "element.dragToAndDrop": "        wd.actionsBuilder().dragAndDrop(wd.findElement(By.{locateBy}(\"{locator}\")), wd.findElement(By.{locateBy2}(\"{locator2}\"))).build().perform();\n",
-    "element.clickAndHold": "        wd.actionsBuilder().clickAndHold(wd.findElement(By.{locateBy}(\"{locator}\"))).build.perform();\n",
-    "element.release": "        wd.actionsBuilder().release(wd.findElement(By.{locateBy}(\"{locator}\"))).build.perform();\n",
-    "select.select": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).select{locateBy2}(\"{locator2}\");\n",
-    "select.deselectAll": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).deselectAll();\n",
-    "select.deselect": "        new Select(wd.findElement(By.{locateBy}(\"{locator}\"))).deselect{locateBy2}(\"{locator2}\");\n",
-    "element.submit": "        wd.findElement(By.{locateBy}(\"{locator}\")).submit();\n",
-    "close": "        wd.close();\n",
-    "navigate.refresh": "        wd.navigate().refresh();\n",
+    "get":
+      "        wd.get(\"{url}\");\n",
+    "goBack":
+      "        wd.navigate().back();\n",
+    "goForward":
+      "        wd.navigate().forward();\n",
+    "clickElement":
+      "        wd.findElement(By.{locatorBy}(\"{locator}\")).click();\n",
+    "sendKeysToElement":
+      "        wd.findElement(By.{locatorBy}(\"{locator}\")).sendKeys(\"{text}\");\n",
+    "setElementSelected":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
+      "            wd.findElement(By.{locatorBy}(\"{locator}\")).setSelected();\n" +
+      "        }\n",
+    "setElementNotSelected":
+      "        if (wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
+      "            wd.findElement(By.{locatorBy}(\"{locator}\")).toggle();\n" +
+      "        }\n",
+    "clickElementWithOffset":
+      "        wd.actionsBuilder().moveToElement(wd.findElement(By.{locatorBy}(\"{locator}\"))).moveByOffset({offset}).click().build().perform();\n",
+    "doubleClickElement":
+      "        wd.actionsBuilder().doubleClick(wd.findElement(By.{locatorBy}(\"{locator}\"))).build().perform();\n",
+    "element.dragToAndDrop":
+      "        wd.actionsBuilder().dragAndDrop(wd.findElement(By.{locatorBy}(\"{locator}\")), wd.findElement(By.{locator2By}(\"{locator2}\"))).build().perform();\n",
+    "element.clickAndHold":
+      "        wd.actionsBuilder().clickAndHold(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
+    "element.release":
+      "        wd.actionsBuilder().release(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
+    "select.select":
+      "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).select{locator2By}(\"{locator2}\");\n",
+    "select.deselectAll":
+      "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselectAll();\n",
+    "select.deselect":
+      "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselect{locator2By}(\"{locator2}\");\n",
+    "element.submit":
+      "        wd.findElement(By.{locatorBy}(\"{locator}\")).submit();\n",
+    "close":
+      "        wd.close();\n",
+    "navigate.refresh":
+      "        wd.navigate().refresh();\n",
     "assertTextPresent":
-    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"element.assertTextPresent failed\");\n" +
-    "        }\n",
+      "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"element.assertTextPresent failed\");\n" +
+      "        }\n",
     "verifyTextPresent":
-    "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyTextPresent failed\");\n" +
-    "        }\n",
-    "waitForTextPresent": "",
+      "        if (!wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
+      "            System.err.println(\"verifyTextPresent failed\");\n" +
+      "        }\n",
+    "waitForTextPresent":
+      "",
     "assertBodyText":
-    "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"assertBodyText failed\");\n" +
-    "        }\n",
+      "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{text}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"assertBodyText failed\");\n" +
+      "        }\n",
     "verifyBodyText":
-    "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyBodyText failed\");\n" +
-    "        }\n",
-    "waitForBodyText": "",
-    "element.assertPresent":
-    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"element.assertPresent failed\");\n" +
-    "        }\n",
-    "element.verifyPresent":
-    "        if (wd.findElements(By.{locateBy}(\"{locator}\")).size() == 0) {\n" +
-    "            System.err.println(\"element.verifyPresent failed\");\n" +
-    "        }\n",
-    "element.waitForPresent": "",
-    "assertHTMLSource":
-    "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"assertHTMLSource failed\");\n" +
-    "        }\n",
-    "verifyHTMLSource":
-    "        if (!wd.getPageSource().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyHTMLSource failed\");\n" +
-    "        }\n",
-    "waitForHTMLSource": "",
-    "element.assertText":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"element.assertText failed\");\n" +
-    "        }\n",
-    "element.verifyText":
-    "        if (wd.findElement(By.{locateBy}(\"{locator}\")).getText().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"element.verifyText failed\");\n" +
-    "        }\n",
-    "element.waitForText": "",
-    "assertCurrentURL":
-    "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"assertCurrentURL failed\");\n" +
-    "        }\n",
-    "verifyCurrentURL":
-    "        if (!wd.getCurrentUrl().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyCurrentURL failed\");\n" +
-    "        }\n",
-    "waitForCurrentURL": "",
+      "        if (!wd.findElement(By.tagName(\"html\")).getText().equals(\"{text}\")) {\n" +
+      "            System.err.println(\"verifyBodyText failed\");\n" +
+      "        }\n",
+    "waitForBodyText":
+      "",
+    "assertElementPresent":
+      "        if (wd.findElements(By.{locatorBy}(\"{locator}\")).size() == 0) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"element.assertPresent failed\");\n" +
+      "        }\n",
+    "verifyElementPresent":
+      "        if (wd.findElements(By.{locatorBy}(\"{locator}\")).size() == 0) {\n" +
+      "            System.err.println(\"element.verifyPresent failed\");\n" +
+      "        }\n",
+    "waitForELementPresent":
+      "",
+    "assertPageSource":
+      "        if (!wd.getPageSource().equals(\"{source}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"assertHTMLSource failed\");\n" +
+      "        }\n",
+    "verifyPageSource":
+      "        if (!wd.getPageSource().equals(\"{source}\")) {\n" +
+      "            System.err.println(\"verifyHTMLSource failed\");\n" +
+      "        }\n",
+    "waitForPageSource":
+      "",
+    "assertText":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).getText().equals(\"{text}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"element.assertText failed\");\n" +
+      "        }\n",
+    "verifyText":
+      "        if (wd.findElement(By.{locatorBy}(\"{locator}\")).getText().equals(\"{text}\")) {\n" +
+      "            System.err.println(\"element.verifyText failed\");\n" +
+      "        }\n",
+    "waitForText":
+      "",
+    "assertCurrentUrl":
+      "        if (!wd.getCurrentUrl().equals(\"{url}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"assertCurrentURL failed\");\n" +
+      "        }\n",
+    "verifyCurrentUrl":
+      "        if (!wd.getCurrentUrl().equals(\"{url}\")) {\n" +
+      "            System.err.println(\"verifyCurrentURL failed\");\n" +
+      "        }\n",
+    "waitForCurrentUrl":
+      "",
     "assertTitle":
-    "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"assertTitle failed\");\n" +
-    "        }\n",
+      "        if (!wd.getTitle().equals(\"{title}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"assertTitle failed\");\n" +
+      "        }\n",
     "verifyTitle":
-    "        if (!wd.getTitle().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"verifyTitle failed\");\n" +
-    "        }\n",
-    "waitForTitle": "",
-    "element.assertSelected":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).is_selected()) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"assertSelected failed\");\n" +
-    "        }\n",
-    "element.verifySelected":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).is_selected()) {\n" +
-    "            System.err.println(\"verifySelected failed\");\n" +
-    "        }\n",
-    "element.waitForSelected": "",
-    "element.assertValue":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"element.assertValue failed\");\n" +
-    "        }\n",
-    "element.verifyValue":
-    "        if (!wd.findElement(By.{locateBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
-    "            System.err.println(\"element.verifyValue failed\");\n" +
-    "        }\n",
-    "element.waitForValue": "",
-    "manage.assertCookieNamed":
-    "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"manage.assertCookieNamed failed\");\n" +
-    "        }\n",
-    "manage.verifyCookieNamed":
-    "        if (!\"{value2}\".equals(wd.manage().getCookieNamed(\"{value}\"))) {\n" +
-    "            System.err.println(\"manage.verifyCookieNamed failed\");\n" +
-    "        }\n",
-    "manage.waitForCookieNamed": "",
-    "manage.assertCookieNamedPresent":
-    "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
-    "            wd.close();\n" +
-    "            throw new RuntimeException(\"manage.assertCookieNamedPresent failed\");\n" +
-    "        }\n",
-    "manage.verifyCookieNamedPresent":
-    "        if (wd.manage().getCookieNamed(\"{value}\") == null) {\n" +
-    "            System.err.println(\"manage.verifyCookieNamedPresent failed\");\n" +
-    "        }\n",
-    "manage.waitForCookieNamedPresent": ""
+      "        if (!wd.getTitle().equals(\"{title}\")) {\n" +
+      "            System.err.println(\"verifyTitle failed\");\n" +
+      "        }\n",
+    "waitForTitle":
+      "",
+    "assertElementSelected":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"assertSelected failed\");\n" +
+      "        }\n",
+    "verifyElementSelected":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
+      "            System.err.println(\"verifySelected failed\");\n" +
+      "        }\n",
+    "waitForElementSelected":
+      "",
+    "assertElementValue":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"element.assertValue failed\");\n" +
+      "        }\n",
+    "verifyElementValue":
+      "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+      "            System.err.println(\"element.verifyValue failed\");\n" +
+      "        }\n",
+    "waitForElementValue":
+      "",
+    "assertCookieByName":
+      "        if (!\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"manage.assertCookieNamed failed\");\n" +
+      "        }\n",
+    "verifyCookieByName":
+      "        if (!\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
+      "            System.err.println(\"manage.verifyCookieNamed failed\");\n" +
+      "        }\n",
+    "manage.waitForCookieNamed":
+      "",
+    "assertCookiePresent":
+      "        if (wd.manage().getCookieNamed(\"{name}\") == null) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"manage.assertCookieNamedPresent failed\");\n" +
+      "        }\n",
+    "verifyCookiePresent":
+      "        if (wd.manage().getCookieNamed(\"{name}\") == null) {\n" +
+      "            System.err.println(\"manage.verifyCookieNamedPresent failed\");\n" +
+      "        }\n",
+    "waitForCookiePresent":
+      ""
   },
-  locateByForType: function(stepType, locatorType, locatorIndex) {
+  locatorByForType: function(stepType, locatorType, locatorIndex) {
     if ({"select.select":1, "select.deselect":1}[stepType] && locatorIndex == 2) {
       return {
         "index": "ByIndex",
@@ -327,16 +359,16 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "get": "wd.get(\"{value}\")\n",
     "navigate.back": "wd.back()\n",
     "navigate.forward": "wd.forward()\n",
-    "element.click": "wd.{locateBy}(\"{locator}\").click()\n",
-    "element.sendKeys": "wd.{locateBy}(\"{locator}\").send_keys(\"{value}\")\n",
+    "element.click": "wd.{locatorBy}(\"{locator}\").click()\n",
+    "element.sendKeys": "wd.{locatorBy}(\"{locator}\").send_keys(\"{value}\")\n",
     "element.setSelected":
-    "if not wd.{locateBy}(\"{locator}\").is_selected():\n" +
-    "    wd.{locateBy}(\"{locator}\").select()\n",
+    "if not wd.{locatorBy}(\"{locator}\").is_selected():\n" +
+    "    wd.{locatorBy}(\"{locator}\").select()\n",
     "element.setNotSelected":
-    "if wd.{locateBy}(\"{locator}\").is_selected():\n" +
-    "    wd.{locateBy}(\"{locator}\").toggle()\n",
+    "if wd.{locatorBy}(\"{locator}\").is_selected():\n" +
+    "    wd.{locatorBy}(\"{locator}\").toggle()\n",
     "element.submit":
-    "wd.{locateBy}(\"{locator}\").submit()\n",
+    "wd.{locatorBy}(\"{locator}\").submit()\n",
     "close":
     "",
     "assertTextPresent":
@@ -358,10 +390,10 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "waitForBodyText":
     "",
     "element.assertPresent":
-    "if len(wd.{locateBy}(\"{locator}\")) == 0:\n" +
+    "if len(wd.{locatorBy}(\"{locator}\")) == 0:\n" +
     "    print(\"element.assertPresent failed\")\n",
     "element.verifyPresent":
-    "if len(wd.{locateBy}(\"{locator}\")) == 0:\n" +
+    "if len(wd.{locatorBy}(\"{locator}\")) == 0:\n" +
     "    wd.close()\n" +
     "    raise Exception(\"verifyPresent failed\")\n",
     "element.waitForPresent":
@@ -376,10 +408,10 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "waitForHTMLSource":
     "",
     "element.assertText":
-    "if wd.{locateBy}(\"{locator}\").text != \"{value}\":\n" +
+    "if wd.{locatorBy}(\"{locator}\").text != \"{value}\":\n" +
     "    print(\"element.assertText failed\")\n",
     "element.verifyText":
-    "if wd.{locateBy}(\"{locator}\").text != \"{value}\":\n" +
+    "if wd.{locatorBy}(\"{locator}\").text != \"{value}\":\n" +
     "    wd.close()\n" +
     "    raise Exception(\"element.verifyText failed\")\n",
     "element.waitForText":
@@ -403,19 +435,19 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "waitForTitle":
     "",
     "element.assertSelected":
-    "if not wd.{locateBy}(\"{locator}\").is_selected():\n" +
+    "if not wd.{locatorBy}(\"{locator}\").is_selected():\n" +
     "    print(\"element.assertSelected failed\")\n",
     "element.verifySelected":
-    "if not wd.{locateBy}(\"{locator}\").is_selected():\n" +
+    "if not wd.{locatorBy}(\"{locator}\").is_selected():\n" +
     "    wd.close()\n" +
     "    raise Exception(\"element.verifySelected failed\")\n",
     "element.waitForSelected":
     "",
     "element.assertValue":
-    "if wd.{locateBy}(\"{locator}\").value != \"{value}\":\n" +
+    "if wd.{locatorBy}(\"{locator}\").value != \"{value}\":\n" +
     "    print(\"element.assertValue failed\")\n",
     "element.verifyValue":
-    "if wd.{locateBy}(\"{locator}\").value != \"{value}\":\n" +
+    "if wd.{locatorBy}(\"{locator}\").value != \"{value}\":\n" +
     "    wd.close()\n" +
     "    raise Exception(\"element.verifyValue failed\")\n",
     "element.waitForValue":
@@ -439,7 +471,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "manage.waitForCookieNamedPresent":
     ""
   },
-  locateByForType: function(stepType, locatorType, locatorIndex) {
+  locatorByForType: function(stepType, locatorType, locatorIndex) {
     if ({
       "element.assertPresent": 1,
       "element.verifyPresent": 1
