@@ -96,31 +96,19 @@ Response.prototype = {
    * Sends the encapsulated response to the registered callback.
    */
   send: function() {
-    // qqDPS
-    try {
-      //dump("||||  SENDING RESPONSE: ");
-      //dump(arguments.caller.callee);
-      //dump("  ");
-      if (this.responseSent_) {
-        // We shouldn't ever send the same response twice.
-        //dump("twice");
-        return;
-      }
-      // Indicate that we are no longer executing a command.
-      if (this.statusBarLabel_) {
-        this.statusBarLabel_.style.color = 'black';
-      }
-
-      //dump("handle-me-response    ");
-      //dump(JSON.stringify(this.json_));
-      this.responseHandler_.handleResponse(JSON.stringify(this.json_));
-
-      // Neuter ourselves
-      this.responseSent_ = true;
-      //dump("neutralised");
-    } catch (e) {
-      //dump(e); dump("        ");
+    if (this.responseSent_) {
+      // We shouldn't ever send the same response twice.
+      return;
     }
+    // Indicate that we are no longer executing a command.
+    if (this.statusBarLabel_) {
+      this.statusBarLabel_.style.color = 'black';
+    }
+
+    this.responseHandler_.handleResponse(JSON.stringify(this.json_));
+
+    // Neuter ourselves
+    this.responseSent_ = true;
   },
 
   /**
@@ -410,6 +398,7 @@ nsCommandProcessor.prototype.execute = function(jsonCommandString,
   // These commands do not require a session.
   if (command.name == 'newSession' ||
       command.name == 'quit' ||
+      command.name == 'getStatus' ||
       command.name == 'getWindowHandles') {
     try {
       this[command.name](response, command.parameters);
@@ -570,27 +559,53 @@ nsCommandProcessor.prototype.searchWindows_ = function(search_criteria,
 
 
 /**
+ * Responds with general status information about this process.
+ * @param {Response} response The object to send the command response in.
+ */
+nsCommandProcessor.prototype.getStatus = function(response) {
+  var xulRuntime = Components.classes['@mozilla.org/xre/app-info;1'].
+      getService(Components.interfaces.nsIXULRuntime);
+
+  response.value = {
+    'os': {
+      'arch': (function() {
+        try {
+          // See https://developer.mozilla.org/en/XPCOM_ABI
+          return (xulRuntime.XPCOMABI || 'unknown').split('-')[0];
+        } catch (ignored) {
+          return 'unknown'
+        }
+      })(),
+      // See https://developer.mozilla.org/en/OS_TARGET
+      'name': xulRuntime.OS,
+      'version': 'unknown'
+    },
+    // TODO: load these values from build.properties
+    'build': {
+      'revision': 'unknown',
+      'time': 'unknown',
+      'version': 'unknown'
+    }
+  };
+  response.send();
+};
+
+
+/**
  * Locates the most recently used FirefoxDriver window.
  * @param {Response} response The object to send the command response in.
  */
 nsCommandProcessor.prototype.newSession = function(response, parameters) {
   var win = this.wm.getMostRecentWindow("navigator:browser");
-  // qqDPS
+  // qqDPS This (hopefully) targets the correct window for playback.
   try {
     var en = this.wm.getZOrderDOMWindowEnumerator("navigator:browser", false);
     while (en.hasMoreElements()) {
       var w = en.getNext();
-      /*for (var j in w) {
-        dump(j);
-        /*dump("=");
-        dump(w[j]);
-        dump("        ");
-      }*/
       if (w.title == parameters['window_title'] ||
           w.document.title == parameters['window_title'])
       {
         win = w;
-        //dump("CHING");
       }
     }
   } catch (e) {
@@ -631,9 +646,10 @@ nsCommandProcessor.prototype.getSessionCapabilities = function(response) {
     'handlesAlerts': true,
     'javascriptEnabled': true,
     'nativeEvents': Utils.useNativeEvents(),
-    'platform': xulRuntime.OS,          // same as Platform.valueOf("name");
+    // See https://developer.mozilla.org/en/OS_TARGET
+    'platform': xulRuntime.OS,
     'takesScreenshot': true,
-    'version': appInfo.version,
+    'version': appInfo.version
   };
 
   response.send();

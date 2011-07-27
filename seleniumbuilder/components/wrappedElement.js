@@ -18,8 +18,6 @@
 
 
 Components.utils.import('resource://fxdriver/modules/atoms.js');
-// TODO(simon): Port this hack back into closure proper
-//goog.userAgent.GECKO = true;
 
 var FirefoxDriver = FirefoxDriver || function(){};
 
@@ -51,7 +49,10 @@ FirefoxDriver.prototype.clickElement = function(respond, parameters) {
       versionChecker.compare(appInfo.platformVersion, "1.9") >= 0;
   var thmgr_cls = Components.classes["@mozilla.org/thread-manager;1"];
 
-  if (this.enableNativeEvents && nativeEvents && node && useNativeClick && thmgr_cls) {
+  // For now, we need to bypass native events for option elements
+  var isOption = "option" == element.tagName.toLowerCase();
+
+  if (!isOption && this.enableNativeEvents && nativeEvents && node && useNativeClick && thmgr_cls) {
     Logger.dumpn("Using native events for click");
     var loc = Utils.getLocationOnceScrolledIntoView(element);
     var x = loc.x + (loc.width ? loc.width / 2 : 0);
@@ -72,6 +73,7 @@ FirefoxDriver.prototype.clickElement = function(respond, parameters) {
         current = ultimateParent;
         ultimateParent = current.parent;
       }
+
       var offX = element.ownerDocument.defaultView.mozInnerScreenX - ultimateParent.mozInnerScreenX;
       var offY = element.ownerDocument.defaultView.mozInnerScreenY - ultimateParent.mozInnerScreenY;
 
@@ -80,15 +82,24 @@ FirefoxDriver.prototype.clickElement = function(respond, parameters) {
     }
 
     try {
-      nativeEvents.mouseMove(node, this.currentX, this.currentY, x, y);
+      var currentPosition = respond.session.getMousePosition();
+
+      var browserOffset = this.getBrowserSpecificOffset_(respond.session.getBrowser());
+
+      var adjustedX = x + browserOffset.x;
+      var adjustedY = y + browserOffset.y;
+
+      nativeEvents.mouseMove(node, currentPosition.x + browserOffset.x,
+          currentPosition.y + browserOffset.y, adjustedX, adjustedY);
 
       var pageUnloadedIndicator = Utils.getPageUnloadedIndicator(element);
 
-      nativeEvents.click(node, x, y, 1);
-      this.currentX = x;
-      this.currentY = y;
+      nativeEvents.click(node, adjustedX, adjustedY, 1);
 
-      Utils.waitForNativeEventsProcessing(element, nativeEvents, pageUnloadedIndicator);
+      respond.session.setMousePosition(x, y);
+
+      Utils.waitForNativeEventsProcessing(element, nativeEvents,
+          pageUnloadedIndicator, this.jsTimer);
 
       respond.send();
 
@@ -110,14 +121,22 @@ FirefoxDriver.prototype.clickElement = function(respond, parameters) {
 
   Logger.dumpn("Falling back to synthesized click");
 
-  var browser = respond.session.getBrowser();
-
+  // TODO(simon): Delete the above and sink most of it into a "nativeMouse"
   Utils.installWindowCloseListener(respond);
-
   Utils.installClickListener(respond, WebLoadingListener);
 
-  Logger.dumpn("Clicking");
-  bot.action.click(element);
+  var wrapped = XPCNativeWrapper(element);
+  var res = this.mouse.move(wrapped, null, null);
+  if (res.status != ErrorCode.SUCCESS) {
+    respond.status = res.status;
+    respond.value = res.message;
+    respond.send();
+    return;
+  }
+
+  res = this.mouse.click(wrapped);
+  respond.status = res.status;
+  respond.value = res.message;
 };
 FirefoxDriver.prototype.clickElement.preconditions =
     [ webdriver.preconditions.visible ];
@@ -163,7 +182,8 @@ FirefoxDriver.prototype.sendKeysToElement = function(respond, parameters) {
                                    respond.session.getDocument());
 
   var currentlyActive = Utils.getActiveElement(respond.session.getDocument());
-  if (currentlyActive != element) {
+  var unwrappedActive = webdriver.firefox.utils.unwrapFor4(currentlyActive);
+  if (unwrappedActive != element) {
     currentlyActive.blur();
     element.focus();
     element.ownerDocument.defaultView.focus();
@@ -179,9 +199,13 @@ FirefoxDriver.prototype.sendKeysToElement = function(respond, parameters) {
     use = element.ownerDocument.getElementsByTagName("html")[0];
   }
 
-  Utils.type(respond.session.getDocument(), use, parameters.value.join(''), this.enableNativeEvents);
+  // We may need a beat for firefox to hand over focus.
+  this.jsTimer.setTimeout(function() {
+    Utils.type(respond.session.getDocument(), use, parameters.value.join(''),
+        this.enableNativeEvents, this.jsTimer);
 
-  respond.send();
+    respond.send();
+  }, 0);
 };
 FirefoxDriver.prototype.sendKeysToElement.preconditions =
     [ webdriver.preconditions.visible, webdriver.preconditions.enabled ];
@@ -262,9 +286,10 @@ FirefoxDriver.prototype.hoverOverElement = function(respond, parameters) {
     var x = loc.x + (loc.width ? loc.width / 2 : 0);
     var y = loc.y + (loc.height ? loc.height / 2 : 0);
 
-    events.mouseMove(node, this.currentX, this.currentY, x, y);
-    this.currentX = x;
-    this.currentY = y;
+    var currentPosition = respond.session.getMousePosition();
+
+    events.mouseMove(node, currentPosition.x, currentPosition.y, x, y);
+    respond.session.setMousePosition(x, y);
   } else {
     // TODO: use the correct error type here.
     throw new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
@@ -334,117 +359,6 @@ FirefoxDriver.prototype.isElementSelected = function(respond, parameters) {
 };
 
 
-FirefoxDriver.prototype.setElementSelected = function(respond, parameters) {
-  var element = Utils.getElementAt(parameters.id,
-                                   respond.session.getDocument());
-
-  function safeQueryInterface(element, queryFor) {
-    try {
-      return element.QueryInterface(queryFor);
-    } catch (ignored) {
-      return null;
-    }
-  }
-
-  var option = safeQueryInterface(
-      element, Components.interfaces.nsIDOMHTMLOptionElement);
-  if (option) {
-    var select = element;
-    while (select.parentNode && select.tagName.toLowerCase() != 'select') {
-      select = select.parentNode;
-    }
-    select = safeQueryInterface(
-        select, Components.interfaces.nsIDOMHTMLSelectElement);
-    if (!select) {
-      //If we're not within a select element, fire the event from the option, and hope that it bubbles up
-      Logger.dumpn("Falling back to event firing from option, not select element");
-      select = option;
-    }
-
-    if (!option.selected) {
-      option.selected = true;
-      Utils.fireHtmlEvent(select, 'change');
-    }
-
-    respond.status = ErrorCode.SUCCESS;
-    respond.value = '';
-    respond.send();
-    return;
-  }
-
-  var inputElement = safeQueryInterface(
-      element, Components.interfaces.nsIDOMHTMLInputElement);
-  if (inputElement) {
-    if (inputElement.disabled) {
-      throw new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
-          "You may not select a disabled element");
-    }
-
-    if (inputElement.type == 'checkbox' || inputElement.type == 'radio') {
-      if (!inputElement.checked) {
-        inputElement.checked = true;
-        Utils.fireHtmlEvent(inputElement, 'change');
-      }
-
-      respond.status = ErrorCode.SUCCESS;
-      respond.value = '';
-      respond.send();
-      return;
-    }
-  }
-
-  throw new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
-      'You may not select an unselectable element');
-};
-FirefoxDriver.prototype.setElementSelected.preconditions =
-    [ webdriver.preconditions.visible ];
-
-
-FirefoxDriver.prototype.toggleElement = function(respond, parameters) {
-  var element = Utils.getElementAt(parameters.id,
-                                   respond.session.getDocument());
-
-  try {
-    var checkbox =
-        element.QueryInterface(Components.interfaces.nsIDOMHTMLInputElement);
-    if (checkbox.type == "checkbox") {
-      checkbox.checked = !checkbox.checked;
-      Utils.fireHtmlEvent(checkbox, "change");
-      respond.value = checkbox.checked;
-      respond.send();
-      return;
-    }
-  } catch(e) {
-  }
-
-  try {
-    var option =
-        element.QueryInterface(Components.interfaces.nsIDOMHTMLOptionElement);
-
-    // Find our containing select and see if it allows multiple selections
-    var select = option.parentNode;
-    while (select && select.tagName != "SELECT") {
-      select = select.parentNode;
-    }
-
-    if (select && select.multiple) {
-      option.selected = !option.selected;
-      Utils.fireHtmlEvent(option, "change");
-      respond.value = option.selected;
-      respond.send();
-      return;
-    }
-  } catch(e) {
-  }
-
-    throw new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
-      "You may only toggle an element that is either a checkbox or an "  +
-      "option in a select that allows multiple selections");
-};
-FirefoxDriver.prototype.toggleElement.preconditions =
-    [ webdriver.preconditions.visible ];
-
-
 FirefoxDriver.prototype.isElementDisplayed = function(respond, parameters) {
   var element = Utils.getElementAt(parameters.id,
                                    respond.session.getDocument());
@@ -502,7 +416,7 @@ FirefoxDriver.prototype.dragElement = function(respond, parameters) {
   var clientFinishY = ((clientStartY + movementY) < 0) ? 0 : (clientStartY
       + movementY);
 
-  // Restrict the desitnation into the sensible dimension
+  // Restrict the destination into the sensible dimension
   var body = element.ownerDocument.body;
 
   if (clientFinishX > body.scrollWidth)
@@ -599,3 +513,5 @@ FirefoxDriver.prototype.getElementLocationOnceScrolledIntoView = function(
   };
   respond.send();
 };
+
+

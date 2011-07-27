@@ -125,6 +125,9 @@ Dispatcher.prototype.init_ = function() {
   this.bind_('/config/drivers').  // Recognised, but not supported.
       on(Request.Method.POST, Dispatcher.notImplemented);
 
+  this.bind_('/status').
+      on(Request.Method.GET, Dispatcher.executeAs('getStatus'));
+
   this.bind_('/session').
       on(Request.Method.POST, Dispatcher.translateNewSession());
 
@@ -210,8 +213,7 @@ Dispatcher.prototype.init_ = function() {
       on(Request.Method.POST, Dispatcher.executeAs('clearElement'));
 
   this.bind_('/session/:sessionId/element/:id/selected').
-      on(Request.Method.GET, Dispatcher.executeAs('isElementSelected')).
-      on(Request.Method.POST, Dispatcher.executeAs('setElementSelected'));
+      on(Request.Method.GET, Dispatcher.executeAs('isElementSelected'));
 
   this.bind_('/session/:sessionId/element/:id/enabled').
       on(Request.Method.GET, Dispatcher.executeAs('isElementEnabled'));
@@ -235,8 +237,6 @@ Dispatcher.prototype.init_ = function() {
   this.bind_('/session/:sessionId/element/:id/equals/:other').
       on(Request.Method.GET, Dispatcher.executeAs('elementEquals'));
 
-  this.bind_('/session/:sessionId/element/:id/toggle').
-      on(Request.Method.POST, Dispatcher.executeAs('toggleElement'));
   this.bind_('/session/:sessionId/element/:id/hover').
       on(Request.Method.POST, Dispatcher.executeAs('hoverOverElement'));
   this.bind_('/session/:sessionId/element/:id/drag').
@@ -275,6 +275,15 @@ Dispatcher.prototype.init_ = function() {
       on(Request.Method.POST, Dispatcher.executeAs('clickElement'));
   this.bind_('/session/:sessionId/moveto').
       on(Request.Method.POST, Dispatcher.executeAs('mouseMove'));
+  this.bind_('/session/:sessionId/buttondown').
+      on(Request.Method.POST, Dispatcher.executeAs('mouseDown'));
+  this.bind_('/session/:sessionId/buttonup').
+      on(Request.Method.POST, Dispatcher.executeAs('mouseUp'));
+  this.bind_('/session/:sessionId/click').
+      on(Request.Method.POST, Dispatcher.executeAs('mouseClick'));
+  this.bind_('/session/:sessionId/doubleclick').
+      on(Request.Method.POST, Dispatcher.executeAs('mouseDoubleClick'));
+
 
   // --------------------------------------------------------------------------
   // Firefox extensions to the wire protocol.

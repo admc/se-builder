@@ -433,6 +433,7 @@ builder.interface.startup = new(function () {
   function open_file(path, script) {
     // NB Edit interface must be open before we can write into the edit form (jQuery relies on
     // the steps being shown).
+    builder.storage.set('selMajorVersion', 1);
     builder.interface.switchTo('edit');
 
     for (var step = builder.lastStep(); step.id; step = builder.lastStep()) {
@@ -476,12 +477,17 @@ builder.interface.startup = new(function () {
     builder.interface.suite.update();
   }
   
+  builder.openSel2File = open_sel2_file;
+  
   /** Export this into the builder namespace: */
   builder.openScript = open_file;
 
   // Attach listeners to the relevant links and buttons.
   builder.interface.addOnloadHook(function () {
-    jQuery('#startup-record form').submit(start_recording);
+    jQuery('#startup-start-recording').submit(start_recording);
+    jQuery('#startup-start-recording-sel2').submit(function() {
+      builder.sel2.startRecording(jQuery('#startup-url').val(), false);
+    });
     jQuery('#startup-record a').click(start_recording);
     jQuery('#startup-import a').click(import_file);
     jQuery('#startup-import-sel2 a').click(import_sel2_file);
@@ -549,6 +555,7 @@ builder.interface.record = new(function () {
     jQuery('#bottom')[0].scrollIntoView(false);
     builder.storage.set('save_required', true);
   }
+  builder.interface.record_sel1_action = record_action;
   builder.interface.record_action = record_action;
   
   // There are two modes of recording actions: normal recording and assertion recording. The user
@@ -563,7 +570,7 @@ builder.interface.record = new(function () {
       help: '#record-help',
       button: null,
       create: function () {
-        return new builder.Recorder(window.bridge.content(), record_action);
+        return new builder.Recorder(window.bridge.content(), builder.interface.record_action);
       }
     },
     assert: {
@@ -575,7 +582,7 @@ builder.interface.record = new(function () {
           window.bridge.content(),
           function() {},
           function(method, params) {
-            record_action(method.replace("assert", "verify"), params);
+            builder.interface.record_action(method.replace("assert", "verify"), params);
             //setTimeout(function() { builder.interface.switchTo('record'); }, 0);
             setTimeout(function() { builder.setRecordMode('record'); }, 0);
             window.bridge.focusWindow();
@@ -621,7 +628,7 @@ builder.interface.record = new(function () {
     
     window.bridge.setCustomRecordingWindow(win);
     recorderInstance.destroy();
-    recorderInstance = new builder.Recorder(window.bridge.content(), record_action);
+    recorderInstance = new builder.Recorder(window.bridge.content(), builder.interface.record_action);
     
     // Reattach the load listeners to their new location.
     
@@ -663,11 +670,23 @@ builder.interface.record = new(function () {
 
   builder.interface.addOnloadHook(function () {
     jQuery('#record-stop-button').click(function (e) {
-      builder.interface.switchTo('edit');
+      if (builder.storage.get('selMajorVersion') == 2) {
+        builder.sel2.stopRecording();
+      } else {
+        builder.interface.switchTo('edit');
+      }
     });
 
     jQuery('#record-assert').click(function (e) {
-      toggleRecordMode('assert');
+      if (builder.storage.get('selMajorVersion') == 2) {
+        if (builder.sel2.assertExploring) {
+          builder.sel2.stopAssertExploring();
+        } else {
+          builder.sel2.assertExplore();
+        }
+      } else {
+        toggleRecordMode('assert');
+      }
     });
 
     // This attaches a listener to the pageloading value in storage. pageloading is set to
@@ -696,7 +715,7 @@ builder.interface.record = new(function () {
         // Append a waitForPageToLoad step to tell the playback system to wait for the new
         // page to load before continuing with the next step.
         if (noticed_loading && builder.lastStep().method() != 'open') {
-          record_action('waitForPageToLoad', { timeout: 60000 });
+          builder.interface.record_action('waitForPageToLoad', { timeout: 60000 });
           // Attach a recorder to the newly loaded page.
           setRecordMode(currentRecordMode);
           noticed_loading = false;
@@ -751,7 +770,7 @@ builder.interface.record = new(function () {
       // If the previous step's URL doesn't match up with the one we're recording from now,
       // create an "open" step in the script to navigate to the right URL.
       if (builder.lastStep().url() != builder.storage.get('currenturl')) {
-        record_action(
+        builder.interface.record_action(
           'open',
           { url: get_open_url(builder.storage.get('currenturl')) },
           /* user opened page manually */
@@ -760,7 +779,7 @@ builder.interface.record = new(function () {
         // qqDPS Add a waitForPageToLoad step to ensure the page is loaded before
         // continuing. Note that this is an incomplete solution to the problem of missing
         // waitForPageToLoads causing playback in RC to fail.
-        record_action('waitForPageToLoad', {
+        builder.interface.record_action('waitForPageToLoad', {
           timeout: "60000"
         });
       }
@@ -823,9 +842,13 @@ builder.interface.edit = new(function () {
     );
     // Record button: Record more of the script
     jQuery('#record').click(function () {
-      // The user knows this may fail now.
-      jQuery('#error-panel').hide();
-      builder.interface.switchTo('record');
+      if (builder.storage.get('selMajorVersion') == 2) {
+        builder.sel2.continueRecording();
+      } else {
+        // The user knows this may fail now.
+        jQuery('#error-panel').hide();
+        builder.interface.switchTo('record');
+      }
     });
     // Play button: Play back the script in this browser
     jQuery('#run-locally').click(function () {

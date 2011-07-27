@@ -108,10 +108,15 @@ to have some difference to give the user the idea of a bit of progress
         </li>
         <li id="startup-record">
             <h3><a name="record" href="#record">Start recording</a> a new script at</h3>
-            <form method="get" action="#record">
+            <form method="get" action="#record" id="startup-start-recording">
               <p>
                 <input id="startup-url" type="text" class="texta" size="35"/>
                 <input type="submit" value="Go!" class="button"/>
+              </p>
+            </form>
+            <form method="get" action="#record-sel2" id="startup-start-recording-sel2">
+              <p>
+                or <input type="submit" value="Record Selenium 2 Script" class="button"/>
               </p>
             </form>
             <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>

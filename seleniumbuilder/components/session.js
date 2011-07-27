@@ -102,6 +102,15 @@ wdSession.prototype.inputSpeed_ = 1;
  */
 wdSession.prototype.implicitWait_ = 0;
 
+/**
+ * Current position of the mouse cursor, in X,Y coordinates.
+ */
+wdSession.prototype.mousePosition_ = {
+  x: 0,
+  y: 0,
+  initialized: false
+}
+
 
 /**
  * The amount of time, in milliseconds, this session should wait for
@@ -252,6 +261,25 @@ wdSession.prototype.getScriptTimeout = function() {
 wdSession.prototype.setScriptTimeout = function(timeout) {
   this.scriptTimeout_ = Math.max(timeout, 0);
 };
+
+/**
+ * @return {object} The current position of the mouse cursor.
+ */
+wdSession.prototype.getMousePosition = function() {
+  return this.mousePosition_;
+};
+
+/**
+ * Sets the current mouse position.
+ * @param {number} X coordinates.
+ * @param {number} Y coordinates.
+ */
+wdSession.prototype.setMousePosition = function(x, y) {
+  this.mousePosition_.x = x;
+  this.mousePosition_.y = y;
+  this.mousePosition_.initialized = true;
+}
+
 
 
 ///////////////////////////////////////////////////////////////////

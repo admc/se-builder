@@ -69,6 +69,7 @@ builder.sel2.addNewStep = function() {
   var newStep = new builder.sel2.Sel2Step('clickElement');
   builder.getCurrentScript().addStep(newStep);
   addStep(newStep);
+  builder.storage.set('save_required', true);
   return newStep.id;
 };
 
@@ -78,6 +79,7 @@ function addNewStepBefore(beforeStepID) {
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   beforeStepDOM.parentNode.insertBefore(newStepDOM, beforeStepDOM);
+  builder.storage.set('save_required', true);
 }
 
 function addNewStepAfter(afterStepID) {
@@ -86,11 +88,13 @@ function addNewStepAfter(afterStepID) {
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   afterStep.after(newStepDOM);
+  builder.storage.set('save_required', true);
 }
 
 function deleteStep(stepID) {
   builder.getCurrentScript().removeStepWithID(stepID);
   jQuery('#' + stepID).remove();
+  builder.storage.set('save_required', true);
 }
 
 function editType(stepID) {
@@ -117,6 +121,7 @@ function editType(stepID) {
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();
         builder.sel2.updateStepDisplay(stepID);
+        builder.storage.set('save_required', true);
       }
     })
   );
@@ -152,6 +157,7 @@ function editParam(stepID, pIndex) {
           jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
           jQuery('#' + stepID + '-p' + pIndex).show();
           builder.sel2.updateStepDisplay(stepID);
+          builder.storage.set('save_required', true);
         }
       })
     );
@@ -186,6 +192,7 @@ function editParam(stepID, pIndex) {
           jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
           jQuery('#' + stepID + '-p' + pIndex).show();
           builder.sel2.updateStepDisplay(stepID);
+          builder.storage.set('save_required', true);
         }
       })
     );
@@ -321,4 +328,5 @@ function addStep(step) {
   });
 
   builder.sel2.updateStepDisplay(step.id);
+  builder.storage.set('save_required', true);
 }

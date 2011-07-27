@@ -68,7 +68,8 @@ var supportedSel1Steps = [
   "waitForCookiePresent"
 ];
 
-var loc_type_1_2 = [
+/** Mapping of the names of Selenium 1 locators to Selenium 2 locators. */
+builder.loc_type_1_2 = [
   ["id", "id"],
   ["name", "name"],
   ["link", "link text"],
@@ -77,22 +78,22 @@ var loc_type_1_2 = [
 ];
 
 function conv2LocTypeTo1(t) {
-  for (var i = 0; i < loc_type_1_2.length; i++) {
-    if (loc_type_1_2[i][1] == t) {
-      return loc_type_1_2[i][0];
+  for (var i = 0; i < builder.loc_type_1_2.length; i++) {
+    if (builder.loc_type_1_2[i][1] == t) {
+      return builder.loc_type_1_2[i][0];
     }
   }
   throw new Exception("No suitable Selenium 1 locator type for \"" + t + "\" found.");
 }
 
-function conv1LocTypeTo2(t) {
-  for (var i = 0; i < loc_type_1_2.length; i++) {
-    if (loc_type_1_2[i][0] == t) {
-      return loc_type_1_2[i][1];
+builder.conv1LocTypeTo2 = function(t) {
+  for (var i = 0; i < builder.loc_type_1_2.length; i++) {
+    if (builder.loc_type_1_2[i][0] == t) {
+      return builder.loc_type_1_2[i][1];
     }
   }
   throw new Exception("No suitable Selenium 2 locator type for \"" + t + "\" found.");
-}
+};
 
 builder.conv2To1 = function(step) {
   var m = builder.findSel1Method(step.type);
@@ -207,8 +208,8 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
     if (stepInfo[param_n + 1]) {
       var param_name = ["locator", "option"][param_n];
       if (stepInfo[param_n + 1].startsWith("locator")) {
-        var locInfo = extractSel2LocatorInfo(step[param_name]);
-        newStep[stepInfo[param_n + 1]] = { type: conv1LocTypeTo2(locInfo[0]), value: locInfo[1] };
+        var locInfo = builder.extractSel2LocatorInfo(step[param_name]);
+        newStep[stepInfo[param_n + 1]] = { type: builder.conv1LocTypeTo2(locInfo[0]), value: locInfo[1] };
       } else {
         newStep[stepInfo[param_n + 1]] = step[param_name];
       }
@@ -220,6 +221,6 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
   return [newStep];
 };
 
-function extractSel2LocatorInfo(locator) {
+builder.extractSel2LocatorInfo = function(locator) {
   return [locator.substring(0, locator.indexOf("=")), locator.substring(locator.indexOf("=") + 1)];
-}
+};

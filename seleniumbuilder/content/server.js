@@ -23,8 +23,8 @@ var domMessenger = null;
 // _browser window_ (not chrome window). Multiple tabs in the same window will
 // share a FirefoxDriver and DomMessenger instance.
 window.addEventListener("load", function(e) {
-    handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
-    var server = handle.wrappedJSObject;
+  handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance();
+  var server = handle.wrappedJSObject;
 
   if (!domMessenger) {
     var appcontent = document.getElementById('appcontent');
@@ -50,18 +50,9 @@ window.addEventListener("load", function(e) {
     }
   }
 
-    if (!driver) {
-        driver = server.newDriver(window);
-    }
-    
-    server.startListening();
+  if (!driver) {
+    driver = server.newDriver(window);
+  }
 
+  server.startListening();
 }, true);
-
-//window.addEventListener("focus", function(e) {
-//    var active = e.originalTarget;
-//    var doc = gBrowser.selectedBrowser.contentDocument;
-//    if (active.ownerDocument == doc) {
-//        driver.activeElement = active;
-//    }
-//}, true);

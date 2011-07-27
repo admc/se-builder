@@ -27,6 +27,9 @@ builder.sel2.Sel2Script.prototype = {
     var index = this.getStepIndexForID(id);
     return index == -1 ? null : this.steps[index];
   },
+  getLastStep: function() {
+    return this.steps.length == 0 ? null : this.steps[this.steps.length - 1];
+  },
   removeStepWithID: function(id) {
     var index = this.getStepIndexForID(id);
     if (index != -1) {

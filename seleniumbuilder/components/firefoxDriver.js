@@ -41,18 +41,8 @@ function FirefoxDriver(server, enableNativeEvents, win) {
   FirefoxDriver.listenerScript = Utils.loadUrl("resource://fxdriver/evaluate.js");
 
   this.jsTimer = new Timer();
+  this.mouse = Utils.newInstance("@googlecode.com/webdriver/syntheticmouse;1", "wdIMouse");
 }
-
-
-/**
- * Enumeration of supported speed values.
- * @enum {number}
- */
-FirefoxDriver.Speed = {
-  SLOW: 1,
-  MEDIUM: 10,
-  FAST: 100
-};
 
 
 FirefoxDriver.prototype.__defineGetter__("id", function() {
@@ -306,63 +296,26 @@ FirefoxDriver.prototype.getPageSource = function(respond) {
   docElement.setAttribute('webdriver', 'true');
 };
 
+
 /**
- * Searches for the first element in {@code theDocument} matching the given
- * {@code xpath} expression.
- * @param {nsIDOMDocument} theDocument The document to search in.
- * @param {string} xpath The XPath expression to evaluate.
- * @param {nsIDOMNode} opt_contextNode The context node for the query; defaults
- *     to {@code theDocument}.
- * @return {nsIDOMNode} The first matching node.
+ * Map of strategy keys used by the wire protocol to those used by the
+ * automation atoms.
+ *
+ *  TODO: this really needs to be handled by bot.locators.
+ *
+ * @type {!Object.<string, string>}
+ * @const
  * @private
  */
-FirefoxDriver.prototype.findElementByXPath_ = function(theDocument, xpath,
-                                                       opt_contextNode) {
-  var contextNode = opt_contextNode || theDocument;
-  return theDocument.evaluate(xpath, contextNode, null,
-      Components.interfaces.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null).
-      singleNodeValue;
-};
-
-
-/**
- * Searches for elements matching the given {@code xpath} expression in the
- * specified document.
- * @param {nsIDOMDocument} theDocument The document to search in.
- * @param {string} xpath The XPath expression to evaluate.
- * @param {nsIDOMNode} opt_contextNode The context node for the query; defaults
- *     to {@code theDocument}.
- * @return {Array.<nsIDOMNode>} The matching nodes.
- * @private
- */
-FirefoxDriver.prototype.findElementsByXPath_ = function(theDocument, xpath,
-                                                        opt_contextNode) {
-  var contextNode = opt_contextNode || theDocument;
-  var result = theDocument.evaluate(xpath, contextNode, null,
-      Components.interfaces.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-  var elements = [];
-  var element = result.iterateNext();
-  while (element) {
-    elements.push(element);
-    element = result.iterateNext();
-  }
-  return elements;
-};
-
-
-/**
- * An enumeration of the supported element locator methods.
- * @enum {string}
- */
-FirefoxDriver.ElementLocator = {
-  ID: 'id',
-  NAME: 'name',
-  CLASS_NAME: 'class name',
-  CSS_SELECTOR: 'css selector',
-  TAG_NAME: 'tag name',
-  LINK_TEXT: 'link text',
-  PARTIAL_LINK_TEXT: 'partial link text',
-  XPATH: 'xpath'
+FirefoxDriver.WIRE_TO_ATOMS_STRATEGY_ = {
+  'id': 'id',
+  'name': 'name',
+  'class name': 'className',
+  'css selector': 'css',
+  'tag name': 'tagName',
+  'link text': 'linkText',
+  'partial link text': 'partialLinkText',
+  'xpath': 'xpath'
 };
 
 
@@ -370,7 +323,7 @@ FirefoxDriver.ElementLocator = {
  * Finds an element on the current page. The response value will be the UUID of
  * the located element, or an error message if an element could not be found.
  * @param {Response} respond Object to send the command response with.
- * @param {FirefoxDriver.ElementLocator} method The locator method to use.
+ * @param {string} method The locator method to use.
  * @param {string} selector What to search for; see {@code ElementLocator} for
  *     details on what the selector should be for each element.
  * @param {string} opt_parentElementId If defined, the search will be restricted
@@ -389,73 +342,26 @@ FirefoxDriver.prototype.findElementInternal_ = function(respond, method,
   var rootNode = typeof opt_parentElementId == 'string' ?
       Utils.getElementAt(opt_parentElementId, theDocument) : theDocument;
 
+  var target = {};
+  target[FirefoxDriver.WIRE_TO_ATOMS_STRATEGY_[method] || method] = selector;
+
   var element;
-  switch (method) {
-    case FirefoxDriver.ElementLocator.ID:
-      element = rootNode === theDocument ?
-          theDocument.getElementById(selector) :
-          this.findElementByXPath_(
-              theDocument, './/*[@id="' + selector + '"]', rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.NAME:
-      element = rootNode.getElementsByName ?
-          rootNode.getElementsByName(selector)[0] :
-          this.findElementByXPath_(
-              theDocument, './/*[@name ="' + selector + '"]', rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.CLASS_NAME:
-      element = rootNode.getElementsByClassName ?
-                rootNode.getElementsByClassName(selector)[0] :  // FF 3+
-                this.findElementByXPath_(theDocument,           // FF 2
-                    '//*[contains(concat(" ",normalize-space(@class)," ")," ' +
-                    selector + ' ")]', rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.CSS_SELECTOR:
-      var tempRespond = {
-        session: respond.session,
-        send: function() {
-          var found = tempRespond.value;
-          respond.value = found ? found : "Unable to find element using css: " + selector;
-          respond.status = found ? ErrorCode.SUCCESS : ErrorCode.NO_SUCH_ELEMENT;
-          respond.send();
-        }
-      };
-      var execute = goog.bind(this.executeScript, this);
-      Utils.findByCss(rootNode, theDocument, selector, true, tempRespond, execute);
-      return;
-
-    case FirefoxDriver.ElementLocator.TAG_NAME:
-      element = rootNode.getElementsByTagName(selector)[0];
-      break;
-
-    case FirefoxDriver.ElementLocator.XPATH:
-      element = this.findElementByXPath_(theDocument, selector, rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.LINK_TEXT:
-    case FirefoxDriver.ElementLocator.PARTIAL_LINK_TEXT:
-      var allLinks = rootNode.getElementsByTagName('A');
-      for (var i = 0; i < allLinks.length && !element; i++) {
-        var text = webdriver.element.getText(allLinks[i]);
-        if (FirefoxDriver.ElementLocator.PARTIAL_LINK_TEXT == method) {
-          if (text.indexOf(selector) != -1) {
-            element = allLinks[i];
-          }
-        } else if (text == selector) {
-          element = allLinks[i];
-        }
-      }
-      break;
-
-    default:
-      throw new WebDriverError(ErrorCode.UNKNOWN_COMMAND,
-          'Unsupported element locator method: ' + method);
-      return;
+  try {
+    element = bot.locators.findElement(target, rootNode);
   }
-
+  catch(ex) {
+    if(ex.message == bot.ErrorCode.INVALID_SELECTOR_ERROR) {
+      // We send the INVALID_SELECTOR_ERROR immediately because it will occur in
+      // every retry.
+      respond.sendError(new WebDriverError(bot.ErrorCode.INVALID_SELECTOR_ERROR,
+        'The given selector "' + selector + ' is either invalid or does not result'
+          + 'in a Webelement'));
+      return;
+    } else {
+      // this is not the exception we are interested in, so we propagate it.
+      throw e;
+    }
+  }
   if (element) {
     var id = Utils.addToKnownElements(element, respond.session.getDocument());
     respond.value = {'ELEMENT': id};
@@ -514,7 +420,7 @@ FirefoxDriver.prototype.findChildElement = function(respond, parameters) {
  * Finds elements on the current page. The response value will an array of UUIDs
  * for the located elements.
  * @param {Response} respond Object to send the command response with.
- * @param {FirefoxDriver.ElementLocator} method The locator method to use.
+ * @param {string} method The locator method to use.
  * @param {string} selector What to search for; see {@code ElementLocator} for
  *     details on what the selector should be for each element.
  * @param {string} opt_parentElementId If defined, the search will be restricted
@@ -533,57 +439,24 @@ FirefoxDriver.prototype.findElementsInternal_ = function(respond, method,
   var rootNode = typeof opt_parentElementId == 'string' ?
       Utils.getElementAt(opt_parentElementId, theDocument) : theDocument;
 
+  var target = {};
+  target[FirefoxDriver.WIRE_TO_ATOMS_STRATEGY_[method] || method] = selector;
+
   var elements;
-  switch (method) {
-    case FirefoxDriver.ElementLocator.ID:
-      selector = './/*[@id="' + selector + '"]';
-      // Fall-through
-    case FirefoxDriver.ElementLocator.XPATH:
-      elements = this.findElementsByXPath_(
-          theDocument, selector, rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.NAME:
-      elements = rootNode.getElementsByName ?
-          rootNode.getElementsByName(selector) :
-          this.findElementsByXPath_(
-              theDocument, './/*[@name="' + selector + '"]', rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.CSS_SELECTOR:
-      var execute = goog.bind(this.executeScript, this);
-      Utils.findByCss(rootNode, theDocument, selector, false, respond, execute);
+  try {
+    elements = bot.locators.findElements(target, rootNode);
+  } catch (ex) {
+    if(ex.message == bot.ErrorCode.INVALID_SELECTOR_ERROR) {
+      // We send the INVALID_SELECTOR_ERROR immediately because it will occur in
+      // every retry.
+      respond.sendError(new WebDriverError(bot.ErrorCode.INVALID_SELECTOR_ERROR,
+        'The given selector "' + selector + ' is either invalid or does not result'
+           + 'in a Webelement'));
       return;
-
-    case FirefoxDriver.ElementLocator.TAG_NAME:
-      elements = rootNode.getElementsByTagName(selector);
-      break;
-
-    case FirefoxDriver.ElementLocator.CLASS_NAME:
-      elements = rootNode.getElementsByClassName ?
-      rootNode.getElementsByClassName(selector) :  // FF 3+
-      this.findElementsByXPath_(theDocument,       // FF 2
-          './/*[contains(concat(" ",normalize-space(@class)," ")," ' +
-          selector + ' ")]', rootNode);
-      break;
-
-    case FirefoxDriver.ElementLocator.LINK_TEXT:
-    case FirefoxDriver.ElementLocator.PARTIAL_LINK_TEXT:
-      elements =  rootNode.getElementsByTagName('A');
-      elements = Array.filter(elements, function(element) {
-        var text = webdriver.element.getText(element);
-        if (FirefoxDriver.ElementLocator.PARTIAL_LINK_TEXT == method) {
-          return text.indexOf(selector) != -1;
-        } else {
-          return text == selector;
-        }
-      });
-      break;
-
-    default:
-      throw new WebDriverError(ErrorCode.UNKNOWN_COMMAND,
-          'Unsupported element locator method: ' + method);
-      return;
+    } else {
+      // this is not the exception we are interested in, so we propagate it.
+      throw e;
+    }
   }
 
   var elementIds = [];
@@ -685,7 +558,14 @@ FirefoxDriver.prototype.switchToFrame = function(respond, parameters) {
         currentWindow.document);
 
     if (/^i?frame$/i.test(element.tagName)) {
-      newWindow = element.contentWindow;
+      // Each session maintains a weak reference to the window it is currently
+      // focused on. If we set this reference using the |contentWindow|
+      // property, we may prematurely lose our window reference. This does not
+      // appear to happen if we cross reference the frame's |contentWindow|
+      // with the current window's |frames| nsIDOMWindowCollection.
+      newWindow = goog.array.find(currentWindow.frames, function(frame) {
+        return frame == element.contentWindow;
+      });
     } else {
       throw new WebDriverError(ErrorCode.NO_SUCH_FRAME,
           'Element is not a frame element: ' + element.tagName);
@@ -1030,13 +910,77 @@ FirefoxDriver.prototype.imeActivateEngine = function(respond, parameters) {
   respond.send();
 };
 
+function getElementFromLocation(mouseLocation, doc) {
+  var elementForNode = null;
+
+  var locationX = Math.round(mouseLocation.x);
+  var locationY = Math.round(mouseLocation.y);
+
+  if (mouseLocation.initialized) {
+    Logger.dumpn("Getting element from coordinates " + locationX + "," + locationY);
+    elementForNode = doc.elementFromPoint(locationX, locationY);
+  } else {
+    Logger.dumpn("Mouse coordinates were not set - using body");
+    elementForNode = doc.getElementsByTagName("body")[0];
+  }
+
+  return webdriver.firefox.utils.unwrap(elementForNode);
+}
+
+function generateErrorForNativeEvents(nativeEventsEnabled, nativeEventsObj, nodeForInteraction) {
+  var nativeEventFailureCause = "Could not get node for element or native " +
+      "events are not supported on the platform.";
+  if (! nativeEventsEnabled) {
+    nativeEventFailureCause = "native events are disabled on this platform.";
+  } else if (! nativeEventsObj) {
+    nativeEventFailureCause = "Could not load native events component.";
+  } else {
+    nativeEventFailureCause = "Could not get node for element - cannot interact.";
+  }
+ // TODO: use the correct error type here.
+  return new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
+      "Cannot perform native interaction: " + nativeEventFailureCause);
+}
+
+getBrowserSpecificOffset_ = function(inBrowser) {
+    // In Firefox 4, there's a shared window handle. We need to calculate an offset
+    // to add to the x and y locations.
+    var browserSpecificXOffset = 0;
+    var browserSpecificYOffset = 0;
+
+    if (bot.userAgent.isFirefox4()) {
+      var rect = inBrowser.getBoundingClientRect();
+      browserSpecificYOffset += rect.top;
+      browserSpecificXOffset += rect.left;
+      Logger.dumpn("Browser-specific offset (X,Y): " + browserSpecificXOffset
+          + ", " + browserSpecificYOffset);
+    }
+
+  return {x: browserSpecificXOffset, y: browserSpecificYOffset};
+}
+
+//TODO: figure out why this.getBrowserSpecificOffset_ cannot be used in mouseMove
+FirefoxDriver.prototype.getBrowserSpecificOffset_ = function(inBrowser) {
+  return getBrowserSpecificOffset_(inBrowser);
+}
+
 FirefoxDriver.prototype.mouseMove = function(respond, parameters) {
   var doc = respond.session.getDocument();
-  var coords = webdriver.firefox.events.buildCoordinates(parameters, doc);
-
-  var mouseMoveTo = function(coordinates, nativeEventsEnabled) {
-    var toX = this.currentX;
-    var toY = this.currentY;
+  
+  // Fast path first
+  if (!this.enableNativeEvents) {
+    var raw = parameters['element'] ? Utils.getElementAt(parameters['element'], doc) : null;
+    var target = raw ? new XPCNativeWrapper(raw) : null;
+    Logger.dumpn("Calling move with: " + parameters['xoffset'] + ', ' + parameters['yoffset'] + ", " + target);
+    var result = this.mouse.move(target, parameters['xoffset'], parameters['yoffset']);
+    
+    respond['status'] = result['status'];
+    respond['result'] = result['message'];
+    respond.send();
+    return;
+  }
+  
+  var mouseMoveTo = function(coordinates, nativeEventsEnabled, jsTimer) {
     var elementForNode = null;
 
     if (coordinates.auxiliary) {
@@ -1049,51 +993,175 @@ FirefoxDriver.prototype.mouseMove = function(respond, parameters) {
 
       elementForNode = element;
     } else {
-      if (goog.isDef(this.currentX) && goog.isDef(this.currentY)) {
-        Logger.dumpn("Getting element from coordinates " + this.currentX + "," + this.currentY);
-        elementForNode = doc.elementFromPoint(this.currentX, this.currentY);
-      } else {
-        this.currentX = 0;
-        this.currentY = 0;
-        Logger.dumpn("currentX,Y not defined - using body");
-        elementForNode = doc.getElementsByTagName("body")[0];
-      }
+      elementForNode = getElementFromLocation(respond.session.getMousePosition(), doc);
+      var mousePosition = respond.session.getMousePosition();
 
-      toX = this.currentX + coordinates.x;
-      toY = this.currentY + coordinates.y;
+      toX = mousePosition.x + coordinates.x;
+      toY = mousePosition.y + coordinates.y;
     }
 
+    var browserOffset = getBrowserSpecificOffset_(respond.session.getBrowser());
 
     var events = Utils.getNativeEvents();
     var node = Utils.getNodeForNativeEvents(elementForNode);
 
+    // Make sure destination coordinates are positive - there's no sense in
+    // generating mouse move events to negative offests and the native events
+    // library will indeed refuse to do so.
+    toX = Math.max(toX, 0);
+    toY = Math.max(toY, 0);
+
+    // TODO(eran): Figure out the size of the window - it's ok to drag past the body's
+    // boundaries, but not the window's boundaries.
+    toX = Math.min(toX, 4096);
+    toY = Math.min(toY, 4096);
+
     if (nativeEventsEnabled && events && node) {
-      if (!goog.isDef(this.currentX)) {
-        this.currentX = 0;
-      }
+      var currentPosition = respond.session.getMousePosition();
+      Logger.dumpn("Moving from (" + currentPosition.x + ", " + currentPosition.y + ") to (" +
+        toX + ", " + toY + ")");
+      events.mouseMove(node,
+          currentPosition.x + browserOffset.x, currentPosition.y + browserOffset.y,
+          toX + browserOffset.x, toY + browserOffset.y);
 
-      if (!goog.isDef(this.currentY)) {
-        this.currentY = 0;
-      }
+      var dummyIndicator = {
+        wasUnloaded: false
+      };
 
-      events.mouseMove(node, this.currentX, this.currentY, toX, toY);
+      Utils.waitForNativeEventsProcessing(elementForNode, events, dummyIndicator, jsTimer);
 
-      this.currentX = toX;
-      this.currentY = toY;
+      respond.session.setMousePosition(toX, toY);
     } else {
-      var hoverFailureCause = "Could not get node for element or native " +
-          "events are not supported on the platform.";
-      if (nativeEventsEnabled) {
-        hoverFailureCause = "native events are disabled on this platform.";
-      }
-      // TODO: use the correct error type here.
-      throw new WebDriverError(ErrorCode.INVALID_ELEMENT_STATE,
-          "Cannot hover over element: " + hoverFailureCause);
+      throw generateErrorForNativeEvents(nativeEventsEnabled, events, node);
     }
 
   };
 
-  mouseMoveTo(coords, this.enableNativeEvents);
+  var coords = webdriver.firefox.events.buildCoordinates(parameters, doc);
+  mouseMoveTo(coords, this.enableNativeEvents, this.jsTimer);
 
+  respond.send();
+};
+
+FirefoxDriver.prototype.mouseDown = function(respond, parameters) {
+  if (!this.enableNativeEvents) {
+    var coords = webdriver.firefox.utils.newCoordinates(null, 0, 0);
+    var result = this.mouse.down(coords);
+    
+    respond['status'] = result['status'];
+    respond['value'] = result['message'];
+    respond.send();
+    return;
+  }
+  
+  var doc = respond.session.getDocument();
+  var elementForNode = getElementFromLocation(respond.session.getMousePosition(), doc);;  
+
+  var events = Utils.getNativeEvents();
+  var node = Utils.getNodeForNativeEvents(elementForNode);
+
+  if (this.enableNativeEvents && events && node) {
+    var currentPosition = respond.session.getMousePosition();
+    var browserOffset = getBrowserSpecificOffset_(respond.session.getBrowser());
+
+    events.mousePress(node, currentPosition.x + browserOffset.x,
+        currentPosition.y + browserOffset.y, 1);
+
+    var dummyIndicator = {
+      wasUnloaded: false
+    };
+
+    Utils.waitForNativeEventsProcessing(elementForNode, events, dummyIndicator, this.jsTimer);
+
+  } else {
+    throw generateErrorForNativeEvents(this.enableNativeEvents, events, node);
+  }
+
+  respond.send();
+};
+
+FirefoxDriver.prototype.mouseUp = function(respond, parameters) {
+  if (!this.enableNativeEvents) {
+    var coords = webdriver.firefox.utils.newCoordinates(null, 0, 0);
+    var result = this.mouse.up(coords);
+    
+    respond['status'] = result['status'];
+    respond['value'] = result['message'];
+    respond.send();
+    return;
+  }
+  
+  var doc = respond.session.getDocument();
+  var elementForNode = getElementFromLocation(respond.session.getMousePosition(), doc);
+
+  var events = Utils.getNativeEvents();
+  var node = Utils.getNodeForNativeEvents(elementForNode);
+
+  if (this.enableNativeEvents && events && node) {
+    var currentPosition = respond.session.getMousePosition();
+    var browserOffset = getBrowserSpecificOffset_(respond.session.getBrowser());
+
+    events.mouseRelease(node, currentPosition.x + browserOffset.x,
+        currentPosition.y + browserOffset.y, 1);
+
+    var dummyIndicator = {
+      wasUnloaded: false
+    };
+
+    Utils.waitForNativeEventsProcessing(elementForNode, events, dummyIndicator, this.jsTimer);
+  } else {
+    throw generateErrorForNativeEvents(this.enableNativeEvents, events, node);
+  }
+
+  respond.send();
+};
+
+FirefoxDriver.prototype.mouseClick = function(respond, parameters) {
+  var doc = respond.session.getDocument();
+  
+  Utils.installWindowCloseListener(respond);
+  Utils.installClickListener(respond, WebLoadingListener);
+  
+  if (!this.enableNativeEvents) {
+    var result = this.mouse.click(null);
+    
+    respond['status'] = result['status'];
+    respond['value'] = result['message'];
+    return;
+  }
+  
+  var elementForNode = getElementFromLocation(respond.session.getMousePosition(), doc);
+
+  var events = Utils.getNativeEvents();
+  var node = Utils.getNodeForNativeEvents(elementForNode);
+
+  if (this.enableNativeEvents && events && node) {
+    var currentPosition = respond.session.getMousePosition();
+    var browserOffset = getBrowserSpecificOffset_(respond.session.getBrowser());
+
+    events.click(node, currentPosition.x + browserOffset.x,
+        currentPosition.y + browserOffset.y, 1);
+
+    var dummyIndicator = {
+      wasUnloaded: false
+    };
+
+    Utils.waitForNativeEventsProcessing(elementForNode, events, dummyIndicator, this.jsTimer);
+
+  } else {
+    throw generateErrorForNativeEvents(this.enableNativeEvents, events, node);
+  }
+
+  respond.send();
+};
+
+
+FirefoxDriver.prototype.mouseDoubleClick = function(respond, parameters) {
+  Utils.installWindowCloseListener(respond);
+  Utils.installClickListener(respond, WebLoadingListener);
+
+  var response = this.mouse.doubleClick(null);
+  respond.status = response.status;
+  respond.value = response.message;
   respond.send();
 };
