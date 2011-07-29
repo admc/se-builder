@@ -335,9 +335,9 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     return {
       "class": "className",
       "id": "id",
-      "link": "linkText",
+      "link text": "linkText",
       "xpath": "xpath",
-      "css": "cssSelector",
+      "css selector": "cssSelector",
       "name": "name"}[locatorType];
   },
   escapeValue: function(stepType, value, valueIndex) {
@@ -484,17 +484,17 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       return {
         "class": "find_elements_by_class_name",
         "id": "find_elements_by_id",
-        "link": "find_elements_by_link_text",
+        "link text": "find_elements_by_link_text",
         "xpath": "find_elements_by_xpath",
-        "css": "find_elements_by_css_selector",
+        "css selector": "find_elements_by_css_selector",
         "name": "find_elements_by_name"}[locatorType];
     }
     return {
       "class": "find_element_by_class_name",
       "id": "find_element_by_id",
-      "link": "find_element_by_link_text",
+      "link text": "find_element_by_link_text",
       "xpath": "find_element_by_xpath",
-      "css": "find_element_by_css_selector",
+      "css selector": "find_element_by_css_selector",
       "name": "find_element_by_name"}[locatorType];
   },
   escapeValue: function(stepType, value, valueIndex) {
