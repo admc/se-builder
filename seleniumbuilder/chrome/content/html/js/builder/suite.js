@@ -49,7 +49,7 @@ builder.suite = new (function () {
   };
   
   this.addEmptyScript = function(selMajorVersion) {
-    selMajorVersion = selMajorVersion || 1;
+    selMajorVersion = selMajorVersion || "1";
     this.saveCurrentScript();
     _scripts.push({
       script: null,
@@ -60,12 +60,11 @@ builder.suite = new (function () {
     builder.storage.set('save_required', true);
     builder.storage.set('testscriptpath', null);
     builder.storage.set('selMajorVersion', selMajorVersion)
-    if (selMajorVersion == 2) {
+    if (selMajorVersion == "2") {
       builder.setCurrentScript(new builder.sel2.Sel2Script());
-      builder.sel2.updateStepsDisplay
-    } else {
-      builder.interface.suite.update();
+      builder.sel2.updateStepsDisplay();
     }
+    builder.interface.suite.update();
     builder.storage.set('suiteSaveRequired', true);
     return selectedScriptIndex;
   }
@@ -106,7 +105,7 @@ builder.suite = new (function () {
       this.addAndSelectCurrentScript();
     } else {
       // Update the current script's info:
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         _scripts[selectedScriptIndex].script = builder.getCurrentScript();
         _scripts[selectedScriptIndex].testscriptpath = builder.storage.get('testscriptpath');
         _scripts[selectedScriptIndex].save_required = builder.storage.get('save_required');
@@ -204,7 +203,7 @@ builder.suite = new (function () {
     var suiteSaveReallyRequired = builder.storage.get('suiteSaveRequired');
     // Now swap in this script.
     selectedScriptIndex = index;
-    if (_scripts[index].seleniumVersion == "2") {
+    if (_scripts[index].script.seleniumVersion == "2") {
       builder.openSel2File(_scripts[index].script);
     } else {
       builder.openScript(_scripts[index].testscriptpath, _scripts[index].script);

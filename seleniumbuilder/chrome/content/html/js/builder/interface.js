@@ -433,13 +433,14 @@ builder.interface.startup = new(function () {
   function open_file(path, script) {
     // NB Edit interface must be open before we can write into the edit form (jQuery relies on
     // the steps being shown).
-    builder.storage.set('selMajorVersion', 1);
+    builder.storage.set('selMajorVersion', "1");
     builder.interface.switchTo('edit');
 
     for (var step = builder.lastStep(); step.id; step = builder.lastStep()) {
       var node = document.getElementById(step.id);
       node.parentNode.removeChild(node);
     }
+    jQuery('#steps').empty(); // Empty selenium 2 steps too.
     var steps;
     if (script.version && script.version == "0.3") { // 0.3
       steps = script.steps;
@@ -465,7 +466,7 @@ builder.interface.startup = new(function () {
   function open_sel2_file(script) {
     // NB Edit interface must be open before we can write into the edit form (jQuery relies on
     // the steps being shown).
-    builder.storage.set('selMajorVersion', 2);
+    builder.storage.set('selMajorVersion', "2");
     builder.interface.switchTo('edit');
     
     builder.setCurrentScript(script);

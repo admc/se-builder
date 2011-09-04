@@ -158,7 +158,7 @@ builder.sel2.continueRecording = function() {
 };
 
 builder.sel2.startRecording = function(urlText, useCurrentScript) {
-  builder.storage.set('selMajorVersion', 2);
+  builder.storage.set('selMajorVersion', "2");
   var anchorIndex = urlText.indexOf('#');
   if (anchorIndex != -1) {
     urlText = urlText.substring(0, anchorIndex);
@@ -173,6 +173,7 @@ builder.sel2.startRecording = function(urlText, useCurrentScript) {
   // Delete cookies for given URL.
   deleteURLCookies(url.href());
   builder.storage.set('save_required', true);
+  builder.storage.set('baseurl', url.server());
 
   // Now load the page - both to ensure we're on the right page when we start recording
   // and to ensure that we get a clean page free of cookie influence.
