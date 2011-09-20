@@ -671,7 +671,7 @@ builder.interface.record = new(function () {
 
   builder.interface.addOnloadHook(function () {
     jQuery('#record-stop-button').click(function (e) {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         builder.sel2.stopRecording();
       } else {
         builder.interface.switchTo('edit');
@@ -679,7 +679,7 @@ builder.interface.record = new(function () {
     });
 
     jQuery('#record-assert').click(function (e) {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         if (builder.sel2.assertExploring) {
           builder.sel2.stopAssertExploring();
         } else {
@@ -843,7 +843,7 @@ builder.interface.edit = new(function () {
     );
     // Record button: Record more of the script
     jQuery('#record').click(function () {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         builder.sel2.continueRecording();
       } else {
         // The user knows this may fail now.
@@ -853,7 +853,7 @@ builder.interface.edit = new(function () {
     });
     // Play button: Play back the script in this browser
     jQuery('#run-locally').click(function () {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         builder.sel2.playback.runTest();
       } else {
         builder.local.runtest();
@@ -861,7 +861,7 @@ builder.interface.edit = new(function () {
     });
     // Stop playback buttons
     jQuery('#edit-stop-local-playback').click(function() {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         builder.sel2.playback.stopTest();
       } else {
         builder.local.stoptest();
@@ -882,7 +882,7 @@ builder.interface.edit = new(function () {
     };
     // Clear play results:
     jQuery('#edit-clearresults').click(function() {
-      if (builder.storage.get('selMajorVersion') == 2) {
+      if (builder.storage.get('selMajorVersion') == "2") {
         builder.sel2.playback.clearResults();
         jQuery('#edit-clearresults').hide();
       } else {

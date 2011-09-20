@@ -82,8 +82,14 @@ builder.suite = new (function () {
    * Adds the script currently loaded into the editor as a new script and selects it.
    */
   this.addAndSelectCurrentScript = function() {
+    var scr;
+    if (builder.storage.get('selMajorVersion') == "2") {
+      scr = builder.getCurrentScript();
+    } else {
+      scr = builder.getScript();
+    }
     _scripts.push({
-      script: builder.getScript(),
+      script: scr,
       testscriptpath: builder.storage.get('testscriptpath'),
       save_required: builder.storage.get('save_required')
     });
