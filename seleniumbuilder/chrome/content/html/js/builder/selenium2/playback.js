@@ -130,6 +130,11 @@ pb.playbackFunctions = {
       pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
+  "submitElement": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('submitElement', {id: result.value.ELEMENT});
+    });
+  },
   "sendKeysToElement": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.text.split("")});

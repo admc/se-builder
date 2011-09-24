@@ -27,7 +27,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
   /**
    * Create an event from a received click on any element.
    */
-  function writeJsonClicks(e) {
+  function writeJsonClicks(e) {    
     var params = builder.locator.create(e.target);
     if (isTypeOrClickInSamePlace(builder.getCurrentScript().getLastStep(), params)) {
       return;
@@ -69,7 +69,12 @@ builder.sel2.Recorder = function (target_window, record_action) {
     } else if (e.target.type == "checkbox") {
       record_action('setElementSelected', params);
     } else {
-      record_action('clickElement', params);
+      if (e.target.type == "submit") {
+        // If we click on a submit element, submit the form.
+        record_action('submitElement', params);
+      } else {
+        record_action('clickElement', params);
+      }
     }
   }
 
@@ -135,6 +140,17 @@ builder.sel2.Recorder = function (target_window, record_action) {
 
       // Start typing
       params.text = e.target.value;
+      // Check if this is FF re-submitting text that's already been entered. This happens if the
+      // user presses enter to submit a form while focus is on an input field.
+      var script = builder.getCurrentScript();
+      if (script.steps.length >= 2) {
+        if (script.steps[script.steps.length - 1].type == "submitElement" &&
+            script.steps[script.steps.length - 2].type == "sendKeysToElement" &&
+            script.steps[script.steps.length - 2].text == params.text)
+        {
+          return;
+        }
+      }
       record_action("sendKeysToElement", params);
       return;
     }
@@ -272,6 +288,8 @@ builder.sel2.Recorder = function (target_window, record_action) {
    * However, the browser often uses them to trigger clicks, in which case we want to record the
    * click.
    */
+  // qqDPS Not needed for Selenium 2?
+   /*
   function writeJsonKeyPress(e) {
     var lastStep = builder.getCurrentScript().getLastStep();
     if (e.which == 13) { // 13 is the key code for enter
@@ -296,7 +314,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
         }
       }, 100);
     }
-  }
+  }*/
 
   /**
    * Given a function and a recording function, returns a new function that first executes the 
@@ -425,8 +443,8 @@ builder.sel2.Recorder = function (target_window, record_action) {
           bind("click", {}, writeJsonClickAt, true);
     } else {
       jQuery(frame.document).
-          bind("click", {}, writeJsonClicks, true).
-          bind("keypress", {}, writeJsonKeyPress, true);
+          bind("click", {}, writeJsonClicks, true);/*.
+          bind("keypress", {}, writeJsonKeyPress, true);*/
     }
 
     // Turn off autocomplete.
@@ -481,8 +499,8 @@ builder.sel2.Recorder = function (target_window, record_action) {
           unbind("click", writeJsonClickAt, true);
     } else {
       jQuery(frame.document).
-          unbind("click", writeJsonClicks, true).
-          unbind("keypress", writeJsonKeyPress, true);
+          unbind("click", writeJsonClicks, true);/*.
+          unbind("keypress", writeJsonKeyPress, true);*/
     }
 
     // Turn autocomplete back on. Unfortunately, this also turns on autocomplete for elements

@@ -315,7 +315,9 @@ FirefoxDriver.prototype.submitElement = function(respond, parameters) {
         new WebLoadingListener(respond.session.getBrowser(), function() {
           respond.send();
         });
-        element.submit();
+        if (typeof element.submit == "function") { // qqDPSWD The element may not have a submit function - still works tho!
+          element.submit();
+        }
         return;
       } else {
         //Event was blocked, so don't submit

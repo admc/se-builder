@@ -26,7 +26,7 @@ builder.sel2.sel1To2 = {
   "removeAllSelections":  ["select.deselectAll",              "locator", null      ],
   "removeSelection":      ["select.deselect",                 "locator", "locator2"],
   "uncheck":              ["element.setNotSelected",          "locator", null      ],
-  "submit":               ["element.submit",                  "locator", null      ],
+  "submit":               ["submitElement",                   "locator", null      ],
   "close":                ["close",                           null,      null      ],
   "refresh":              ["refresh",                         null,      null      ],
   "assertTextPresent":    ["assertTextPresent",               "text",    null      ],

@@ -195,7 +195,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselectAll();\n",
     "select.deselect":
       "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselect{locator2By}(\"{locator2}\");\n",
-    "element.submit":
+    "submitElement":
       "        wd.findElement(By.{locatorBy}(\"{locator}\")).submit();\n",
     "close":
       "        wd.close();\n",
@@ -372,7 +372,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "setElementNotSelected":
       "if wd.{locatorBy}(\"{locator}\").is_selected():\n" +
       "    wd.{locatorBy}(\"{locator}\").toggle()\n",
-    "element.submit":
+    "submitElement":
       "wd.{locatorBy}(\"{locator}\").submit()\n",
     "close":
       "",
