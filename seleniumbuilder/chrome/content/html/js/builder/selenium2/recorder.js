@@ -27,7 +27,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
   /**
    * Create an event from a received click on any element.
    */
-  function writeJsonClicks(e) {    
+  function writeJsonClicks(e) {
     var params = builder.locator.create(e.target);
     if (isTypeOrClickInSamePlace(builder.getCurrentScript().getLastStep(), params)) {
       return;

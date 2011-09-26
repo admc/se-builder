@@ -33,8 +33,11 @@ builder.sel2.Sel2Script.prototype = {
   removeStepWithID: function(id) {
     var index = this.getStepIndexForID(id);
     if (index != -1) {
+      var step = this.steps[index];
       this.steps.splice(index, 1);
+      return step;
     }
+    return null;
   },
   addStep: function(step, afterID) {
     if (afterID) {
@@ -44,6 +47,18 @@ builder.sel2.Sel2Script.prototype = {
       }
     }
     this.steps.push(step);
+  },
+  moveStepToBefore: function(stepID, beforeStepID) {
+    var step = this.removeStepWithID(stepID);
+    this.steps.splice(this.getStepIndexForID(beforeStepID), 0, step);
+  },
+  moveStepToAfter: function(stepID, afterStepID) {
+    var step = this.removeStepWithID(stepID);
+    if (this.getLastStep().id == afterStepID) {
+      this.steps.push(step);
+    } else {
+      this.steps.splice(this.getStepIndexForID(afterStepID) + 1, 0, step);
+    }
   }
 };
 

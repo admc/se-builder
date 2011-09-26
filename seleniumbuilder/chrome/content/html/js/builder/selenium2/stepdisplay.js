@@ -79,6 +79,7 @@ function addNewStepBefore(beforeStepID) {
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   beforeStepDOM.parentNode.insertBefore(newStepDOM, beforeStepDOM);
+  builder.getCurrentScript().moveStepToBefore(id, beforeStepID);
   builder.storage.set('save_required', true);
 }
 
@@ -88,6 +89,7 @@ function addNewStepAfter(afterStepID) {
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   afterStep.after(newStepDOM);
+  builder.getCurrentScript().moveStepToAfter(id, afterStepID);
   builder.storage.set('save_required', true);
 }
 
