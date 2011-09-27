@@ -174,6 +174,9 @@ function editParam(stepID, pIndex) {
         click: function (e) {
           step[pName].type = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
           step[pName].value = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+          if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
+            step[pName].alternatives = {};
+          }
           jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
           jQuery('#' + stepID + '-p' + pIndex).show();
           builder.sel2.updateStepDisplay(stepID);
@@ -192,6 +195,36 @@ function editParam(stepID, pIndex) {
         jQuery(typeDropDown).append(newNode(
           'option', lType
         ));
+      }
+    }
+        
+    if (step[pName].alternatives) {
+      var alternativesList = newNode(
+        'ul',
+        {
+          id: stepID + '-p' + pIndex + '-alternatives-list',
+          class: 'b-alternatives'
+        }
+      );
+      var alternativesDiv = newNode(
+        'div',
+        {
+          id: stepID + '-p' + pIndex + '-alternatives-div'
+        },
+        newNode('p', "Suggested alternatives:"),
+        alternativesList
+      );
+      
+      var hasAlts = false;
+      for (var altName in step[pName].alternatives) {
+        if (typeof altName == "string") {
+          hasAlts = true;
+          jQuery(alternativesList).append(createAltItem(step, pIndex, pName, altName, step[pName].alternatives[altName]));
+        }
+      }
+      
+      if (hasAlts) {
+        jQuery(editDiv).append(alternativesDiv);
       }
     }
     
@@ -220,6 +253,24 @@ function editParam(stepID, pIndex) {
     jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
     jQuery('#' + stepID + '-p' + pIndex).hide();
   }
+}
+
+/** Creates list item for alternative locator. */
+function createAltItem(step, pIndex, pName, altName, altValue) {
+  return newNode(
+    'li',
+    newNode(
+      'a',
+      altName + ": " + altValue,
+      {
+        href: '#',
+        click: function(e) {
+          jQuery('#' + step.id + '-p' + pIndex + '-locator-type-chooser').val(altName);
+          jQuery('#' + step.id + '-p' + pIndex + '-edit-input').val(altValue);
+        }
+      }
+    )
+  );
 }
 
 /** Adds the given step to the GUI. */
