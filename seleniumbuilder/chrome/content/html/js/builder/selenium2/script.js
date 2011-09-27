@@ -59,6 +59,13 @@ builder.sel2.Sel2Script.prototype = {
     } else {
       this.steps.splice(this.getStepIndexForID(afterStepID) + 1, 0, step);
     }
+  },
+  reorderSteps: function(reorderedIDs) {
+    var newSteps = [];
+    for (var i = 0; i < reorderedIDs.length; i++) {
+      newSteps.push(this.getStepWithID(reorderedIDs[i]));
+    }
+    this.steps = newSteps;
   }
 };
 

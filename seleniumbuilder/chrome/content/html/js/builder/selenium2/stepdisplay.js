@@ -1,3 +1,5 @@
+var reorderHandlerInstalled = false;
+
 /** Functions for displaying Selenium 2 steps. */
 builder.sel2.clearStepsDisplay = function() {
   jQuery("#steps").empty();
@@ -5,6 +7,22 @@ builder.sel2.clearStepsDisplay = function() {
 };
 
 builder.sel2.updateStepsDisplay = function() {
+  if (!reorderHandlerInstalled) {
+    // Make steps sortable by dragging.
+    jQuery('#steps').sortable({
+      items: ".b-step",
+      axis: "y",
+      update: function(evt, ui) {
+        var reorderedSteps = jQuery('#steps .b-step').get();
+        var reorderedIDs = [];
+        for (var i = 0; i < reorderedSteps.length; i++) {
+          reorderedIDs.push(reorderedSteps[i].id);
+        }
+        builder.getCurrentScript().reorderSteps(reorderedIDs);
+      }
+    });
+    reordered = true;
+  }
   builder.sel2.clearStepsDisplay();
   var script = builder.getCurrentScript();
   for (var i = 0; i < script.steps.length; i++) {
