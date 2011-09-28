@@ -521,13 +521,19 @@ pb.playStep = function() {
 };
 
 pb.recordResult = function(result) {
+  if (pb.currentStep.negated) {
+    result.success = !result.success;
+    result.message = pb.currentStep.type + " is true";
+  }
   if (result.success) {
     jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ccffcc');
   } else {
     jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffcccc');
     pb.playResult.success = false;
-    jQuery('#' + pb.currentStep.id + '-message').html(result.message).show();
-    pb.playResult.message = result.message;
+    if (result.message) {
+      jQuery('#' + pb.currentStep.id + '-message').html(result.message).show();
+      pb.playResult.message = result.message;
+    }
   }
   
   if (pb.stopRequest || pb.currentStep == pb.finalStep) {
@@ -547,6 +553,12 @@ pb.shutdown = function() {
 };
 
 pb.recordError = function(message) {
+  if (pb.currentStep.negated && pb.currentStep.type.startsWith("verify")) {
+    // Record this as a failed result instead - this way it will be turned into a successful result
+    // by recordResult.
+    pb.recordResult({success: false});
+    return;
+  }
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffcccc');
   pb.playResult.success = false;
   jQuery('#' + pb.currentStep.id + '-error').html(message).show();

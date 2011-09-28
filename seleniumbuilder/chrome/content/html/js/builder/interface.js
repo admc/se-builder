@@ -359,6 +359,7 @@ builder.interface.startup = new(function () {
       return;
     }
 
+    builder.storage.set('selMajorVersion', "1");
     builder.storage.set('currenturl', url.href());
     builder.storage.set('baseurl', url.server());
 
@@ -833,6 +834,7 @@ builder.interface.edit = new(function () {
             confirm("If you continue, you will lose all your recent changes."))
         {
           builder.interface.switchTo('startup');
+          builder.storage.set('selMajorVersion', "1"); // By default.
           builder.storage.set('testscriptpath', null);
           builder.storage.set('save_required', false);
           jQuery('#steps').html('');

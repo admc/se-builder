@@ -33,7 +33,11 @@ builder.sel2.updateStepsDisplay = function() {
 builder.sel2.updateStepDisplay = function(stepID) {
   var step = builder.getCurrentScript().getStepWithID(stepID);
   var paramNames = step.getParamNames();
-  jQuery('#' + stepID + '-type').text(step.type);
+  if (step.negated) {
+    jQuery('#' + stepID + '-type').text("not " + step.type);
+  } else {
+    jQuery('#' + stepID + '-type').text(step.type);
+  }
   if (builder.sel2.playback.playbackFunctions[step.type]) {
     jQuery('#' + stepID + '-unplayable').hide();
   } else {
@@ -118,7 +122,12 @@ function deleteStep(stepID) {
 }
 
 function editType(stepID) {
-  var sel = newNode('select');
+  var sel = newNode(
+    'select',
+    {
+      id: stepID + '-edit-select'
+    }
+  );
   var step = builder.getCurrentScript().getStepWithID(stepID);
   for (var i = 0; i < builder.sel2.types.length; i++) {
     if (builder.sel2.types[i] == step.type) {
@@ -132,12 +141,29 @@ function editType(stepID) {
     {
       id: stepID + '-edit-div'
     },
+    newNode(
+      'input',
+      {
+        id: stepID + '-edit-negate',
+        type: 'checkbox',
+        style: 'display: none;'
+      }
+    ),
+    newNode(
+      'span',
+      "not ",
+      {
+        id: stepID + '-edit-negate-label',
+        style: 'display: none;'
+      }
+    ),
     sel,
     newNode('a', "OK", {
       class: 'button',
       href: '#',
       click: function (e) {
         step.changeType(jQuery('#' + stepID + '-edit-div select').val());
+        step.negated = (step.type.startsWith("assert") || step.type.startsWith("verify")) && jQuery('#' + stepID + '-edit-negate').attr('checked');
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();
         builder.sel2.updateStepDisplay(stepID);
@@ -147,6 +173,23 @@ function editType(stepID) {
   );
   
   jQuery('#' + stepID + '-type').after(editDiv);
+  if (step.negated) {
+    jQuery('#' + stepID + '-edit-negate').attr('checked', 'on')
+  }
+  if (step.type.startsWith("assert") || step.type.startsWith("verify")) {
+    jQuery('#' + stepID + '-edit-negate').show();
+    jQuery('#' + stepID + '-edit-negate-label').show();
+  }
+  jQuery('#' + stepID + '-edit-select').change(function() {
+    var type = jQuery('#' + stepID + '-edit-select').val();
+    if (type.startsWith("assert") || type.startsWith("verify")) {
+      jQuery('#' + stepID + '-edit-negate').show();
+      jQuery('#' + stepID + '-edit-negate-label').show();
+    } else {
+      jQuery('#' + stepID + '-edit-negate').hide();
+      jQuery('#' + stepID + '-edit-negate-label').hide();
+    }
+  });
   jQuery('#' + stepID + '-type').hide();
 }
 
