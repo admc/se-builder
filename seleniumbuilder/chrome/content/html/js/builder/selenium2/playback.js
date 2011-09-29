@@ -149,7 +149,7 @@ pb.playbackFunctions = {
     pb.execute('refresh', {});
   },
   
-  "assertTextPresent": function() {
+  "verifyTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
       if (result.value.indexOf(pb.currentStep.text) != -1) {
         pb.recordResult({success: true});
@@ -158,7 +158,7 @@ pb.playbackFunctions = {
       }
     });
   },
-  "verifyTextPresent": function() {
+  "assertTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
       if (result.value.indexOf(pb.currentStep.text) != -1) {
         pb.recordResult({success: true});
@@ -175,7 +175,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertBodyText": function() {
+  "verifyBodyText": function() {
     pb.findElement({type: 'tag name', value: 'body'}, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.text) {
@@ -186,7 +186,7 @@ pb.playbackFunctions = {
       });
     });
   },
-  "verifyBodyText": function() {
+  "assertBodyText": function() {
     pb.findElement({type: 'tag name', value: 'body'}, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.text) {
@@ -207,12 +207,12 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertElementPresent": function() {
+  "verifyElementPresent": function() {
     pb.findElement(pb.currentStep.locator, null, function(result) {
       pb.recordResult({success: false, message: "Element not found."});
     });
   },
-  "verifyElementPresent": function() {
+  "assertElementPresent": function() {
     pb.findElement(pb.currentStep.locator, null, function(result) {
       pb.recordError("Element not found.");
     });
@@ -226,7 +226,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertPageSource": function() {
+  "verifyPageSource": function() {
     pb.execute('getPageSource', {}, function(result) {
       if (result.value == pb.currentStep.source) {
         pb.recordResult({success: true});
@@ -235,7 +235,7 @@ pb.playbackFunctions = {
       }
     });
   },
-  "verifyPageSource": function() {
+  "assertPageSource": function() {
     pb.execute('getPageSource', {}, function(result) {
       if (result.value == pb.currentStep.source) {
         pb.recordResult({success: true});
@@ -252,7 +252,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertText": function() {
+  "verifyText": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.text) {
@@ -263,7 +263,7 @@ pb.playbackFunctions = {
       });
     });
   },
-  "verifyText": function() {
+  "assertText": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.text) {
@@ -284,7 +284,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertCurrentUrl": function() {
+  "verifyCurrentUrl": function() {
     pb.execute('getCurrentUrl', {}, function(result) {
       if (result.value == pb.currentStep.url) {
         pb.recordResult({success: true});
@@ -293,7 +293,7 @@ pb.playbackFunctions = {
       }
     });
   },
-  "verifyCurrentUrl": function() {
+  "assertCurrentUrl": function() {
     pb.execute('getCurrentUrl', {}, function(result) {
       if (result.value == pb.currentStep.url) {
         pb.recordResult({success: true});
@@ -310,7 +310,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertTitle": function() {
+  "verifyTitle": function() {
     pb.execute('getTitle', {}, function(result) {
       if (result.value == pb.currentStep.title) {
         pb.recordResult({success: true});
@@ -319,7 +319,7 @@ pb.playbackFunctions = {
       }
     });
   },
-  "verifyTitle": function() {
+  "assertTitle": function() {
     pb.execute('getTitle', {}, function(result) {
       if (result.value == pb.currentStep.title) {
         pb.recordResult({success: true});
@@ -336,7 +336,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertElementSelected": function() {
+  "verifyElementSelected": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
@@ -347,7 +347,7 @@ pb.playbackFunctions = {
       });
     });
   },
-  "verifyElementSelected": function() {
+  "assertElementSelected": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
@@ -368,7 +368,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertElementValue": function() {
+  "verifyElementValue": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.value) {
@@ -379,7 +379,7 @@ pb.playbackFunctions = {
       });
     });
   },
-  "verifyElementValue": function() {
+  "assertElementValue": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.value) {
@@ -400,7 +400,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertCookieByName": function() {
+  "verifyCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
         if (result.value[i].name == pb.currentStep.name) {
@@ -415,7 +415,7 @@ pb.playbackFunctions = {
       pb.recordResult({success: false, message: "No cookie found with this name."});
     });
   },
-  "verifyCookieByName": function() {
+  "assertCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
         if (result.value[i].name == pb.currentStep.name) {
@@ -445,7 +445,7 @@ pb.playbackFunctions = {
     });
   },
   
-  "assertCookiePresent": function() {
+  "verifyCookiePresent": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
         if (result.value[i].name == pb.currentStep.name) {
@@ -456,7 +456,7 @@ pb.playbackFunctions = {
       pb.recordResult({success: false, message: "No cookie found with this name."});
     });
   },
-  "verifyCookiePresent": function() {
+  "assertCookiePresent": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
         if (result.value[i].name == pb.currentStep.name) {
@@ -553,13 +553,13 @@ pb.shutdown = function() {
 };
 
 pb.recordError = function(message) {
-  if (pb.currentStep.negated && pb.currentStep.type.startsWith("verify")) {
+  if (pb.currentStep.negated && pb.currentStep.type.startsWith("assert")) {
     // Record this as a failed result instead - this way it will be turned into a successful result
     // by recordResult.
     pb.recordResult({success: false});
     return;
   }
-  jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffcccc');
+  jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ff3333');
   pb.playResult.success = false;
   jQuery('#' + pb.currentStep.id + '-error').html(message).show();
   pb.playResult.message = message;

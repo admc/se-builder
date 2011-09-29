@@ -216,121 +216,121 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "assertTextPresent":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"element.assertTextPresent failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertTextPresent failed\");\n" +
       "        }\n",
     "verifyTextPresent":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
-      "            System.err.println(\"verifyTextPresent failed\");\n" +
+      "            System.err.println(\"{negNot}verifyTextPresent failed\");\n" +
       "        }\n",
     "waitForTextPresent":
       "",
     "assertBodyText":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().equals(\"{text}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"assertBodyText failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertBodyText failed\");\n" +
       "        }\n",
     "verifyBodyText":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().equals(\"{text}\")) {\n" +
-      "            System.err.println(\"verifyBodyText failed\");\n" +
+      "            System.err.println(\"{negNot}verifyBodyText failed\");\n" +
       "        }\n",
     "waitForBodyText":
       "",
     "assertElementPresent":
       "        if ({negNot}(wd.findElements(By.{locatorBy}(\"{locator}\")).size() == 0)) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"element.assertPresent failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertElementPresent failed\");\n" +
       "        }\n",
     "verifyElementPresent":
       "        if ({negNot}(wd.findElements(By.{locatorBy}(\"{locator}\")).size() == 0)) {\n" +
-      "            System.err.println(\"element.verifyPresent failed\");\n" +
+      "            System.err.println(\"{negNot}verifyElementPresent failed\");\n" +
       "        }\n",
     "waitForElementPresent":
       "",
     "assertPageSource":
       "        if ({posNot}wd.getPageSource().equals(\"{source}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"assertHTMLSource failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertPageSource failed\");\n" +
       "        }\n",
     "verifyPageSource":
       "        if ({posNot}wd.getPageSource().equals(\"{source}\")) {\n" +
-      "            System.err.println(\"verifyHTMLSource failed\");\n" +
+      "            System.err.println(\"{negNot}verifyPageSource failed\");\n" +
       "        }\n",
     "waitForPageSource":
       "",
     "assertText":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getText().equals(\"{text}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"element.assertText failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertText failed\");\n" +
       "        }\n",
     "verifyText":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getText().equals(\"{text}\")) {\n" +
-      "            System.err.println(\"element.verifyText failed\");\n" +
+      "            System.err.println(\"{negNot}verifyText failed\");\n" +
       "        }\n",
     "waitForText":
       "",
     "assertCurrentUrl":
       "        if ({posNot}wd.getCurrentUrl().equals(\"{url}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"assertCurrentURL failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertCurrentUrl failed\");\n" +
       "        }\n",
     "verifyCurrentUrl":
       "        if ({posNot}wd.getCurrentUrl().equals(\"{url}\")) {\n" +
-      "            System.err.println(\"verifyCurrentURL failed\");\n" +
+      "            System.err.println(\"{negNot}verifyCurrentUrl failed\");\n" +
       "        }\n",
     "waitForCurrentUrl":
       "",
     "assertTitle":
       "        if ({posNot}wd.getTitle().equals(\"{title}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"assertTitle failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertTitle failed\");\n" +
       "        }\n",
     "verifyTitle":
       "        if ({posNot}wd.getTitle().equals(\"{title}\")) {\n" +
-      "            System.err.println(\"verifyTitle failed\");\n" +
+      "            System.err.println(\"{negNot}verifyTitle failed\");\n" +
       "        }\n",
     "waitForTitle":
       "",
     "assertElementSelected":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"assertSelected failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertElementSelected failed\");\n" +
       "        }\n",
     "verifyElementSelected":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
-      "            System.err.println(\"verifySelected failed\");\n" +
+      "            System.err.println(\"{negNot}verifyElementSelected failed\");\n" +
       "        }\n",
     "waitForElementSelected":
       "",
     "assertElementValue":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"element.assertValue failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertElementValue failed\");\n" +
       "        }\n",
     "verifyElementValue":
       "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
-      "            System.err.println(\"element.verifyValue failed\");\n" +
+      "            System.err.println(\"{negNot}verifyElementValue failed\");\n" +
       "        }\n",
     "waitForElementValue":
       "",
     "assertCookieByName":
       "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"manage.assertCookieNamed failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertCookieByName failed\");\n" +
       "        }\n",
     "verifyCookieByName":
       "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
-      "            System.err.println(\"manage.verifyCookieNamed failed\");\n" +
+      "            System.err.println(\"{negNot}verifyCookieByName failed\");\n" +
       "        }\n",
     "manage.waitForCookieNamed":
       "",
     "assertCookiePresent":
       "        if ({negNot}(wd.manage().getCookieNamed(\"{name}\") == null)) {\n" +
       "            wd.close();\n" +
-      "            throw new RuntimeException(\"manage.assertCookieNamedPresent failed\");\n" +
+      "            throw new RuntimeException(\"{negNot}assertCookiePresent failed\");\n" +
       "        }\n",
     "verifyCookiePresent":
       "        if ({negNot}(wd.manage().getCookieNamed(\"{name}\") == null)) {\n" +
-      "            System.err.println(\"manage.verifyCookieNamedPresent failed\");\n" +
+      "            System.err.println(\"{negNot}verifyCookiePresent failed\");\n" +
       "        }\n",
     "waitForCookiePresent":
       ""
@@ -389,103 +389,103 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "wd.{locatorBy}(\"{locator}\").submit()\n",
     "close":
       "",
-    "assertTextPresent":
-      "if {posNot}\"{text}\" in wd.find_element_by_tag_name(\"html\").text:\n" +
-      "    print(\"assertTextPresent failed\")\n",
     "verifyTextPresent":
       "if {posNot}\"{text}\" in wd.find_element_by_tag_name(\"html\").text:\n" +
+      "    print(\"{negNot}verifyTextPresent failed\")\n",
+    "assertTextPresent":
+      "if {posNot}\"{text}\" in wd.find_element_by_tag_name(\"html\").text:\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyTextPresent failed\")\n",
+      "    raise Exception(\"{negNot}assertTextPresent failed\")\n",
     "waitForTextPresent":
       "",
-    "assertBodyText":
-      "if {posNot}\"{text}\" == wd.find_element_by_tag_name(\"html\").text:\n" +
-      "    print(\"assertBodyText failed\")\n",
     "verifyBodyText":
       "if {posNot}\"{text}\" == wd.find_element_by_tag_name(\"html\").text:\n" +
+      "    print(\"{negNot}verifyBodyText failed\")\n",
+    "assertBodyText":
+      "if {posNot}\"{text}\" == wd.find_element_by_tag_name(\"html\").text:\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyBodyText failed\")\n",
+      "    raise Exception(\"{negNot}assertBodyText failed\")\n",
     "waitForBodyText":
       "",
-    "assertElementPresent":
-      "if {negNot}len(wd.{locatorBy}(\"{locator}\")) == 0:\n" +
-      "    print(\"assertElementPresent failed\")\n",
     "verifyElementPresent":
       "if {negNot}len(wd.{locatorBy}(\"{locator}\")) == 0:\n" +
+      "    print(\"{negNot}verifyElementPresent failed\")\n",
+    "assertElementPresent":
+      "if {negNot}len(wd.{locatorBy}(\"{locator}\")) == 0:\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyElementPresent failed\")\n",
+      "    raise Exception(\"{negNot}assertElementPresent failed\")\n",
     "waitForElementPresent":
       "",
-    "assertPageSource":
-      "if {posNot}wd.get_page_source() == \"{source}\":\n" +
-      "    print(\"assertPageSource failed\")\n",
     "verifyPageSource":
       "if {posNot}wd.get_page_source() == \"{source}\":\n" +
+      "    print(\"{negNot}verifyPageSource failed\")\n",
+    "assertPageSource":
+      "if {posNot}wd.get_page_source() == \"{source}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyPageSource failed\")\n",
+      "    raise Exception(\"{negNot}assertPageSource failed\")\n",
     "waitForPageSource":
       "",
-    "assertText":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").text == \"{text}\":\n" +
-      "    print(\"assertText failed\")\n",
     "verifyText":
       "if {posNot}wd.{locatorBy}(\"{locator}\").text == \"{text}\":\n" +
+      "    print(\"{negNot}verifyText failed\")\n",
+    "assertText":
+      "if {posNot}wd.{locatorBy}(\"{locator}\").text == \"{text}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyText failed\")\n",
+      "    raise Exception(\"{negNot}assertText failed\")\n",
     "waitForText":
       "",
-    "assertCurrentUrl":
-      "if {posNot}wd.current_url == \"{url}\":\n" +
-      "    print(\"assertCurrentUrl failed\")\n",
     "verifyCurrentUrl":
       "if {posNot}wd.current_url == \"{url}\":\n" +
+      "    print(\"{negNot}verifyCurrentUrl failed\")\n",
+    "assertCurrentUrl":
+      "if {posNot}wd.current_url == \"{url}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyCurrentUrl failed\")\n",
+      "    raise Exception(\"{negNot}assertCurrentUrl failed\")\n",
     "waitForCurrentUrl":
       "",
-    "assertTitle":
-      "if {posNot}wd.title == \"{title}\":\n" +
-      "    print(\"assertTitle failed\")\n",
     "verifyTitle":
       "if {posNot}wd.title == \"{title}\":\n" +
+      "    print(\"{negNot}verifyTitle failed\")\n",
+    "assertTitle":
+      "if {posNot}wd.title == \"{title}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyTitle failed\")\n",
+      "    raise Exception(\"{negNot}assertTitle failed\")\n",
     "waitForTitle":
       "",
-    "assertElementSelected":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").is_selected():\n" +
-      "    print(\"assertElementSelected failed\")\n",
     "verifyElementSelected":
       "if {posNot}wd.{locatorBy}(\"{locator}\").is_selected():\n" +
+      "    print(\"{negNot}verifyElementSelected failed\")\n",
+    "assertElementSelected":
+      "if {posNot}wd.{locatorBy}(\"{locator}\").is_selected():\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyElementSelected failed\")\n",
+      "    raise Exception(\"{negNot}assertElementSelected failed\")\n",
     "waitForElementSelected":
       "",
-    "assertElementValue":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").value == \"{value}\":\n" +
-      "    print(\"assertElementValue failed\")\n",
     "verifyElementValue":
       "if {posNot}wd.{locatorBy}(\"{locator}\").value == \"{value}\":\n" +
+      "    print(\"{negNot}verifyElementValue failed\")\n",
+    "assertElementValue":
+      "if {posNot}wd.{locatorBy}(\"{locator}\").value == \"{value}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyElementValue failed\")\n",
+      "    raise Exception(\"{negNot}assertElementValue failed\")\n",
     "element.waitForValue":
       "",
-    "assertCookieByName":
-      "if {posNot}wd.get_cookie(\"{name}\") == \"{value}\":\n" +
-      "    print(\"assertCookieByName failed\")\n",
     "verifyCookieByName":
       "if {posNot}wd.get_cookie(\"{name}\") == \"{value}\":\n" +
+      "    print(\"{negNot}verifyCookieByName failed\")\n",
+    "assertCookieByName":
+      "if {posNot}wd.get_cookie(\"{name}\") == \"{value}\":\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyCookieByName failed\")\n",
+      "    raise Exception(\"{negNot}assertCookieByName failed\")\n",
     "waitForCookieByName":
       "",
-    "assertCookiePresent":
-      "if {posNot}wd.get_cookie(\"{name}\"):\n" +
-      "    print(\"assertCookiePresent failed\")\n",
     "verifyCookiePresent":
       "if {posNot}wd.get_cookie(\"{name}\"):\n" +
+      "    print(\"{negNot}verifyCookiePresent failed\")\n",
+    "assertCookiePresent":
+      "if {posNot}wd.get_cookie(\"{name}\"):\n" +
       "    wd.close()\n" +
-      "    raise Exception(\"verifyCookiePresent failed\")\n",
+      "    raise Exception(\"{negNot}assertCookiePresent failed\")\n",
     "waitForCookiePresent":
       ""
   },
