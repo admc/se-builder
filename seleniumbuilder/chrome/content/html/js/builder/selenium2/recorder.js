@@ -157,56 +157,32 @@ builder.sel2.Recorder = function (target_window, record_action) {
     
     // Selecting
     if (e.target.type.toLowerCase() == 'select' || e.target.type.toLowerCase() == 'select-one') {
-      // Replace a click with a select
-      if (isTypeOrClickInSamePlace(step, params)) {
-        step.changeType("setElementSelected");
-        builder.sel2.updateStepsDisplay();
-        //step.optionLocator(e.target.options[e.target.selectedIndex].text); qqDPS
-      }
-
-      // Deduplicate selects, as we only need the final state of a sequence of selects.
-      // Also, sometimes Firefox issues multiple select events.
-      // qqDPS
-      /*
-      if (step.method() == 'select') {
-        var frame = findFrame(e.target.ownerDocument);
-        if (frame) {
-          var lastTarget = new MozillaBrowserBot(frame).findElementBy("xpath",
-              step.altLocator().xpath, frame.document, frame);
-          if (lastTarget == e.target) {
-            step.option(e.target.options[e.target.selectedIndex].text);
-            return;
-          }
-        }
-      }*/
-
-      // Add select
-      /*params.optionLocator = e.target.options[e.target.selectedIndex].text;
-      record_action('select', params);*/
       record_action("setElementSelected", params);
+      var newStep = builder.getCurrentScript().getLastStep();      
+      if (newStep.locator.alternatives["xpath"]) {
+        newStep.locator = {
+          "alternatives": {},
+          "type": "xpath",
+          "value": newStep.locator.alternatives.xpath + "/option[" + (e.target.selectedIndex + 1) + "]"
+        };
+      } else if (newStep.locator.alternatives["id"]) {
+        newStep.locator = {
+          "alternatives": {},
+          "type": "id",
+          "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[" + (e.target.selectedIndex + 1) + "]"
+        };
+      }
+      builder.sel2.updateStepsDisplay();
       return;
     }
     
     // Radio button
     if (e.target.type == 'radio') {
-      // See if the check is already reported, and if yes, bail. Firefox does multiple events
-      // when you select a radio button using a keyboard, so we have to deduplicate.
-      // qqDPS
-      /*if (step.method() == 'check') {
-        var frame = findFrame(e.target.ownerDocument);
-        if (frame) {
-          var lastTarget = new MozillaBrowserBot(frame).findElementBy("xpath", step.altLocator().xpath, frame.document, frame);
-          if (lastTarget == e.target) {
-            return;
-          }
-        }
-      }*/
-
       // Replace a click with a radio button check
       if (isTypeOrClickInSamePlace(step, params)) {
         step.changeType("setElementSelected");
+        step.locator = builder.sel2.extractSel2Locator(params);
         builder.sel2.updateStepsDisplay();
-        //step.option(e.target.value); qqDPS
         return;
       }
 

@@ -142,13 +142,12 @@ pb.playbackFunctions = {
   },
   "setElementSelected": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('setElementSelected', {id: result.value.ELEMENT});
+      pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
   "refresh": function() {
     pb.execute('refresh', {});
   },
-  
   "verifyTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
       if (result.value.indexOf(pb.currentStep.text) != -1) {

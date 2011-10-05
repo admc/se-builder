@@ -218,6 +218,23 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
   if (step.method == "open") {
     newStep.url = baseURL.substring(0, baseURL.length - 1) + newStep.url;
   }
+  // If we're selecting an element from a <select>, we need to generate an xpath for the right
+  // option.
+  if (step.method == "select") {
+    if (step.altLocator.xpath) {
+      newStep.locator = {
+        "alternatives": {},
+        "type": "xpath",
+        "value": step.altLocator.xpath + "/*[. = '" + step.option + "']"
+      };
+    } else if (step.altLocator.id) {
+      newStep.locator = {
+        "alternatives": {},
+        "type": "xpath",
+        "value": "//*[@id='" + step.altLocator.id + "']/*[. = '" + step.option + "']"
+      };
+    }
+  }
   return [newStep];
 };
 
