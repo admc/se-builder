@@ -142,7 +142,26 @@ pb.playbackFunctions = {
   },
   "setElementSelected": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('clickElement', {id: result.value.ELEMENT});
+      var target = result.value.ELEMENT;
+      pb.execute('isElementSelected', {id: target}, function(result) {
+        if (!result.value) {
+          pb.execute('clickElement', {id: target});
+        } else {
+          pb.recordResult({success: true});
+        }
+      });
+    });
+  },
+  "setElementNotSelected": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      var target = result.value.ELEMENT;
+      pb.execute('isElementSelected', {id: target}, function(result) {
+        if (result.value) {
+          pb.execute('clickElement', {id: target});
+        } else {
+          pb.recordResult({success: true});
+        }
+      });
     });
   },
   "refresh": function() {

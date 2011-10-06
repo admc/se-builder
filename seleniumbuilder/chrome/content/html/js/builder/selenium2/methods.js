@@ -25,7 +25,7 @@ builder.sel2.sel1To2 = {
   "addSelection":         ["select.select",                   "locator", "locator2"],
   "removeAllSelections":  ["select.deselectAll",              "locator", null      ],
   "removeSelection":      ["select.deselect",                 "locator", "locator2"],
-  "uncheck":              ["element.setNotSelected",          "locator", null      ],
+  "uncheck":              ["setElementNotSelected",           "locator", null      ],
   "submit":               ["submitElement",                   "locator", null      ],
   "close":                ["close",                           null,      null      ],
   "refresh":              ["refresh",                         null,      null      ],

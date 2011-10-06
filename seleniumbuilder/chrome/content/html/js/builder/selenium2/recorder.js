@@ -67,7 +67,11 @@ builder.sel2.Recorder = function (target_window, record_action) {
     if (e.type == 'dblclick') {
       record_action('doubleClickElement', params);
     } else if (e.target.type == "checkbox") {
-      record_action('setElementSelected', params);
+      if (jQuery(e.target).attr('checked')) {
+        record_action('setElementSelected', params);
+      } else {
+        record_action('setElementNotSelected', params);
+      }
     } else {
       if (e.target.type == "submit") {
         // If we click on a submit element, submit the form.
