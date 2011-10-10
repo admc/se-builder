@@ -220,7 +220,7 @@ builder.convertSel1StepTo2Steps = function(step, baseURL) {
   }
   // If we're selecting an element from a <select>, we need to generate an xpath for the right
   // option.
-  if (step.method == "select") {
+  if (step.method == "select" || step.method == "removeSelection" || step.method == "addSelection") {
     if (step.altLocator.xpath) {
       newStep.locator = {
         "alternatives": {},

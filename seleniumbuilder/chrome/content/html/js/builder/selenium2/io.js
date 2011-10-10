@@ -201,12 +201,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.actionsBuilder().clickAndHold(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
     "element.release":
       "        wd.actionsBuilder().release(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
-    "select.select":
-      "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).select{locator2By}(\"{locator2}\");\n",
-    "select.deselectAll":
+    "clearSelections":
       "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselectAll();\n",
-    "select.deselect":
-      "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselect{locator2By}(\"{locator2}\");\n",
     "submitElement":
       "        wd.findElement(By.{locatorBy}(\"{locator}\")).submit();\n",
     "close":

@@ -115,6 +115,14 @@ pb.execute = function(name, parameters, callback, errorCallback) {
   });
 };
 
+pb.clearElement = function(target) {
+  pb.execute('isElementSelected', {id: target}, function(result) {
+    if (result.value) {
+      pb.execute('clickElement', {id: target});
+    }
+  });
+};
+
 pb.playbackFunctions = {
   "get": function() {
     pb.execute('get', {url: pb.currentStep.url});
@@ -161,6 +169,17 @@ pb.playbackFunctions = {
         } else {
           pb.recordResult({success: true});
         }
+      });
+    });
+  },
+  "clearSelections": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      var target = result.value.ELEMENT;
+      pb.execute('findChildElements', {id: target, using: "tag name", value: "option"}, function(result) {
+        for (var i = 0; i < result.value.length; i++) {
+          pb.clearElement(result.value[i].ELEMENT);
+        }
+        pb.recordResult({success: true});
       });
     });
   },
