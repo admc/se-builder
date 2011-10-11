@@ -180,6 +180,63 @@ builder.sel2.Recorder = function (target_window, record_action) {
       return;
     }
     
+    if (e.target.type.toLowerCase() == 'select-multiple') {
+      var currentVal = jQuery(e.target).val();
+      var oldVal = e.target.__sb_oldVal || [];
+      for (var c = 0; c < currentVal.length; c++) {
+        var newlyAdded = true;
+        for (var o = 0; o < oldVal.length; o++) {
+          if (currentVal[c] == oldVal[o]) {
+            newlyAdded = false;
+          }
+        }
+        if (newlyAdded) {
+          record_action("setElementSelected", params);
+          var newStep = builder.getCurrentScript().getLastStep();
+          if (newStep.locator.alternatives["xpath"]) {
+            newStep.locator = {
+              "alternatives": {},
+              "type": "xpath",
+              "value": newStep.locator.alternatives.xpath + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"
+            };
+          } else if (newStep.locator.alternatives["id"]) {
+            newStep.locator = {
+              "alternatives": {},
+              "type": "id",
+              "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"
+            };
+          }
+        }
+      }
+      for (var o = 0; o < oldVal.length; o++) {
+        var stillThere = false;
+        for (var c = 0; c < currentVal.length; c++) {
+          if (currentVal[c] == oldVal[o]) {
+            stillThere = true;
+          }
+        }
+        if (!stillThere) {
+          record_action("setElementNotSelected", params);
+          var newStep = builder.getCurrentScript().getLastStep();
+          if (newStep.locator.alternatives["xpath"]) {
+            newStep.locator = {
+              "alternatives": {},
+              "type": "xpath",
+              "value": newStep.locator.alternatives.xpath + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"
+            };
+          } else if (newStep.locator.alternatives["id"]) {
+            newStep.locator = {
+              "alternatives": {},
+              "type": "id",
+              "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"
+            };
+          }
+        }
+      }
+      e.target.__sb_oldVal = currentVal;
+      builder.sel2.updateStepsDisplay();
+    }
+    
     // Radio button
     if (e.target.type == 'radio') {
       // Replace a click with a radio button check
