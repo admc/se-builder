@@ -12,13 +12,6 @@
  * @depends builder.locator
  */
 builder.sel2.Recorder = function (target_window, record_action) {
-  // These two variables are used to notice when the same event gets issued twice in a row.
-  /** The last locator clicked on. */
-  var lastLocValue = false;
-  /** The type of the last locator clicked on (its field name in the locator object). */
-  var lastLocator = false;
-  /** Timeout used to reset the above values after a second. */
-  var lastLocTimeout;
   /**
    * List of frames to which the recorder has been bound. Gets continually updated via timeout.
    */
@@ -30,6 +23,12 @@ builder.sel2.Recorder = function (target_window, record_action) {
   function writeJsonClicks(e) {
     var params = builder.locator.create(e.target);
     if (isTypeOrClickInSamePlace(builder.getCurrentScript().getLastStep(), params)) {
+      if (e.type == 'dblclick' &&
+          { 'clickElement': 1, 'clickElementWithOffset': 1, 'doubleClickElement': 1 }[builder.getCurrentScript().getLastStep().type])
+      {
+        builder.getCurrentScript().getLastStep().changeType('doubleClickElement');
+        builder.sel2.updateStepsDisplay();
+      }
       return;
     }
 
@@ -37,32 +36,6 @@ builder.sel2.Recorder = function (target_window, record_action) {
     if ({ 'select': true, 'option': true }[e.target.tagName.toLowerCase()]) {
       return;
     }
-
-    // To keep from generating multiple actions for the same click, we check if the click 
-    // happened in the same place as the last one.
-    var locator = params._default;
-    var locValue = params[locator];
-    if ((lastLocValue == locValue) && (lastLocator == locator)) {
-      if (e.type == 'click') {
-        return;
-      }
-      if (e.type == 'dblclick' &&
-          { 'clickElement': 1, 'clickElementWithOffset': 1, 'doubleClickElement': 1 }[builder.getCurrentScript().getLastStep().type])
-      {
-        builder.getCurrentScript().getLastStep().changeType('doubleClickElement');
-        builder.sel2.updateStepsDisplay();
-        return;
-      }
-    }
-    lastLocValue = locValue;
-    lastLocator = locator;
-    // But if the same click happens after more than a second, count it as intentional. 
-    clearTimeout(lastLocTimeout);
-    lastLocTimeout = setTimeout(function () {
-      lastLocValue = null;
-      lastLocator = null;
-    }, 1000);
-
 
     if (e.type == 'dblclick') {
       record_action('doubleClickElement', params);
@@ -302,7 +275,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
       if (e.type == 'click') {
         return;
       }
-      if (e.type == 'dblclick' && { click:1, clickAt:1 }[builder.lastStep().method()]) {
+      if (e.type == 'dblclick' && { "clickElement":1, "clickAt":1 }[builder.lastStep().method()]) {
         builder.getCurrentScript().getLastStep().changeType("doubleClickElement");
         builder.sel2.updateStepsDisplay();
         return;

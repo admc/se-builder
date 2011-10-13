@@ -138,6 +138,12 @@ pb.playbackFunctions = {
       pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
+  "doubleClickElement": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('clickElement', {id: result.value.ELEMENT});
+      pb.execute('clickElement', {id: result.value.ELEMENT});
+    });
+  },
   "submitElement": function() {
     pb.findElement(pb.currentStep.locator, function(result) {
       pb.execute('submitElement', {id: result.value.ELEMENT});
