@@ -43,7 +43,7 @@ builder.sel2.updateStepDisplay = function(stepID) {
   } else {
     jQuery('#' + stepID + '-unplayable').show();
   }
-  for (var i = 0; i < 2; i++) {
+  for (var i = 0; i < 3; i++) {
     if (paramNames.length > i) {
       jQuery('#' + stepID + 'edit-p' + i).show();
       jQuery('#' + stepID + 'edit-p' + i + '-name').text(paramNames[i]);
@@ -413,6 +413,22 @@ function addStep(step) {
               class:'b-param',
               href: '#',
               click: function() { editParam(step.id, 1); }
+            })
+          ),
+          
+          // The third parameter
+          newNode('span', {id: step.id + '-p2'},
+            newNode('a', {
+              id: step.id + '-p2-name',
+              class:'b-param-type',
+              href: '#',
+              click: function() { editParam(step.id, 2); }
+            }),
+            newNode('a', '', {
+              id: step.id + '-p2-value',
+              class:'b-param',
+              href: '#',
+              click: function() { editParam(step.id, 2); }
             })
           ),
       

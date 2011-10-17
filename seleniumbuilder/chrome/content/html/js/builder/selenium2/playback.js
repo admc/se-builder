@@ -443,6 +443,38 @@ pb.playbackFunctions = {
     });
   },
   
+  "verifyElementAttribute": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
+        if (result.value == pb.currentStep.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Attribute value does not match."});
+        }
+      });
+    });
+  },
+  "assertElementAttribute": function() {
+    pb.findElement(pb.currentStep.locator, function(result) {
+      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
+        if (result.value == pb.currentStep.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Attribute value does not match.");
+        }
+      });
+    });
+  },
+  "waitForElementAttribute": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.currentStep.locator, function(result) {
+        pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
+          callback(result.value == pb.currentStep.value);
+        }, /*error*/ function() { callback(false); });
+      }, /*error*/ function() { callback(false); });
+    });
+  },
+  
   "verifyCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {

@@ -50,6 +50,9 @@ builder.sel2.sel1To2 = {
   "assertTitle":          ["assertTitle",                     "title",   null      ],
   "verifyTitle":          ["verifyTitle",                     "title",   null      ],
   "waitForTitle":         ["waitForTitle",                    "title",   null      ],
+  "assertAttribute":      ["assertElementAttribute",          "locator", "attributeName", "value" ],
+  "verifyAttribute":      ["verifyElementAttribute",          "locator", "attributeName", "value" ],
+  "waitForAttribute":     ["waitElementAttribute",            "locator", "attributeName", "value" ],
   "assertChecked":        ["assertElementSelected",           "locator", null      ],
   "verifyChecked":        ["verifyElementSelected",           "locator", null      ],
   "waitForChecked":       ["waitForElementSelected",          "locator", null      ],
@@ -75,6 +78,7 @@ for (var k in builder.sel2.sel1To2) {
   var pNames = [];
   if (v[1]) { pNames.push(v[1]); }
   if (v[2]) { pNames.push(v[2]); }
+  if (v[3]) { pNames.push(v[3]); }
   builder.sel2.paramNames[v[0]] = pNames;
 }
 

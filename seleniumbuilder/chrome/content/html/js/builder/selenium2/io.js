@@ -308,6 +308,17 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForElementValue":
       "",
+    "assertElementAttribute":
+      "        if ({posNot}\"{value}\".equals(wd.findElement(By.{locatorBy}(\"{locator}\")).getAttribute(\"{attributeName}\"))) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"{negNot}assertElementValue failed\");\n" +
+      "        }\n",
+    "verifyElementAttribute":
+    "        if ({posNot}\"{value}\".equals(wd.findElement(By.{locatorBy}(\"{locator}\")).getAttribute(\"{attributeName}\"))) {\n" +
+      "            System.err.println(\"{negNot}verifyElementValue failed\");\n" +
+      "        }\n",
+    "waitForElementAttribute":
+      "",
     "assertCookieByName":
       "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
       "            wd.close();\n" +
