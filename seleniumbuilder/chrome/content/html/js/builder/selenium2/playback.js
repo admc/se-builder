@@ -475,6 +475,22 @@ pb.playbackFunctions = {
     });
   },
   
+  "addCookie": function() {
+    var params = {"cookie": {"name": pb.currentStep.name, "value": pb.currentStep.value}};
+    var opts = pb.currentStep.options.split(",");
+    for (var i = 0; i < opts.length; i++) {
+      var kv = opts[i].trim().split("=");
+      if (kv.length == 1) { continue; }
+      if (kv[0] == "path") {
+        params.cookie.path = kv[1];
+      }
+      if (kv[0] == "max_age") {
+        params.cookie.expiry = (new Date().getTime()) / 1000 + parseInt(kv[1]);
+      }
+    }
+    pb.execute('addCookie', params);
+  },
+  
   "verifyCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {

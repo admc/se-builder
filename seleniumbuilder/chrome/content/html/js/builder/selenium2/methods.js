@@ -59,6 +59,7 @@ builder.sel2.sel1To2 = {
   "assertValue":          ["assertElementValue",              "locator", "value"   ],
   "verifyValue":          ["verifyElementValue",              "locator", "value"   ],
   "waitForValue":         ["waitForElementValue",             "locator", "value"   ],
+  "createCookie":         ["addCookie",                       "name",    "value", "options" ],
   "assertCookieByName":   ["assertCookieByName",              "name",    "value"   ],
   "verifyCookieByName":   ["verifyCookieByName",              "name",    "value"   ],
   "waitForCookieByName":  ["waitForCookieByName",             "name",    "value"   ],

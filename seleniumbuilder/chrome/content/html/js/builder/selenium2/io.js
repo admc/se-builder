@@ -92,6 +92,10 @@ builder.createLangSel2Formatter = function(lang_info) {
         if (typeof line == 'undefined') {
           throw("Cannot export step of type \"" + step.type + "\".");
         }
+        if (line instanceof Function) {
+          t += line(step, lang_info.escapeValue);
+          continue;
+        }
         var pNames = script.steps[i].getParamNames();
         for (var j = 0; j < pNames.length; j++) {
           if (pNames[j].startsWith("locator")) {
@@ -161,6 +165,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
   not: "!",
   start:
     "import java.util.concurrent.TimeUnit;\n" +
+    "import java.util.Date;\n" + 
     "import org.openqa.selenium.firefox.FirefoxDriver;\n" +
     "import org.openqa.selenium.*;\n" +
     "\n" +
@@ -209,6 +214,24 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.close();\n",
     "navigate.refresh":
       "        wd.navigate().refresh();\n",
+    "addCookie":
+      function(step, escapeValue) {
+        var r = "        Cookie c = Cookie.Builder(\"" + escapeValue(step.type, step.name) + "\", \"" + escapeValue(step.type, step.value) + "\")";
+        var opts = step.options.split(",");
+        for (var i = 0; i < opts.length; i++) {
+          var kv = opts[i].trim().split("=");
+          if (kv.length == 1) { continue; }
+          if (kv[0] == "path") {
+            r += ".path(\"" + escapeValue(step.type, kv[1]) + "\")";
+          }
+          if (kv[0] == "max_age") {
+            r += ".expiresOn(new Date(new Date().getTime() + " + parseInt(kv[1]) * 1000 + "l))";
+          }
+        }
+        r += ".build();\n";
+        r += "        wd.manage().addCookie(c);\n";
+        return r;
+      },
     "assertTextPresent":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
       "            wd.close();\n" +
