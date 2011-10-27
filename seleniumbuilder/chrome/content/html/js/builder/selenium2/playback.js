@@ -475,6 +475,10 @@ pb.playbackFunctions = {
     });
   },
   
+  "deleteCookie": function() {
+    pb.execute('deleteCookie', {"name": pb.currentStep.name});
+  },
+  
   "addCookie": function() {
     var params = {"cookie": {"name": pb.currentStep.name, "value": pb.currentStep.value}};
     var opts = pb.currentStep.options.split(",");

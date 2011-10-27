@@ -216,7 +216,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.navigate().refresh();\n",
     "addCookie":
       function(step, escapeValue) {
-        var r = "        Cookie c = Cookie.Builder(\"" + escapeValue(step.type, step.name) + "\", \"" + escapeValue(step.type, step.value) + "\")";
+        var r = "        Cookie c" + step.id + " = Cookie.Builder(\"" + escapeValue(step.type, step.name) + "\", \"" + escapeValue(step.type, step.value) + "\")";
         var opts = step.options.split(",");
         for (var i = 0; i < opts.length; i++) {
           var kv = opts[i].trim().split("=");
@@ -229,8 +229,14 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
           }
         }
         r += ".build();\n";
-        r += "        wd.manage().addCookie(c);\n";
+        r += "        wd.manage().addCookie(c" + step.id + ");\n";
         return r;
+      },
+    "deleteCookie":
+      function(step, escapeValue) {
+        return(
+        "        Cookie c" + step.id + " = wd.manage().getCookieNamed(\"" + escapeValue(step.type, step.name) + "\");\n" +
+        "        if (c" + step.id + " != null) { wd.manage().deleteCookie(c" + step.id + "); }\n");
       },
     "assertTextPresent":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().contains(\"{text}\")) {\n" +
