@@ -66,7 +66,8 @@ builder.sel2.sel1To2 = {
   "waitForCookieByName":  ["waitForCookieByName",             "name",    "value"   ],
   "assertCookiePresent":  ["assertCookiePresent",             "name",    null      ],
   "verifyCookiePresent":  ["verifyCookiePresent",             "name",    null      ],
-  "waitForCookiePresent": ["waitForCookiePresent",            "name",    null      ]
+  "waitForCookiePresent": ["waitForCookiePresent",            "name",    null      ],
+  "captureEntirePageScreenshot": ["saveScreenshot",           "file",    null      ]
 };
 
 // Rearrange the information for lookup.
