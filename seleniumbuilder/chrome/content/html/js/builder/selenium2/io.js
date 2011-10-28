@@ -166,8 +166,10 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
   start:
     "import java.util.concurrent.TimeUnit;\n" +
     "import java.util.Date;\n" + 
+    "import java.io.File;\n" +
     "import org.openqa.selenium.firefox.FirefoxDriver;\n" +
     "import org.openqa.selenium.*;\n" +
+    "import static org.openqa.selenium.OutputType.*;\n" +
     "\n" +
     "public class {name} {\n" +
     "    public static void main(String[] args) {\n" +
@@ -369,7 +371,9 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "            System.err.println(\"{negNot}verifyCookiePresent failed\");\n" +
       "        }\n",
     "waitForCookiePresent":
-      ""
+      "",
+    "saveScreenshot":
+      "        wd.getScreenshotAs(FILE).renameTo(new File(\"{file}\"));\n"
   },
   locatorByForType: function(stepType, locatorType, locatorIndex) {
     if ({"select.select":1, "select.deselect":1}[stepType] && locatorIndex == 2) {

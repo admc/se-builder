@@ -576,6 +576,12 @@ pb.playbackFunctions = {
       /*error*/ function() { callback(false); });
     });
   },
+  
+  "jam": "fish",
+  
+  "saveScreenshot": function() {
+    pb.execute("saveScreenshot", pb.currentStep.file);
+  }
 };
 
 pb.wait = function(testFunction) {
