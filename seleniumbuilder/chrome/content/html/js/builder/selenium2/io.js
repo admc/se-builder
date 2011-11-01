@@ -167,6 +167,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "import java.util.concurrent.TimeUnit;\n" +
     "import java.util.Date;\n" + 
     "import java.io.File;\n" +
+    "import org.openqa.selenium.support.ui.Select;\n" +
+    "import org.openqa.selenium.interactions.Actions;\n" +
     "import org.openqa.selenium.firefox.FirefoxDriver;\n" +
     "import org.openqa.selenium.*;\n" +
     "import static org.openqa.selenium.OutputType.*;\n" +
@@ -192,22 +194,20 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.findElement(By.{locatorBy}(\"{locator}\")).sendKeys(\"{text}\");\n",
     "setElementSelected":
       "        if (!wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
-      "            wd.findElement(By.{locatorBy}(\"{locator}\")).setSelected();\n" +
+      "            wd.findElement(By.{locatorBy}(\"{locator}\")).click();\n" +
       "        }\n",
     "setElementNotSelected":
       "        if (wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
-      "            wd.findElement(By.{locatorBy}(\"{locator}\")).toggle();\n" +
+      "            wd.findElement(By.{locatorBy}(\"{locator}\")).click();\n" +
       "        }\n",
-    "clickElementWithOffset":
-      "        wd.actionsBuilder().moveToElement(wd.findElement(By.{locatorBy}(\"{locator}\"))).moveByOffset({offset}).click().build().perform();\n",
     "doubleClickElement":
-      "        wd.actionsBuilder().doubleClick(wd.findElement(By.{locatorBy}(\"{locator}\"))).build().perform();\n",
+      "        new Actions(wd).doubleClick(wd.findElement(By.{locatorBy}(\"{locator}\"))).build().perform();\n",
     "element.dragToAndDrop":
-      "        wd.actionsBuilder().dragAndDrop(wd.findElement(By.{locatorBy}(\"{locator}\")), wd.findElement(By.{locator2By}(\"{locator2}\"))).build().perform();\n",
+      "        new Actions(wd).dragAndDrop(wd.findElement(By.{locatorBy}(\"{locator}\")), wd.findElement(By.{locator2By}(\"{locator2}\"))).build().perform();\n",
     "element.clickAndHold":
-      "        wd.actionsBuilder().clickAndHold(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
+      "        new Actions(wd).clickAndHold(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
     "element.release":
-      "        wd.actionsBuilder().release(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
+      "        new Actions(wd).release(wd.findElement(By.{locatorBy}(\"{locator}\"))).build.perform();\n",
     "clearSelections":
       "        new Select(wd.findElement(By.{locatorBy}(\"{locator}\"))).deselectAll();\n",
     "submitElement":
@@ -218,7 +218,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.navigate().refresh();\n",
     "addCookie":
       function(step, escapeValue) {
-        var r = "        Cookie c" + step.id + " = Cookie.Builder(\"" + escapeValue(step.type, step.name) + "\", \"" + escapeValue(step.type, step.value) + "\")";
+        var r = "        Cookie c" + step.id + " = new Cookie.Builder(\"" + escapeValue(step.type, step.name) + "\", \"" + escapeValue(step.type, step.value) + "\")";
         var opts = step.options.split(",");
         for (var i = 0; i < opts.length; i++) {
           var kv = opts[i].trim().split("=");
