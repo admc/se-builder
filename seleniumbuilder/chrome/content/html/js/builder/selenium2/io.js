@@ -318,23 +318,23 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "waitForTitle":
       "",
     "assertElementSelected":
-      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
+      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
       "            wd.close();\n" +
       "            throw new RuntimeException(\"{negNot}assertElementSelected failed\");\n" +
       "        }\n",
     "verifyElementSelected":
-      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).is_selected()) {\n" +
+      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).isSelected()) {\n" +
       "            System.err.println(\"{negNot}verifyElementSelected failed\");\n" +
       "        }\n",
     "waitForElementSelected":
       "",
     "assertElementValue":
-      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getAttribute(\"value\").equals(\"{value}\")) {\n" +
       "            wd.close();\n" +
       "            throw new RuntimeException(\"{negNot}assertElementValue failed\");\n" +
       "        }\n",
     "verifyElementValue":
-      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getValue().equals(\"{value}\")) {\n" +
+      "        if ({posNot}wd.findElement(By.{locatorBy}(\"{locator}\")).getAttribute(\"value\").equals(\"{value}\")) {\n" +
       "            System.err.println(\"{negNot}verifyElementValue failed\");\n" +
       "        }\n",
     "waitForElementValue":
@@ -351,12 +351,12 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "waitForElementAttribute":
       "",
     "assertCookieByName":
-      "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
+      "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\").getValue())) {\n" +
       "            wd.close();\n" +
       "            throw new RuntimeException(\"{negNot}assertCookieByName failed\");\n" +
       "        }\n",
     "verifyCookieByName":
-      "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\"))) {\n" +
+      "        if ({posNot}\"{value}\".equals(wd.manage().getCookieNamed(\"{name}\").getValue())) {\n" +
       "            System.err.println(\"{negNot}verifyCookieByName failed\");\n" +
       "        }\n",
     "manage.waitForCookieNamed":
@@ -385,12 +385,14 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       };
     }
     return {
-      "class": "className",
+      "class name": "className",
       "id": "id",
       "link text": "linkText",
       "xpath": "xpath",
       "css selector": "cssSelector",
-      "name": "name"}[locatorType];
+      "name": "name",
+      "tag name": "tagName",
+      "partial link text": "partialLinkText"}[locatorType];
   },
   escapeValue: function(stepType, value, valueIndex) {
     return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
