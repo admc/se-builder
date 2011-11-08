@@ -121,6 +121,88 @@ function deleteStep(stepID) {
   builder.storage.set('save_required', true);
 }
 
+var searchers = [];
+var hasSearchers = false;
+var searcherInterval = null;
+
+function toggleSearchers(stepID, pIndex) {
+  if (hasSearchers) { stopSearchers(stepID, pIndex); } else { startSearchers(stepID, pIndex); }
+}
+
+function stopSearchers(stepID, pIndex) {
+  if (searcherInterval) {
+    clearInterval(searcherInterval);
+  }
+  for (var i = 0; i < searchers.length; i++) {
+    searchers[i].destroy();
+  }
+  searchers = [];
+  hasSearchers = false;
+}
+
+function startSearchers(stepID, pIndex) {
+  builder.interface.record.pause();
+  hasSearchers = true;
+  attachSearchers(stepID, pIndex, true);
+  // Keep on looking for new frames with no attached searchers.
+  searcherInterval = setInterval(function() { attachSearchers(stepID, pIndex); }, 500, true);
+  window.bridge.focusContent();
+}
+
+/**
+ * Attach an AssertExplorer to each frame in Firefox to allow the user to select a new locator.
+ * The code also attaches a boolean to the frames to prevent attaching multiple searchers, but
+ * since this can't be easily cleared when searching is complete, it can be overridden with the
+ * force parameter.
+ */
+function attachSearchers(stepID, pIndex, force) {
+  // To do this, we first must iterate over the windows in the browser - but of course
+  // each window may contain multiple tabs!
+  var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+  var en = windowManager.getZOrderDOMWindowEnumerator(null, false);
+  while (en.hasMoreElements()) {
+    var w = en.getNext();
+    for (var i = 0; i < w.frames.length; i++) {
+      // This expression filters out the frames that aren't browser tabs.
+      // I'm sure there's a better way to detect this, but this would require meaningful
+      // documentation in Firefox! qqDPS
+      if ((w.frames[i] + "").indexOf("ChromeWindow") == -1) {
+        var frame = w.frames[i];
+        // Don't attach to the recording window, lest confusion reign.
+        if (frame == window) {
+          continue;
+        }
+        // Prevent multiple attached searchers unless force is true.
+        if (frame._selenium_builder_hasSearcher && !force) {
+          continue;
+        }
+        frame._selenium_builder_hasSearcher = true;
+        searchers.push(new builder.AssertExplorer(
+          frame,
+          function() {},
+          // This function is called when the user selects a new element.
+          function(method, params) {
+            var step = builder.getCurrentScript().getStepWithID(stepID);
+            builder.storage.set('save_required', true);
+            var loc = builder.sel2.extractSel2Locator(params);
+            var pName = step.getParamNames()[pIndex];
+            stopSearchers();
+            window.bridge.focusWindow();
+            step[pName] = loc;
+            builder.sel2.updateStepDisplay(stepID);
+            builder.storage.set('save_required', true);
+            // Update the edit-param view.
+            jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+            jQuery('#' + stepID + '-p' + pIndex).show();
+            editParam(stepID, pIndex);
+          },
+          /*for_choosing_locator*/ true)
+        );
+      }
+    }
+  }
+}
+
 function editType(stepID) {
   var sel = newNode(
     'select',
@@ -225,7 +307,13 @@ function editParam(stepID, pIndex) {
           builder.sel2.updateStepDisplay(stepID);
           builder.storage.set('save_required', true);
         }
-      })
+      }),
+      newNode('div',
+        newNode('a', "Find a different target", {
+          href: '#',
+          click: function() { toggleSearchers(stepID, pIndex); }
+        })
+      )
     );
     
     for (var i = 0; i < builder.sel2.locatorTypes.length; i++) {
