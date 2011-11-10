@@ -450,13 +450,13 @@ function addStep(step) {
           id: step.id + 'run-step',
           href: '#',
           class: 'b-task',
-          click: function() { alert("TODO"); /* todo */ }
+          click: function() { builder.sel2.playback.runTestBetween(null, step.id, step.id); }
         }),
         newNode('a', "run from here", {
           id: step.id + 'run-from-here',
           href: '#',
           class: 'b-task',
-          click: function() { alert("TODO"); /* todo */ }
+          click: function() { builder.sel2.playback.runTestBetween(null, step.id, null); }
         })
       ),
       newNode('div', {class: 'b-step-content', id: step.id + '-content'},
