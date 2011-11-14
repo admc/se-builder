@@ -631,7 +631,7 @@ pb.recordResult = function(result) {
     pb.playResult.success = false;
     if (result.message) {
       jQuery('#' + pb.currentStep.id + '-message').html(result.message).show();
-      pb.playResult.message = result.message;
+      pb.playResult.errormessage = result.message;
     }
   }
   
@@ -661,6 +661,6 @@ pb.recordError = function(message) {
   jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ff3333');
   pb.playResult.success = false;
   jQuery('#' + pb.currentStep.id + '-error').html(message).show();
-  pb.playResult.message = message;
+  pb.playResult.errormessage = message;
   pb.shutdown();
 };

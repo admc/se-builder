@@ -128,6 +128,14 @@ builder.suite = new (function () {
     return _scripts.length;
   };
   
+  this.hasSelenium2Scripts = function() {
+    for (var i = 0; i < _scripts.length; i++) {
+      var script = _scripts[i];
+      if (script.script.seleniumVersion == "2") { return true; }
+    }
+    return false;
+  };
+  
   /** @return An array of the names of the loaded scripts. */
   this.getScriptNames = function() {
     var names = [];
@@ -141,7 +149,7 @@ builder.suite = new (function () {
           names.push(path.path);
         }
       } else {
-        names.push("[Untitled Script]");
+        names.push("[Untitled Script " + (i + 1) + "]");
       }
     }
     return names;

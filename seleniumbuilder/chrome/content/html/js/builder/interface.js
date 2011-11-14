@@ -424,6 +424,7 @@ builder.interface.startup = new(function () {
     if (suite) {
       builder.suite.setSuite(suite);
     }
+    builder.interface.updateRunSuiteOnRC();
   }
 
   /**
@@ -803,6 +804,13 @@ builder.interface.record = new(function () {
   };
 })();
 
+builder.interface.updateRunSuiteOnRC = function() {
+  if (builder.suite.hasSelenium2Scripts() || builder.storage.get('selMajorVersion')) {
+    jQuery("#run-suite-onrc-li").hide();
+  } else {
+    jQuery("#run-suite-onrc-li").show();
+  }
+};
 
 /** The mode in which you can edit the script when you're not recording it. */
 builder.interface.edit = new(function () {
@@ -811,7 +819,14 @@ builder.interface.edit = new(function () {
     // in the script. Not all these buttons are visible all the time.
     
     jQuery("#run-onrc-li").show();
-    jQuery("#run-suite-onrc-li").show();
+    builder.storage.addChangeListener('selMajorVersion', function(selMajorVersion) {
+      if (selMajorVersion == "1") {
+        jQuery("#run-onrc-li").show();
+      } else {
+        jQuery("#run-onrc-li").hide();
+      }
+    });
+    builder.interface.updateRunSuiteOnRC();
     jQuery('#run-onrc').bind('click', function () {
       builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ false);
     });
@@ -981,6 +996,7 @@ builder.interface.suite = new(function () {
     
     jQuery('#suite-removescript').click(function() {
       builder.suite.deleteScript(builder.suite.getSelectedScriptIndex());
+      builder.interface.updateRunSuiteOnRC();
     });
     
     jQuery('#suite-addscript').click(function() {
@@ -992,10 +1008,11 @@ builder.interface.suite = new(function () {
         builder.suite.saveAndDeselectCurrentScript();
         builder.openScript(script.path, script);
         builder.suite.addAndSelectCurrentScript();
+        builder.interface.updateRunSuiteOnRC();
       }
     });
     
-    jQuery('#suite-addscript-sel2').click(function() {
+    jQuery('#suite-importscript-sel2').click(function() {
       var script = builder.loadSel2Script();
       if (script) {
         // Save the current script and unselect it to make sure that when we overwrite its
@@ -1004,6 +1021,20 @@ builder.interface.suite = new(function () {
         builder.suite.saveAndDeselectCurrentScript();
         builder.openScript(null, builder.convertSel2To1(script));
         builder.suite.addAndSelectCurrentScript();
+        builder.interface.updateRunSuiteOnRC();
+      }
+    });
+    
+    jQuery('#suite-addscript-sel2').click(function() {
+      var script = builder.sel2.loadScript();
+      if (script) {
+        // Save the current script and unselect it to make sure that when we overwrite its
+        // info in the GUI by opening the new script, we don't overwrite its info in
+        // builder.suite.
+        builder.suite.saveAndDeselectCurrentScript();
+        builder.openSel2File(script);
+        builder.suite.addAndSelectCurrentScript();
+        builder.interface.updateRunSuiteOnRC();
       }
     });
     

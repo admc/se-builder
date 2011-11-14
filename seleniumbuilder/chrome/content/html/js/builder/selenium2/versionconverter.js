@@ -140,7 +140,7 @@ builder.convertSel2To1 = function(script) {
 builder.findBaseUrl = function(script) {
   for (var i = 0; i < script.steps.length; i++) {
     if (script.steps[i].type == "get") {
-      return new builder.Url(script.steps[i].value).server();
+      return new builder.Url(script.steps[i].url).server();
     }
   }
   return "";

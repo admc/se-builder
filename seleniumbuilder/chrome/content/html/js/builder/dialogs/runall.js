@@ -56,7 +56,7 @@ builder.dialogs.runall = new(function () {
       var sid = 'script-num-' + i;
 
       scriptlist.appendChild(
-        newNode('div', {id: sid, class: 'action ui-corner-all', style:'padding-left: 10px'},
+        newNode('div', {id: sid, class: 'b-suite-playback-script'},
           newNode('div',
             newNode('span', {}, name),
             newNode('a', {class:"step-view", id:sid + "-view", style:"display: none", click: function(e) {
@@ -140,7 +140,11 @@ builder.dialogs.runall = new(function () {
     if (currentScriptIndex < scriptNames.length && !requestStop) {
       jQuery("#script-num-" + currentScriptIndex).css('background-color', '#ffffaa');
       builder.suite.switchToScript(currentScriptIndex);
-      builder.local.runtest(builder.dialogs.runall.processLocalResult);
+      if (builder.storage.get('selMajorVersion') == "2") {
+        builder.sel2.playback.runTest(builder.dialogs.runall.processLocalResult);
+      } else {
+        builder.local.runtest(builder.dialogs.runall.processLocalResult);
+      }
     } else {
       jQuery(close_b).show();
       jQuery(info_p).html("Done!");

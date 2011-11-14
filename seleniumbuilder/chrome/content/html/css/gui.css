@@ -197,6 +197,14 @@ div.scriptselector select {
 New step styling.
 **/
 
+.b-suite-playback-script {
+  background: #dddddd;
+  -moz-border-radius: 5px;
+  margin: 2px;
+  margin-left: 102px;
+  padding: 1px;
+}
+
 #steplist {
   counter-reset: line-number;
   position: absolute;
