@@ -1,7 +1,7 @@
 builder.sel2 = {};
 
 /**
- * Maps S1 methods to  [type,                   p0,        p1     ]
+ * Maps S1 methods to  [type,                   p0,        p1, ...    ]
  * Note that while S1 steps have "locator" and "value" fields, they don't necessarily contain
  * values of that type. They're just names for what are actually positional arguments. In S2 steps,
  * the locator is always a locator, and the value is always not.
@@ -69,6 +69,56 @@ builder.sel2.sel1To2 = {
   "waitForCookiePresent": ["waitForCookiePresent",            "name",    null      ],
   "captureEntirePageScreenshot": ["saveScreenshot",           "file",    null      ]
 };
+
+builder.sel2.categories = [
+  ["Navigation", [
+    ["get", ""],
+    ["refresh", ""],
+    ["goBack", ""],
+    ["goForward", ""],
+    ["close", ""]
+  ]],
+  ["Input", [
+    ["clickElement", ""],
+    ["sendKeysToElement", ""],
+    ["setElementSelected", ""],
+    ["setElementNotSelected", ""],
+    ["clearSelections", ""],
+    ["submitElement", ""]
+  ]],
+  ["Misc",[
+    ["addCookie", ""],
+    ["deleteCookie", ""],
+    ["saveScreenshot", ""]
+  ]],
+  ["Assertion", [
+    ["assertCurrentUrl", ""],
+    ["assertTitle", ""],
+    ["assertText", ""],
+    ["assertElementAttribute", ""],
+    ["assertElementValue", ""],
+    ["assertCookiePresent", ""],
+    ["assertCookieByName", ""]
+  ]],
+  ["Verify", [
+    ["verifyCurrentUrl", ""],
+    ["verifyTitle", ""],
+    ["verifyText", ""],
+    ["verifyElementAttribute", ""],
+    ["verifyElementValue", ""],
+    ["verifyCookiePresent", ""],
+    ["verifyCookieByName", ""]
+  ]],
+  ["Wait", [
+    ["waitForCurrentUrl", ""],
+    ["waitForTitle", ""],
+    ["waitForText", ""],
+    ["waitForElementAttribute", ""],
+    ["waitForElementValue", ""],
+    ["waitForCookiePresent", ""],
+    ["waitForCookieByName", ""]
+  ]]
+];
 
 // Rearrange the information for lookup.
 builder.sel2.paramNames = {};

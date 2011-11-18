@@ -203,26 +203,103 @@ function attachSearchers(stepID, pIndex, force) {
   }
 }
 
-function editType(stepID) {
-  var sel = newNode(
-    'select',
-    {
-      id: stepID + '-edit-select'
+
+function updateTypeDivs(stepID, newType) {
+  if (newType.startsWith("assert") || newType.startsWith("verify")) {
+    jQuery('#' + stepID + '-edit-negate').show();
+    jQuery('#' + stepID + '-edit-negate-label').show();
+  } else {
+    jQuery('#' + stepID + '-edit-negate').hide();
+    jQuery('#' + stepID + '-edit-negate-label').hide();
+  }
+  
+  var cD = jQuery('#' + stepID + '-edit-cat-list');
+  var tD = jQuery('#' + stepID + '-edit-type-list');
+  cD.attr('__sb-stepType', newType);
+  cD.html('');
+  tD.html('');
+  for (var i = 0; i < builder.sel2.categories.length; i++) {
+    var inCat = false;
+    for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
+      if (builder.sel2.categories[i][1][j][0] == newType) {
+        inCat = true;
+      }
     }
-  );
-  var step = builder.getCurrentScript().getStepWithID(stepID);
-  for (var i = 0; i < builder.sel2.types.length; i++) {
-    if (builder.sel2.types[i] == step.type) {
-      sel.appendChild(newNode('option', builder.sel2.types[i], { value: builder.sel2.types[i], selected: 'true' }));
+    if (inCat) {
+      cD.append(newNode('li', newNode(
+        'span',
+        builder.sel2.categories[i][0],
+        {
+          class: 'selected-cat'
+        }
+      )));
+      for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
+        if (builder.sel2.categories[i][1][j][0] == newType) {
+          tD.append(newNode('li',newNode(
+            'span',
+            builder.sel2.categories[i][1][j][0],
+            {
+              class: 'selected-type'
+            }
+          )));
+        } else {
+          tD.append(newNode('li', newNode(
+            'a',
+            builder.sel2.categories[i][1][j][0],
+            {
+              class: 'not-selected-type',
+              href: '#',
+              click: mkUpdate(stepID, builder.sel2.categories[i][1][j][0])
+            }
+          )));
+        }
+      }
     } else {
-      sel.appendChild(newNode('option', builder.sel2.types[i], { value: builder.sel2.types[i] }));
+      cD.append(newNode('li', newNode(
+        'a',
+        builder.sel2.categories[i][0],
+        {
+          class: 'not-selected-cat',
+          href: '#',
+          click: mkUpdate(stepID, builder.sel2.categories[i][1][0][0])
+        }
+      )));
     }
   }
+}
+
+function mkUpdate(stepID, newType) {
+  return function() { updateTypeDivs(stepID, newType); };
+}
+
+function editType(stepID) {
+  var step = builder.getCurrentScript().getStepWithID(stepID);
+  
+  var catL = newNode(
+    'ul',
+    {
+      id: stepID + '-edit-cat-list',
+      class: 'cat-list'
+    }
+  );
+  var typeL = newNode(
+    'ul',
+    {
+      id: stepID + '-edit-type-list',
+      class: 'type-list'
+    }
+  );
+  
   var editDiv = newNode(
     'div',
     {
-      id: stepID + '-edit-div'
+      id: stepID + '-edit-div',
+      style: 'margin-bottom: 5px;'
     },
+    newNode('table', { class: 'cat-table', cellpadding: '0', cellspacing: '0' }, newNode('tr',
+      newNode('td', catL),
+      newNode('td', typeL)
+    )),
     newNode(
       'input',
       {
@@ -233,19 +310,22 @@ function editType(stepID) {
     ),
     newNode(
       'span',
-      "not ",
+      " Negate assertion/verification",
       {
         id: stepID + '-edit-negate-label',
         style: 'display: none;'
       }
     ),
-    sel,
+    newNode('p'),
     newNode('a', "OK", {
       class: 'button',
       href: '#',
       click: function (e) {
-        step.changeType(jQuery('#' + stepID + '-edit-div select').val());
-        step.negated = (step.type.startsWith("assert") || step.type.startsWith("verify")) && jQuery('#' + stepID + '-edit-negate').attr('checked');
+        var type = jQuery('#' + stepID + '-edit-cat-list').attr('__sb-stepType');
+        if (type) {
+          step.changeType(type);
+          step.negated = (step.type.startsWith("assert") || step.type.startsWith("verify")) && jQuery('#' + stepID + '-edit-negate').attr('checked');
+        }
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();
         builder.sel2.updateStepDisplay(stepID);
@@ -255,24 +335,8 @@ function editType(stepID) {
   );
   
   jQuery('#' + stepID + '-type').after(editDiv);
-  if (step.negated) {
-    jQuery('#' + stepID + '-edit-negate').attr('checked', 'on')
-  }
-  if (step.type.startsWith("assert") || step.type.startsWith("verify")) {
-    jQuery('#' + stepID + '-edit-negate').show();
-    jQuery('#' + stepID + '-edit-negate-label').show();
-  }
-  jQuery('#' + stepID + '-edit-select').change(function() {
-    var type = jQuery('#' + stepID + '-edit-select').val();
-    if (type.startsWith("assert") || type.startsWith("verify")) {
-      jQuery('#' + stepID + '-edit-negate').show();
-      jQuery('#' + stepID + '-edit-negate-label').show();
-    } else {
-      jQuery('#' + stepID + '-edit-negate').hide();
-      jQuery('#' + stepID + '-edit-negate-label').hide();
-    }
-  });
   jQuery('#' + stepID + '-type').hide();
+  updateTypeDivs(stepID, step.type);
 }
 
 function editParam(stepID, pIndex) {

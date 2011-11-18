@@ -435,3 +435,38 @@ New step styling.
 .currentScript, .suite-path {
   font-style: italic;
 }
+
+/* Selenium type chooser */
+table.cat-table {
+  background-color: #eeeeee;
+  padding: 5px;
+  margin: 2px;
+  -moz-border-radius: 5px;
+}
+
+table.cat-table td {
+  vertical-align: top;
+}
+
+table.cat-table li {
+  list-style: none;
+}
+
+.selected-cat {
+  font-weight: bold;
+}
+
+.selected-type {
+  font-weight: bold;
+}
+
+.cat-list {
+  margin: 0px;
+  padding: 0px;
+  margin-right: 20px;
+}
+
+.type-list {
+  margin: 0px;
+  padding: 0px;
+}
