@@ -52,7 +52,7 @@ builder.sel2.sel1To2 = {
   "waitForTitle":         ["waitForTitle",                    "title",   null      ],
   "assertAttribute":      ["assertElementAttribute",          "locator", "attributeName", "value" ],
   "verifyAttribute":      ["verifyElementAttribute",          "locator", "attributeName", "value" ],
-  "waitForAttribute":     ["waitElementAttribute",            "locator", "attributeName", "value" ],
+  "waitForAttribute":     ["waitForElementAttribute",         "locator", "attributeName", "value" ],
   "assertChecked":        ["assertElementSelected",           "locator", null      ],
   "verifyChecked":        ["verifyElementSelected",           "locator", null      ],
   "waitForChecked":       ["waitForElementSelected",          "locator", null      ],
@@ -72,51 +72,55 @@ builder.sel2.sel1To2 = {
 
 builder.sel2.categories = [
   ["Navigation", [
-    ["get", ""],
-    ["refresh", ""],
-    ["goBack", ""],
-    ["goForward", ""],
-    ["close", ""]
+    "get",
+    "refresh",
+    "goBack",
+    "goForward",
+    "close"
   ]],
   ["Input", [
-    ["clickElement", ""],
-    ["sendKeysToElement", ""],
-    ["setElementSelected", ""],
-    ["setElementNotSelected", ""],
-    ["clearSelections", ""],
-    ["submitElement", ""]
+    "clickElement",
+    "sendKeysToElement",
+    "setElementSelected",
+    "setElementNotSelected",
+    "clearSelections",
+    "submitElement"
   ]],
   ["Misc",[
-    ["addCookie", ""],
-    ["deleteCookie", ""],
-    ["saveScreenshot", ""]
+    "addCookie",
+    "deleteCookie",
+    "saveScreenshot"
   ]],
   ["Assertion", [
-    ["assertCurrentUrl", ""],
-    ["assertTitle", ""],
-    ["assertText", ""],
-    ["assertElementAttribute", ""],
-    ["assertElementValue", ""],
-    ["assertCookiePresent", ""],
-    ["assertCookieByName", ""]
+    "assertCurrentUrl",
+    "assertTitle",
+    "assertText",
+    "assertTextPresent",
+    "assertBodyText",
+    "assertElementAttribute",
+    "assertElementValue",
+    "assertCookiePresent",
+    "assertCookieByName"
   ]],
   ["Verify", [
-    ["verifyCurrentUrl", ""],
-    ["verifyTitle", ""],
-    ["verifyText", ""],
-    ["verifyElementAttribute", ""],
-    ["verifyElementValue", ""],
-    ["verifyCookiePresent", ""],
-    ["verifyCookieByName", ""]
+    "verifyCurrentUrl",
+    "verifyTitle",
+    "verifyText",
+    "verifyTextPresent",
+    "verifyBodyText",
+    "verifyElementAttribute",
+    "verifyElementValue",
+    "verifyCookiePresent",
+    "verifyCookieByName"
   ]],
   ["Wait", [
-    ["waitForCurrentUrl", ""],
-    ["waitForTitle", ""],
-    ["waitForText", ""],
-    ["waitForElementAttribute", ""],
-    ["waitForElementValue", ""],
-    ["waitForCookiePresent", ""],
-    ["waitForCookieByName", ""]
+    "waitForCurrentUrl",
+    "waitForTitle",
+    "waitForText",
+    "waitForElementAttribute",
+    "waitForElementValue",
+    "waitForCookiePresent",
+    "waitForCookieByName"
   ]]
 ];
 

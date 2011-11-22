@@ -469,4 +469,21 @@ table.cat-table li {
 .type-list {
   margin: 0px;
   padding: 0px;
+  margin-right: 20px;
+}
+
+.type-info {
+  background-color: white;
+  border: 1px solid #aaaaaa;
+  margin: 0px;
+  padding: 3px;
+}
+
+.type-info-head {
+  font-weight: bold;
+}
+
+.type-info-longparam {
+  margin-left: 5px;
+  padding-left: 0px;
 }

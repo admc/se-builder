@@ -212,7 +212,7 @@ function updateTypeDivs(stepID, newType) {
     jQuery('#' + stepID + '-edit-negate').hide();
     jQuery('#' + stepID + '-edit-negate-label').hide();
   }
-  
+  jQuery('#' + stepID + '-type-info').html(getTypeInfo(newType));
   var cD = jQuery('#' + stepID + '-edit-cat-list');
   var tD = jQuery('#' + stepID + '-edit-type-list');
   cD.attr('__sb-stepType', newType);
@@ -221,7 +221,7 @@ function updateTypeDivs(stepID, newType) {
   for (var i = 0; i < builder.sel2.categories.length; i++) {
     var inCat = false;
     for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
-      if (builder.sel2.categories[i][1][j][0] == newType) {
+      if (builder.sel2.categories[i][1][j] == newType) {
         inCat = true;
       }
     }
@@ -234,10 +234,10 @@ function updateTypeDivs(stepID, newType) {
         }
       )));
       for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
-        if (builder.sel2.categories[i][1][j][0] == newType) {
+        if (builder.sel2.categories[i][1][j] == newType) {
           tD.append(newNode('li',newNode(
             'span',
-            builder.sel2.categories[i][1][j][0],
+            builder.sel2.categories[i][1][j],
             {
               class: 'selected-type'
             }
@@ -245,11 +245,11 @@ function updateTypeDivs(stepID, newType) {
         } else {
           tD.append(newNode('li', newNode(
             'a',
-            builder.sel2.categories[i][1][j][0],
+            builder.sel2.categories[i][1][j],
             {
               class: 'not-selected-type',
               href: '#',
-              click: mkUpdate(stepID, builder.sel2.categories[i][1][j][0])
+              click: mkUpdate(stepID, builder.sel2.categories[i][1][j])
             }
           )));
         }
@@ -261,7 +261,7 @@ function updateTypeDivs(stepID, newType) {
         {
           class: 'not-selected-cat',
           href: '#',
-          click: mkUpdate(stepID, builder.sel2.categories[i][1][0][0])
+          click: mkUpdate(stepID, builder.sel2.categories[i][1][0])
         }
       )));
     }
@@ -270,6 +270,32 @@ function updateTypeDivs(stepID, newType) {
 
 function mkUpdate(stepID, newType) {
   return function() { updateTypeDivs(stepID, newType); };
+}
+
+function getTypeInfo(type) {
+  var paramInfo = "";
+  var longParamInfo = newNode('ul', {class: 'type-info-longparam'});
+  var pNames = builder.sel2.paramNames[type];
+  for (var i = 0; i < pNames.length; i++) {
+    paramInfo += pNames[i];
+    if (i != pNames.length - 1) {
+      paramInfo += ", ";
+    }
+    jQuery(longParamInfo).append(newNode('li',
+      newNode('b', pNames[i]), ": " + builder.sel2.docs[type].params[pNames[i]]));
+  }
+  if (pNames.length > 0) { paramInfo = " (" + paramInfo + ")"; }
+    
+  var body = newNode('div', {class: 'type-info-body'});
+  jQuery(body).html(builder.sel2.docs[type].description);
+  
+  return newNode(
+    'div',
+    { class: 'type-info' },
+    newNode('div', {class: 'type-info-head'}, type + paramInfo),
+    longParamInfo,
+    body
+  );
 }
 
 function editType(stepID) {
@@ -298,7 +324,8 @@ function editType(stepID) {
     },
     newNode('table', { class: 'cat-table', cellpadding: '0', cellspacing: '0' }, newNode('tr',
       newNode('td', catL),
-      newNode('td', typeL)
+      newNode('td', typeL),
+      newNode('td', { id: stepID + '-type-info' })
     )),
     newNode(
       'input',
