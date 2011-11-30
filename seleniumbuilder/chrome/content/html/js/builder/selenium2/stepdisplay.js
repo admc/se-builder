@@ -287,7 +287,7 @@ function getTypeInfo(type) {
   if (pNames.length > 0) { paramInfo = " (" + paramInfo + ")"; }
     
   var body = newNode('div', {class: 'type-info-body'});
-  jQuery(body).html(builder.sel2.docs[type].description);
+  jQuery(body).html(builder.sel2.docs[type].description + " Parameter expressions of the form <i>${varname}</i> are replaced by the contents of the variable <i>varname</i>");
   
   return newNode(
     'div',

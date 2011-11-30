@@ -29,6 +29,8 @@ pb.maxWaitCycles = 60000 / pb.waitIntervalAmount;
 pb.waitCycle = 0;
 /** The wait interval. */
 pb.waitInterval = null;
+/** Stored variables. */
+pb.vars = {};
 
 pb.clearResults = function() {
   var sc = builder.getCurrentScript();
@@ -44,6 +46,7 @@ pb.stopTest = function() {
 };
 
 pb.runTest = function(postPlayCallback) {
+  pb.vars = {};
   pb.runTestBetween(
     postPlayCallback,
     builder.getCurrentScript().steps[0].id,
@@ -123,9 +126,51 @@ pb.clearElement = function(target) {
   });
 };
 
+/** Performs ${variable} substitution for parameters. */
+pb.param = function(pName) {
+  var output = "";
+  var hasDollar = false;
+  var insideVar = false;
+  var varName = "";
+  var text = pName.startsWith("locator") ? pb.currentStep[pName].value : pb.currentStep[pName];
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.substring(i, i + 1);
+    if (insideVar) {
+      if (ch == "}") {
+        if (pb.vars[varName] == undefined) {
+          throw "Variable not set: " + varName + ".";
+        }
+        output += pb.vars[varName];
+        insideVar = false;
+        hasDollar = false;
+        varName = "";
+      } else {
+        varName += ch;
+      }
+    } else {
+      // !insideVar
+      if (hasDollar) {
+        if (ch == "{") { insideVar = true; } else { hasDollar = false; output += "$" + ch; }
+      } else {
+        if (ch == "$") { hasDollar = true; } else { output += ch; }
+      }
+    }
+  }
+  
+  return pName.startsWith("locator") ? {"type": pb.currentStep[pName].type, "value": output} : output;
+};
+
 pb.playbackFunctions = {
+  "print": function() {
+    pb.print(pb.param("text"));
+    pb.recordResult({success: true});
+  },
+  "store": function() {
+    pb.vars[pb.param("variable")] = pb.param("text");
+    pb.recordResult({success: true});
+  },
   "get": function() {
-    pb.execute('get', {url: pb.currentStep.url});
+    pb.execute('get', {url: pb.param("url")});
   },
   "goBack": function() {
     pb.execute('goBack', {});
@@ -134,28 +179,28 @@ pb.playbackFunctions = {
     pb.execute('goForward', {});
   },
   "clickElement": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
   "doubleClickElement": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('clickElement', {id: result.value.ELEMENT});
       pb.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
   "submitElement": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('submitElement', {id: result.value.ELEMENT});
     });
   },
   "sendKeysToElement": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.currentStep.text.split("")});
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.param("text").split("")});
     });
   },
   "setElementSelected": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       var target = result.value.ELEMENT;
       pb.execute('isElementSelected', {id: target}, function(result) {
         if (!result.value) {
@@ -167,7 +212,7 @@ pb.playbackFunctions = {
     });
   },
   "setElementNotSelected": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       var target = result.value.ELEMENT;
       pb.execute('isElementSelected', {id: target}, function(result) {
         if (result.value) {
@@ -179,7 +224,7 @@ pb.playbackFunctions = {
     });
   },
   "clearSelections": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       var target = result.value.ELEMENT;
       pb.execute('findChildElements', {id: target, using: "tag name", value: "option"}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
@@ -194,7 +239,7 @@ pb.playbackFunctions = {
   },
   "verifyTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.currentStep.text) != -1) {
+      if (result.value.indexOf(pb.param("text")) != -1) {
         pb.recordResult({success: true});
       } else {
         pb.recordResult({success: false, message: "Text not present."});
@@ -203,7 +248,7 @@ pb.playbackFunctions = {
   },
   "assertTextPresent": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.currentStep.text) != -1) {
+      if (result.value.indexOf(pb.param("text")) != -1) {
         pb.recordResult({success: true});
       } else {
         pb.recordError("Text not present.");
@@ -213,15 +258,21 @@ pb.playbackFunctions = {
   "waitForTextPresent": function() {
     pb.wait(function(callback) {
       pb.execute('getPageSource', {}, function(result) {
-        callback(result.value.indexOf(pb.currentStep.text) != -1);
+        callback(result.value.indexOf(pb.param("text")) != -1);
       }, /*error*/ function() { callback(false); });
+    });
+  },
+  "storeTextPresent": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      pb.vars[pb.param("variable")] = result.value.indexOf(pb.param("text")) != -1;
+      pb.recordResult({success: true});
     });
   },
   
   "verifyBodyText": function() {
     pb.findElement({type: 'tag name', value: 'body'}, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.text) {
+        if (result.value == pb.param("text")) {
           pb.recordResult({success: true});
         } else {
           pb.recordResult({success: false, message: "Body text does not match."});
@@ -232,7 +283,7 @@ pb.playbackFunctions = {
   "assertBodyText": function() {
     pb.findElement({type: 'tag name', value: 'body'}, function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.text) {
+        if (result.value == pb.param("text")) {
           pb.recordResult({success: true});
         } else {
           pb.recordError("Body text does not match.");
@@ -244,34 +295,55 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.findElement({type: 'tag name', value: 'body'}, function(result) {
         pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-          callback(result.value == pb.currentStep.text);
+          callback(result.value == pb.param("text"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
+  "storeBodyText": function() {
+    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        pb.vars[pb.param("variable")] = result.value;
+        pb.recordResult({success: true});
+      });
+    });
+  },
   
   "verifyElementPresent": function() {
-    pb.findElement(pb.currentStep.locator, null, function(result) {
+    pb.findElement(pb.param("locator"), null, function(result) {
       pb.recordResult({success: false, message: "Element not found."});
     });
   },
   "assertElementPresent": function() {
-    pb.findElement(pb.currentStep.locator, null, function(result) {
+    pb.findElement(pb.param("locator"), null, function(result) {
       pb.recordError("Element not found.");
     });
   },
   "waitForElementPresent": function() {
     pb.wait(function(callback) {
-      pb.findElement(pb.currentStep.locator,
+      pb.findElement(pb.param("locator"),
         /*success*/ function(result) { callback(true);  },
         /*error  */ function(result) { callback(false); }
       );
     });
   },
+  "storeElementPresent": function() {
+    pb.findElement(pb.param("locator"),
+    /*success*/
+    function(result) {
+      pb.vars[pb.param("variable")] = true;
+      pb.recordResult({success: true});
+    },
+    /*failure*/
+    function(result) {
+      pb.vars[pb.param("variable")] = false;
+      pb.recordResult({success: true});
+    });
+  },
   
   "verifyPageSource": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value == pb.currentStep.source) {
+      if (result.value == pb.param("source")) {
         pb.recordResult({success: true});
       } else {
         pb.recordResult({success: false, message: "Source does not match."});
@@ -280,7 +352,7 @@ pb.playbackFunctions = {
   },
   "assertPageSource": function() {
     pb.execute('getPageSource', {}, function(result) {
-      if (result.value == pb.currentStep.source) {
+      if (result.value == pb.param("source")) {
         pb.recordResult({success: true});
       } else {
         pb.recordError("Source does not match.");
@@ -290,15 +362,21 @@ pb.playbackFunctions = {
   "waitForPageSource": function() {
     pb.wait(function(callback) {
       pb.execute('getPageSource', {}, function(result) {
-        callback(result.value == pb.currentStep.source);
+        callback(result.value == pb.param("source"));
       }, /*error*/ function() { callback(false); });
+    });
+  },
+  "storePageSource": function() {
+    pb.execute('getPageSource', {}, function(result) {
+      pb.vars[pb.param("variable")] = result.value;
+      pb.recordResult({success: true});
     });
   },
   
   "verifyText": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.text) {
+        if (result.value == pb.param("text")) {
           pb.recordResult({success: true});
         } else {
           pb.recordResult({success: false, message: "Element text does not match."});
@@ -307,9 +385,9 @@ pb.playbackFunctions = {
     });
   },
   "assertText": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.text) {
+        if (result.value == pb.param("text")) {
           pb.recordResult({success: true});
         } else {
           pb.recordError("Element text does not match.");
@@ -319,17 +397,25 @@ pb.playbackFunctions = {
   },
   "waitForText": function() {
     pb.wait(function(callback) {
-      pb.findElement(pb.currentStep.locator, function(result) {
+      pb.findElement(pb.param("locator"), function(result) {
         pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-          callback(result.value == pb.currentStep.text);
+          callback(result.value == pb.param("text"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
+    });
+  },
+  "storeText": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        pb.vars[pb.param("variable")] = result.value;
+        pb.recordResult({success: true});
+      });
     });
   },
   
   "verifyCurrentUrl": function() {
     pb.execute('getCurrentUrl', {}, function(result) {
-      if (result.value == pb.currentStep.url) {
+      if (result.value == pb.param("url")) {
         pb.recordResult({success: true});
       } else {
         pb.recordResult({success: false, message: "URL does not match."});
@@ -338,7 +424,7 @@ pb.playbackFunctions = {
   },
   "assertCurrentUrl": function() {
     pb.execute('getCurrentUrl', {}, function(result) {
-      if (result.value == pb.currentStep.url) {
+      if (result.value == pb.param("url")) {
         pb.recordResult({success: true});
       } else {
         pb.recordError("URL does not match.");
@@ -348,14 +434,20 @@ pb.playbackFunctions = {
   "waitForCurrentUrl": function() {
     pb.wait(function(callback) {
       pb.execute('getCurrentUrl', {}, function(result) {
-        callback(result.value == pb.currentStep.url);
+        callback(result.value == pb.param("url"));
       }, /*error*/ function() { callback(false); });
+    });
+  },
+  "storeCurrentUrl": function() {
+    pb.execute('getCurrentUrl', {}, function(result) {
+      pb.vars[pb.param("variable")] = result.value;
+      pb.recordResult({success: true});
     });
   },
   
   "verifyTitle": function() {
     pb.execute('getTitle', {}, function(result) {
-      if (result.value == pb.currentStep.title) {
+      if (result.value == pb.param("title")) {
         pb.recordResult({success: true});
       } else {
         pb.recordResult({success: false, message: "Title does not match."});
@@ -364,7 +456,7 @@ pb.playbackFunctions = {
   },
   "assertTitle": function() {
     pb.execute('getTitle', {}, function(result) {
-      if (result.value == pb.currentStep.title) {
+      if (result.value == pb.param("title")) {
         pb.recordResult({success: true});
       } else {
         pb.recordError("Title does not match.");
@@ -374,13 +466,19 @@ pb.playbackFunctions = {
   "waitForTitle": function() {
     pb.wait(function(callback) {
       pb.execute('getTitle', {}, function(result) {
-        callback(result.value == pb.currentStep.title);
+        callback(result.value == pb.param("title"));
       }, /*error*/ function() { callback(false); });
+    });
+  },
+  "storeTitle": function() {
+    pb.execute('getTitle', {}, function(result) {
+      pb.vars[pb.param("variable")] = result.value;
+      pb.recordResult({success: true});
     });
   },
   
   "verifyElementSelected": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
           pb.recordResult({success: true});
@@ -391,7 +489,7 @@ pb.playbackFunctions = {
     });
   },
   "assertElementSelected": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
           pb.recordResult({success: true});
@@ -403,16 +501,24 @@ pb.playbackFunctions = {
   },
   "waitForElementSelected": function() {
     pb.wait(function(callback) {
-      pb.findElement(pb.currentStep.locator, function(result) {
+      pb.findElement(pb.param("locator"), function(result) {
         pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
           callback(result.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
+  "storeElementSelected": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        pb.vars[pb.param("variable")] = result.value;
+        pb.recordResult({success: true});
+      });
+    });
+  },
   
   "verifyElementValue": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.value) {
           pb.recordResult({success: true});
@@ -423,7 +529,7 @@ pb.playbackFunctions = {
     });
   },
   "assertElementValue": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
+    pb.findElement(pb.param("locator"), function(result) {
       pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
         if (result.value == pb.currentStep.value) {
           pb.recordResult({success: true});
@@ -435,18 +541,26 @@ pb.playbackFunctions = {
   },
   "waitForElementValue": function() {
     pb.wait(function(callback) {
-      pb.findElement(pb.currentStep.locator, function(result) {
+      pb.findElement(pb.param("locator"), function(result) {
         pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
           callback(result.value == pb.currentStep.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
+  "storeElementValue": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        pb.vars[pb.param("variable")] = result.value;
+        pb.recordResult({success: true});
+      });
+    });
+  },
   
   "verifyElementAttribute": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
-        if (result.value == pb.currentStep.value) {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
+        if (result.value == pb.param("value")) {
           pb.recordResult({success: true});
         } else {
           pb.recordResult({success: false, message: "Attribute value does not match."});
@@ -455,9 +569,9 @@ pb.playbackFunctions = {
     });
   },
   "assertElementAttribute": function() {
-    pb.findElement(pb.currentStep.locator, function(result) {
-      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
-        if (result.value == pb.currentStep.value) {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
+        if (result.value == pb.param("value")) {
           pb.recordResult({success: true});
         } else {
           pb.recordError("Attribute value does not match.");
@@ -467,21 +581,29 @@ pb.playbackFunctions = {
   },
   "waitForElementAttribute": function() {
     pb.wait(function(callback) {
-      pb.findElement(pb.currentStep.locator, function(result) {
-        pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.currentStep.attributeName }, function(result) {
-          callback(result.value == pb.currentStep.value);
+      pb.findElement(pb.param("locator"), function(result) {
+        pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
+          callback(result.value == pb.param("value"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
+  "storeElementAttribute": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
+        pb.vars[pb.param("variable")] = result.value;
+        pb.recordResult({success: true});
+      });
+    });
+  },
   
   "deleteCookie": function() {
-    pb.execute('deleteCookie', {"name": pb.currentStep.name});
+    pb.execute('deleteCookie', {"name": pb.param("name")});
   },
   
   "addCookie": function() {
-    var params = {"cookie": {"name": pb.currentStep.name, "value": pb.currentStep.value}};
-    var opts = pb.currentStep.options.split(",");
+    var params = {"cookie": {"name": pb.param("name"), "value": pb.param("value")}};
+    var opts = pb.param("options").split(",");
     for (var i = 0; i < opts.length; i++) {
       var kv = opts[i].trim().split("=");
       if (kv.length == 1) { continue; }
@@ -498,8 +620,8 @@ pb.playbackFunctions = {
   "verifyCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.currentStep.name) {
-          if (result.value[i].value == pb.currentStep.value) {
+        if (result.value[i].name == pb.param("name")) {
+          if (result.value[i].value == pb.param("value")) {
             pb.recordResult({success: true});
           } else {
             pb.recordResult({success: false, message: "Element value does not match."});
@@ -513,8 +635,8 @@ pb.playbackFunctions = {
   "assertCookieByName": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.currentStep.name) {
-          if (result.value[i].value == pb.currentStep.value) {
+        if (result.value[i].name == pb.param("name")) {
+          if (result.value[i].value == pb.param("value")) {
             pb.recordResult({success: true});
           } else {
             pb.recordError("Element value does not match.");
@@ -529,8 +651,8 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getCookies', {}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
-          if (result.value[i].name == pb.currentStep.name) {
-            callback(result.value[i].value == pb.currentStep.value);
+          if (result.value[i].name == pb.param("name")) {
+            callback(result.value[i].value == pb.param("value"));
             return;
           }
         }
@@ -539,11 +661,23 @@ pb.playbackFunctions = {
       /*error*/ function() { callback(false); });
     });
   },
+  "storeCookieByName": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.param("name")) {
+          pb.vars[pb.param("variable")] = result.value;
+          pb.recordResult({success: true});
+          return;
+        }
+      }
+      pb.recordError("No cookie found with this name.");
+    });
+  },
   
   "verifyCookiePresent": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.currentStep.name) {
+        if (result.value[i].name == pb.param("name")) {
           pb.recordResult({success: true});
           return;
         }
@@ -554,7 +688,7 @@ pb.playbackFunctions = {
   "assertCookiePresent": function() {
     pb.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.currentStep.name) {
+        if (result.value[i].name == pb.param("name")) {
           pb.recordResult({success: true});
           return;
         }
@@ -566,7 +700,7 @@ pb.playbackFunctions = {
     pb.wait(function(callback) {
       pb.execute('getCookies', {}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
-          if (result.value[i].name == pb.currentStep.name) {
+          if (result.value[i].name == pb.param("name")) {
             callback(true);
             return;
           }
@@ -576,9 +710,22 @@ pb.playbackFunctions = {
       /*error*/ function() { callback(false); });
     });
   },
+  "storeCookiePresent": function() {
+    pb.execute('getCookies', {}, function(result) {
+      for (var i = 0; i < result.value.length; i++) {
+        if (result.value[i].name == pb.param("name")) {
+          pb.vars[pb.param("variable")] = true;
+          pb.recordResult({success: true});
+          return;
+        }
+      }
+      pb.vars[pb.param("variable")] = false;
+      pb.recordResult({success: true});
+    });
+  },
     
   "saveScreenshot": function() {
-    pb.execute("saveScreenshot", pb.currentStep.file);
+    pb.execute("saveScreenshot", pb.param("file"));
   }
 };
 
@@ -618,6 +765,10 @@ pb.playStep = function() {
     pb.recordError(pb.currentStep.type + " not implemented for playback");
   }
 };
+
+pb.print = function(text) {
+  jQuery('#' + pb.currentStep.id + '-message').show().append(newNode('span', text));
+}
 
 pb.recordResult = function(result) {
   if (pb.currentStep.negated) {

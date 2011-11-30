@@ -32,42 +32,56 @@ builder.sel2.sel1To2 = {
   "assertTextPresent":    ["assertTextPresent",               "text",    null      ],
   "verifyTextPresent":    ["verifyTextPresent",               "text",    null      ],
   "waitForTextPresent":   ["waitForTextPresent",              "text",    null      ],
+  "storeTextPresent":     ["storeTextPresent",                "variable", "text"   ],
   "assertBodyText":       ["assertBodyText",                  "text",    null      ],
   "verifyBodyText":       ["verifyBodyText",                  "text",    null      ],
   "waitForBodyText":      ["waitForBodyText",                 "text",    null      ],
+  "storeBodyText":        ["storeBodyText",                   "variable",null      ],
   "assertElementPresent": ["assertElementPresent",            "locator", null      ],
   "verifyElementPresent": ["verifyElementPresent",            "locator", null      ],
   "waitForElementPresent":["waitForElementPresent",           "locator", null      ],
+  "storeElementPresent":  ["storeElementPresent",             "variable", "locator"],
   "assertHtmlSource":     ["assertPageSource",                "source",  null      ],
   "verifyHtmlSource":     ["verifyPageSource",                "source",  null      ],
   "waitForHtmlSource":    ["waitForPageSource",               "source",  null      ],
+  "storeHtmlSource":      ["storePageSource",                 "variable",null      ],
   "assertText":           ["assertText",                      "locator", "text"    ],
   "verifyText":           ["verifyText",                      "locator", "text"    ],
   "waitForText":          ["waitForText",                     "locator", "text"    ],
+  "storeText":            ["storeText",                       "variable","locator" ],
   "assertLocation":       ["assertCurrentUrl",                "url",     null      ],
   "verifyLocation":       ["verifyCurrentUrl",                "url",     null      ],
   "waitForLocation":      ["waitForCurrentUrl",               "url",     null      ],
+  "storeLocation":        ["storeCurrentUrl",                 "variable",null      ],
   "assertTitle":          ["assertTitle",                     "title",   null      ],
   "verifyTitle":          ["verifyTitle",                     "title",   null      ],
   "waitForTitle":         ["waitForTitle",                    "title",   null      ],
+  "storeTitle":           ["storeTitle",                      "variable",null      ],
   "assertAttribute":      ["assertElementAttribute",          "locator", "attributeName", "value" ],
   "verifyAttribute":      ["verifyElementAttribute",          "locator", "attributeName", "value" ],
   "waitForAttribute":     ["waitForElementAttribute",         "locator", "attributeName", "value" ],
+  "storeAttribute":       ["storeElementAttribute",           "variable","locator", "attributeName" ],
   "assertChecked":        ["assertElementSelected",           "locator", null      ],
   "verifyChecked":        ["verifyElementSelected",           "locator", null      ],
   "waitForChecked":       ["waitForElementSelected",          "locator", null      ],
+  "storeChecked":         ["storeElementSelected",            "variable","locator" ],
   "assertValue":          ["assertElementValue",              "locator", "value"   ],
   "verifyValue":          ["verifyElementValue",              "locator", "value"   ],
   "waitForValue":         ["waitForElementValue",             "locator", "value"   ],
+  "storeValue":           ["storeElementValue",               "variable","locator" ],
   "createCookie":         ["addCookie",                       "name",    "value", "options" ],
   "deleteCookie":         ["deleteCookie",                    "name",    null      ],
   "assertCookieByName":   ["assertCookieByName",              "name",    "value"   ],
   "verifyCookieByName":   ["verifyCookieByName",              "name",    "value"   ],
   "waitForCookieByName":  ["waitForCookieByName",             "name",    "value"   ],
+  "storeCookieByName":    ["storeCookieByName",               "variable","name"    ],
   "assertCookiePresent":  ["assertCookiePresent",             "name",    null      ],
   "verifyCookiePresent":  ["verifyCookiePresent",             "name",    null      ],
   "waitForCookiePresent": ["waitForCookiePresent",            "name",    null      ],
-  "captureEntirePageScreenshot": ["saveScreenshot",           "file",    null      ]
+  "storeCookiePresent":   ["storeCookiePresent",              "variable","name"    ],
+  "captureEntirePageScreenshot": ["saveScreenshot",           "file",    null      ],
+  "echo":                 ["print",                           "text",    null      ],
+  "":                     ["store",                           "text",    "variable"]
 };
 
 builder.sel2.categories = [
@@ -89,7 +103,8 @@ builder.sel2.categories = [
   ["Misc",[
     "addCookie",
     "deleteCookie",
-    "saveScreenshot"
+    "saveScreenshot",
+    "print"
   ]],
   ["Assertion", [
     "assertCurrentUrl",
@@ -121,6 +136,18 @@ builder.sel2.categories = [
     "waitForElementValue",
     "waitForCookiePresent",
     "waitForCookieByName"
+  ]],
+  ["Store", [
+    "store",
+    "storeCurrentUrl",
+    "storeTitle",
+    "storeText",
+    "storeTextPresent",
+    "storeBodyText",
+    "storeElementAttribute",
+    "storeElementValue",
+    "storeCookiePresent",
+    "storeCookieByName"
   ]]
 ];
 

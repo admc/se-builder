@@ -153,9 +153,6 @@ builder.interface = new(function () {
       builder.interface.switchTo('startup');
     },
     error: function () {
-      for (a in arguments) {
-        alert(a + " = " + arguments[a]);
-      }
       if (typeof console != 'undefined' && console) {
         console.log("Loading body failed:");
         console.log(arguments);
