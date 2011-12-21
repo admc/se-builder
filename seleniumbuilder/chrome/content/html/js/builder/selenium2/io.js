@@ -123,10 +123,13 @@ builder.createLangSel2Formatter = function(lang_info) {
           var ch = line.substring(j, j + 1);
           if (insideVar) {
             if (ch == "}") {
+              var spl = varName.split(":", 2);
+              var varType = spl.length == 2 ? spl[1] : null;
+              varName = spl[0];
               if (used_vars[varName]) {
-                l2 += lang_info.usedVar(varName);
+                l2 += lang_info.usedVar(varName, varType);
               } else {
-                l2 += lang_info.unusedVar(varName);
+                l2 += lang_info.unusedVar(varName, varType);
                 used_vars[varName] = true;
               }
               insideVar = false;
@@ -217,7 +220,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     "print":
       "        System.out.println({text});\n",
     "store":
-      "        ${{variable}} = {text};\n",
+      "        ${{variable}:String} = \"\" + {text};\n",
     "get":
       "        wd.get({url});\n",
     "goBack":
@@ -287,6 +290,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForTextPresent":
       "",
+    "storeTextPresent":
+      "        ${{variable}:boolean} = wd.findElement(By.tagName(\"html\")).getText().contains({text});\n",
     "assertBodyText":
       "        if ({posNot}wd.findElement(By.tagName(\"html\")).getText().equals({text})) {\n" +
       "            wd.close();\n" +
@@ -298,6 +303,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForBodyText":
       "",
+    "storeBodyText":
+      "        ${{variable}:String} = wd.findElement(By.tagName(\"html\")).getText();\n",
     "assertElementPresent":
       "        if ({negNot}(wd.findElements(By.{locatorBy}({locator})).size() == 0)) {\n" +
       "            wd.close();\n" +
@@ -309,6 +316,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForElementPresent":
       "",
+    "storeElementPresent":
+      "        ${{variable}:boolean} = wd.findElements(By.{locatorBy}({locator})).size() == 0;\n",
     "assertPageSource":
       "        if ({posNot}wd.getPageSource().equals({source})) {\n" +
       "            wd.close();\n" +
@@ -320,6 +329,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForPageSource":
       "",
+    "storePageSource":
+      "        ${{variable}:String} = wd.getPageSource();\n",
     "assertText":
       "        if ({posNot}wd.findElement(By.{locatorBy}({locator})).getText().equals({text})) {\n" +
       "            wd.close();\n" +
@@ -331,6 +342,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForText":
       "",
+    "storeText":
+      "        ${{variable}:String} = wd.findElement(By.{locatorBy}({locator})).getText();\n",
     "assertCurrentUrl":
       "        if ({posNot}wd.getCurrentUrl().equals({url})) {\n" +
       "            wd.close();\n" +
@@ -352,7 +365,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "            System.err.println(\"{negNot}verifyTitle failed\");\n" +
       "        }\n",
     "storeTitle":
-      "        ${{variable}} = wd.getTitle();\n",
+      "        ${{variable}:String} = wd.getTitle();\n",
     "waitForTitle":
       "",
     "assertElementSelected":
@@ -366,6 +379,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForElementSelected":
       "",
+    "storeElementSelected":
+      "        ${{variable}:boolean} = wd.findElement(By.{locatorBy}({locator})).isSelected();\n",
     "assertElementValue":
       "        if ({posNot}wd.findElement(By.{locatorBy}({locator})).getAttribute(\"value\").equals({value})) {\n" +
       "            wd.close();\n" +
@@ -377,6 +392,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForElementValue":
       "",
+    "storeElementValue":
+      "        ${{variable}:String} = wd.findElement(By.{locatorBy}({locator})).getAttribute(\"value\");\n",
     "assertElementAttribute":
       "        if ({posNot}{value}.equals(wd.findElement(By.{locatorBy}({locator})).getAttribute({attributeName}))) {\n" +
       "            wd.close();\n" +
@@ -388,6 +405,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForElementAttribute":
       "",
+    "storeElementAttribute":
+      "        ${{variable}:String} = wd.findElement(By.{locatorBy}({locator})).getAttribute({attributeName});\n",
     "assertCookieByName":
       "        if ({posNot}{value}.equals(wd.manage().getCookieNamed({name}).getValue())) {\n" +
       "            wd.close();\n" +
@@ -397,8 +416,10 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        if ({posNot}{value}.equals(wd.manage().getCookieNamed({name}).getValue())) {\n" +
       "            System.err.println(\"{negNot}verifyCookieByName failed\");\n" +
       "        }\n",
-    "manage.waitForCookieNamed":
+    "waitForCookieByName":
       "",
+    "storeCookieByName":
+      "        ${{variable}:String} = wd.manage().getCookieNamed({name}).getValue();\n",
     "assertCookiePresent":
       "        if ({negNot}(wd.manage().getCookieNamed({name}) == null)) {\n" +
       "            wd.close();\n" +
@@ -410,6 +431,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        }\n",
     "waitForCookiePresent":
       "",
+    "storeCookiePresent":
+      "        ${{variable}:boolean} = wd.manage().getCookieNamed({name}) != null;\n",
     "saveScreenshot":
       "        wd.getScreenshotAs(FILE).renameTo(new File({file}));\n"
   },
@@ -477,8 +500,8 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     }
     return output;
   },
-  usedVar: function(varName) { return varName; },
-  unusedVar: function(varName) { return "String " + varName; }
+  usedVar: function(varName, varType) { return varName; },
+  unusedVar: function(varName, varType) { return varType + " " + varName; }
 }));
 
 builder.sel2Formats.push(builder.createLangSel2Formatter({
