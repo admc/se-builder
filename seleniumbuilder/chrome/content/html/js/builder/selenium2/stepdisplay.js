@@ -376,6 +376,19 @@ function editParam(stepID, pIndex) {
         id: stepID + '-p' + pIndex + '-locator-type-chooser'
       }
     );
+    
+    function okf() {
+      step[pName].type = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
+      step[pName].value = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+      if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
+        step[pName].alternatives = {};
+      }
+      jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+      jQuery('#' + stepID + '-p' + pIndex).show();
+      builder.sel2.updateStepDisplay(stepID);
+      builder.storage.set('save_required', true);
+    }
+    
     var editDiv = newNode(
       'div',
       {
@@ -385,19 +398,10 @@ function editParam(stepID, pIndex) {
       ": ",
       newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName].value}),
       newNode('a', "OK", {
+        id: stepID + '-p' + pIndex + '-OK',
         class: 'button',
         href: '#',
-        click: function (e) {
-          step[pName].type = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
-          step[pName].value = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
-          if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
-            step[pName].alternatives = {};
-          }
-          jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
-          jQuery('#' + stepID + '-p' + pIndex).show();
-          builder.sel2.updateStepDisplay(stepID);
-          builder.storage.set('save_required', true);
-        }
+        click: function (e) { okf(); }
       }),
       newNode('div',
         newNode('a', "Find a different target", {
@@ -452,7 +456,20 @@ function editParam(stepID, pIndex) {
     
     jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
     jQuery('#' + stepID + '-p' + pIndex).hide();
+    jQuery('#' + stepID + '-p' + pIndex + '-edit-input').focus().select().keypress(function (e) {
+      if (e.which == 13) {
+        okf();
+      }
+    });
   } else {
+    function okf() {
+      step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+      jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
+      jQuery('#' + stepID + '-p' + pIndex).show();
+      builder.sel2.updateStepDisplay(stepID);
+      builder.storage.set('save_required', true);
+    }
+    
     var editDiv = newNode(
       'div',
       {
@@ -460,20 +477,20 @@ function editParam(stepID, pIndex) {
       },
       newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName]}),
       newNode('a', "OK", {
+        id: stepID + '-p' + pIndex + '-OK',
         class: 'button',
         href: '#',
-        click: function (e) {
-          step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
-          jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
-          jQuery('#' + stepID + '-p' + pIndex).show();
-          builder.sel2.updateStepDisplay(stepID);
-          builder.storage.set('save_required', true);
-        }
+        click: function (e) { okf(); }
       })
     );
     
     jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
     jQuery('#' + stepID + '-p' + pIndex).hide();
+    jQuery('#' + stepID + '-p' + pIndex + '-edit-input').focus().select().keypress(function (e) {
+      if (e.which == 13) {
+        okf();
+      }
+    });
   }
 }
 
