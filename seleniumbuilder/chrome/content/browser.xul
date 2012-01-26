@@ -2,21 +2,21 @@
 <?xml-stylesheet href="chrome://seleniumbuilder/skin/skin.css" type="text/css"?> 
 <!DOCTYPE seleniumbuilder SYSTEM "chrome://seleniumbuilder/locale/translations.dtd">
 <overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-        <script src="seleniumBuilder.js" />
+        <script src="seleniumBuilder2.js" />
         <script src="seleniumBuilderExtensions.js" />
 
         <menupopup id="menu_ToolsPopup"> 
             <menuitem
                 label="&runseleniumbuilder;"
                 key="selenium-builder-run-key"
-                oncommand="seleniumBuilder.boot()" />
+                oncommand="bridge.boot()" />
         </menupopup>
 
         <keyset>
             <key id="selenium-builder-run-key"
                 modifiers="accel alt"
                 key="B"
-                oncommand="seleniumBuilder.boot()" />
+                oncommand="bridge.boot()" />
         </keyset>
 
         <statusbar id="status-bar">
@@ -24,7 +24,7 @@
                 class="statusbarpanel-iconic"
                 src="chrome://seleniumbuilder/skin/statusbar.png"
                 tooltiptext="&runseleniumbuilder;"
-                onclick="seleniumBuilder.boot(null)" />
+                onclick="bridge.boot()" />
         </statusbar>
 
         <toolbarpalette id="BrowserToolbarPalette">
@@ -32,12 +32,12 @@
                 label="Selenium Builder"
                 image="chrome://seleniumbuilder/skin/toolbar.png"
                 tooltiptext="&runseleniumbuilder;"
-                oncommand="seleniumBuilder.boot(null)" />
+                oncommand="bridge.boot()" />
         </toolbarpalette>
 
         <popup id="contentAreaContextMenu">
             <menuitem id="selenium-builder-context-menu-launch"
                 label="&runseleniumbuilder;"
-                oncommand="seleniumBuilder.boot(null);" />
+                oncommand="bridge.boot();" />
         </popup>
 </overlay>

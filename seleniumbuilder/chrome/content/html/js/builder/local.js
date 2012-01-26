@@ -15,7 +15,7 @@ builder.local = new (function() {
   var speed = 0;
   // Set up Selenium to drive the browser.
   var handler = new CommandHandlerFactory();
-  var browserbot = new MozillaBrowserBot(window.bridge.content());
+  var browserbot = new MozillaBrowserBot(window.bridge.recorderWindow);
   var selenium = new Selenium(browserbot);
   handler.registerAll(selenium);
 
