@@ -28,7 +28,7 @@ builder.interface = new(function () {
    * attached from all over the place. For example, the method dialog uses one to load in the
    * XML document containing the help.
    */
-  var onloadHooks = [];
+  builder.onloadHooks = [];
 
   /**
    * Accepts a function to be as soon as body.html has loaded, which may be immediately if it
@@ -38,7 +38,14 @@ builder.interface = new(function () {
     if (loaded) {
       func();
     } else {
-      onloadHooks.push(func);
+      builder.onloadHooks.push(func);
+    }
+  };
+  
+  this.runOnloadHooks = function() {
+    loaded = true;
+    for (var i = 0; i < builder.onloadHooks.length; i++) {
+      builder.onloadHooks[i]();
     }
   };
 
@@ -142,36 +149,13 @@ builder.interface = new(function () {
     jQuery.fn.ajaxStop(function () {
       jQuery("#loading").hide();
     });
-
-    // Point image urls to the correct places.
-    jQuery("img").each(function () {
-      // Note that reading this.src gives an absolute url.
-      this.src = builder.urlFor(this.getAttribute('src'));
-    });
-
-    // Prepare the save dialog - maybe better to make this an interface of its own
-    jQuery("#dialog").dialog({
-      height: 460,
-      width: 410,
-      modal: true,
-      autoOpen: false,
-      overlay: {
-        opacity: 0.5,
-        background: "#333333"
-      },
-      buttons: {
-        "Ok": function () {
-          jQuery(this).dialog("close");
-        }
-      }
-    });
     
     // Attach a listener to the recorder tab that tells us when the page is being loaded. This
     // allows for waitForPageToLoad events to be generated, for recorders to be attached to
     // newly opened pages, and for local playback to notice when it can go to the next step.
     builder.loadlistener.attach(
-        /* root window */ window.bridge.content(),
-        /* window */ window.bridge.content(),
+        /* root window */ window.bridge.recorderWindow,
+        /* window */ window.bridge.recorderWindow,
         /* load */ function(url) {
           builder.storage.set('currenturl', url);
           builder.storage.set('pageloading', false);
@@ -183,7 +167,7 @@ builder.interface = new(function () {
     
     // Set the initial value of currenturl - this is necessary so that the startup-url field is
     // populated.
-    builder.storage.set('currenturl', window.bridge.content().document.location.toString());
+    builder.storage.set('currenturl', window.bridge.recorderWindow.document.location.toString());
   });
 })();
 
@@ -311,7 +295,7 @@ builder.interface.startup = new(function () {
       }
     };
     builder.storage.addChangeListener('pageloading', pageLoadListener);
-    window.bridge.content().location = url.href();
+    window.bridge.recorderWindow.location = url.href();
 
     e.preventDefault();
   }
@@ -470,7 +454,7 @@ builder.interface.record = new(function () {
       }
     }
     // Keep track of which page we're on at this step.
-    params._url = window.bridge.content().location.toString();
+    params._url = window.bridge.recorderWindow.location.toString();
     // The "open" method records the wrong URL if we start recording by entering a different
     // URL than the one we are currently at in the recording window.
     if (name == 'open' && builder.storage.get('baseurl')) {
@@ -503,7 +487,7 @@ builder.interface.record = new(function () {
       help: '#record-help',
       button: null,
       create: function () {
-        return new builder.Recorder(window.bridge.content(), builder.interface.record_action);
+        return new builder.Recorder(window.bridge.recorderWindow, builder.interface.record_action);
       }
     },
     assert: {
@@ -512,7 +496,7 @@ builder.interface.record = new(function () {
       create: function () {
         window.bridge.focusContent();
         return new builder.AssertExplorer(
-          window.bridge.content(),
+          window.bridge.recorderWindow,
           function() {},
           function(method, params) {
             builder.interface.record_action(method.replace("assert", "verify"), params);
@@ -557,11 +541,11 @@ builder.interface.record = new(function () {
    */
   function setRecordWindow(win) {
     // Detach the load listener from the page we were listening on.
-    builder.loadlistener.detach(window.bridge.content());
+    builder.loadlistener.detach(window.bridge.recorderWindow);
     
-    window.bridge.setCustomRecordingWindow(win);
+    window.bridge.recorderWindow = win;
     recorderInstance.destroy();
-    recorderInstance = new builder.Recorder(window.bridge.content(), builder.interface.record_action);
+    recorderInstance = new builder.Recorder(window.bridge.recorderWindow, builder.interface.record_action);
     
     // Reattach the load listeners to their new location.
     
@@ -569,8 +553,8 @@ builder.interface.record = new(function () {
     // allows for waitForPageToLoad events to be generated, for recorders to be attached to
     // newly opened pages, and for local playback to notice when it can go to the next step.
     builder.loadlistener.attach(
-        /* root window */ window.bridge.content(),
-        /* window */ window.bridge.content(),
+        /* root window */ window.bridge.recorderWindow,
+        /* window */ window.bridge.recorderWindow,
         /* load */ function(url) {
           builder.storage.set('currenturl', url);
           builder.storage.set('pageloading', false);
@@ -582,7 +566,7 @@ builder.interface.record = new(function () {
     
     // Set the initial value of currenturl - this is necessary so that the startup-url field is
     // populated.
-    builder.storage.set('currenturl', window.bridge.content().document.location.toString());
+    builder.storage.set('currenturl', window.bridge.recorderWindow.document.location.toString());
   }
   
   builder.setRecordWindow = setRecordWindow;
@@ -660,7 +644,7 @@ builder.interface.record = new(function () {
         // If the user has navigated to this page by entering an URL in the location
         // bar, adjust the locator for the open step that's been generated.
         if (manual_open && builder.lastStep().method() == 'open') {
-          builder.lastStep().locator(get_open_url(bridge.content().location.toString()));
+          builder.lastStep().locator(get_open_url(bridge.recorderWindow.location.toString()));
           manual_open = false;
           // Attach a recorder to the newly loaded page.
           setRecordMode(currentRecordMode);

@@ -1,4 +1,4 @@
-// Establish boot namespace.
+// Establish bridge namespace.
 var bridge = {};
 bridge.recorderWindow = null;
 

@@ -3,66 +3,9 @@ builder.dialogs.method = (function () {
   // Import the list of methods to be displayed. (see methods.js)
   var methods = builder.methods;
 
-  /**
-   * Gets a DOM fragment containing help for a method.
-   *
-   * Returns null if the help_document was not loaded, or if the method is undocumented in it.
-   *
-   * @param name  The base method name to get documentation for.
-   */
+  // qqDPS To be redone
   var getHelp = (function () {
-    // First, we load in the documentation and define a helper function before returning the 
-    // getHelp function.
-    var help_document;
-
-    // Load the documentation document when the recorder is started up.
-    builder.interface.addOnloadHook(function () {
-      window.bridge.load(jQuery, {
-        url: builder.urlFor("iedoc.xml"),
-        success: function (doc) {
-          help_document = doc;
-        },
-        error: function () {
-          //Not having the help isn't a total disaster
-          if (typeof console != 'undefined') {
-            console.log("Loading help failed:");
-            console.log(arguments);
-          }
-        },
-        dataType: "xml"
-      });
-    });
-    
-    // The documentation is in an XML format that contains HTML-like structure. We need to
-    // convert their <b> nodes into HTML <b> nodes.
-    function fakeCloneChildren(node) {
-      var frag = newFragment();
-
-      for (var i = 0; i < node.childNodes.length; i++) {
-        var child = node.childNodes[i];
-
-        if (child.nodeType == 3) {
-          text = child.textContent.split("\n\n");
-          for (var j = 0; j < text.length - 1; j++) {
-            if (text[j]) { frag.appendChild(newFragment(text[j], newNode('br'))); }
-          }
-          frag.appendChild(newFragment(text[text.length - 1]));
-        } else if (child.nodeType == 1) {
-          frag.appendChild(newNode(child.nodeName, fakeCloneChildren(child)));
-        }
-      }
-
-      return frag;
-    }
-
     return function getHelp(name) {
-      if (help_document) {
-        var base = new SeleniumFunction(new_method.value).base_name;
-        var node = jQuery(help_document).find("function[name='" + base + "'] comment").get(0);
-        if (node) {
-          return newFragment(newNode('b', base), ": ", fakeCloneChildren(node));
-        }
-      }
       return null;
     }
   })();

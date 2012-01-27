@@ -74,5 +74,6 @@ builder.loader.loadScripts(
   "builder/step.js",
   "builder/rc.js",
   "builder/local.js",
-  "builder/suite.js"
+  "builder/suite.js",
+  "builder/ignition.js"
 );
