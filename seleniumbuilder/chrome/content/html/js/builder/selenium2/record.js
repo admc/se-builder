@@ -110,7 +110,7 @@ builder.sel2.assertExplore = function() {
   jQuery('#record-panel').show();
   window.bridge.focusContent();
   builder.sel2.assertExplorer = new builder.AssertExplorer(
-    window.bridge.content(),
+    window.bridge.getRecordingWindow(),
     function() {},
     function(method, params) {
       builder.sel2.recordAssertion(method, params);
@@ -139,7 +139,7 @@ builder.sel2.stopRecording = function() {
 
 builder.sel2.continueRecording = function() {
   jQuery('#record-panel').show();
-  builder.sel2.recorder = new builder.sel2.Recorder(window.bridge.content(), builder.sel2.recordStep);
+  builder.sel2.recorder = new builder.sel2.Recorder(window.bridge.getRecordingWindow(), builder.sel2.recordStep);
   var isLoading = false;
   builder.sel2.pageLoadListener = function(pageloading) {
     if (pageloading) {
@@ -149,7 +149,7 @@ builder.sel2.continueRecording = function() {
       jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
         builder.sel2.recorder.destroy();
-        builder.sel2.recorder = new builder.sel2.Recorder(window.bridge.content(), builder.sel2.recordStep);
+        builder.sel2.recorder = new builder.sel2.Recorder(window.bridge.getRecordingWindow(), builder.sel2.recordStep);
       }
       isLoading = false;
     }
@@ -200,5 +200,5 @@ builder.sel2.startRecording = function(urlText, useCurrentScript) {
     }
   };
   builder.storage.addChangeListener('pageloading', builder.sel2.pageLoadListener);
-  window.bridge.content().location = url.href();
+  window.bridge.getRecordingWindow().location = url.href();
 };

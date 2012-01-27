@@ -73,14 +73,14 @@ pb.startSession = function() {
   // Set up Webdriver
   var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
   var server = handle.wrappedJSObject;
-  var driver = server.newDriver(window.bridge.content());
+  var driver = server.newDriver(window.bridge.getRecordingWindow());
   var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
   pb.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
   var newSessionCommand = {
     'name': 'newSession',
     'context': '',
     'parameters': {
-      'window_title':window.bridge.content().document.title
+      'window_title':window.bridge.getRecordingWindow().document.title
     }
   };
   pb.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {

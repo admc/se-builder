@@ -1,5 +1,5 @@
 /**
- * Listens for page loads/unloads. Call on window.bridge.content() to listen on record window.
+ * Listens for page loads/unloads. Call on window.bridge.getRecordingWindow() to listen on record window.
  */
 builder.loadlistener = new (function () {
   /**

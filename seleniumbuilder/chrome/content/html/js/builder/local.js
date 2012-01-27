@@ -15,7 +15,7 @@ builder.local = new (function() {
   var speed = 0;
   // Set up Selenium to drive the browser.
   var handler = new CommandHandlerFactory();
-  var browserbot = new MozillaBrowserBot(window.bridge.recorderWindow);
+  var browserbot = new MozillaBrowserBot(window.bridge.getRecordingWindow());
   var selenium = new Selenium(browserbot);
   handler.registerAll(selenium);
 
@@ -26,12 +26,12 @@ builder.local = new (function() {
     // happen that ensures the page is fully loaded before proceeding.
     // Code partly adapted from http://github.com/mozautomation/mozmill/blob/master/mozmill/mozmill/extension/resource/modules/init.js
     if (!val) {
-      window.bridge.content().document.addEventListener("DOMContentLoaded", function() {
-          window.bridge.content().content.addEventListener("load", function() {
+      window.bridge.getRecordingWindow().document.addEventListener("DOMContentLoaded", function() {
+          window.bridge.getRecordingWindow().content.addEventListener("load", function() {
             // Now we just wait for 300 ms to hopefully allow any javascript that was waiting on
             // load to finish manipulating the page DOM.
             setTimeout(function() {
-              browserbot.recordPageLoad(window.bridge.content());
+              browserbot.recordPageLoad(window.bridge.getRecordingWindow());
             }, 300);
           }, false);
         }, false);
@@ -175,7 +175,7 @@ builder.local = new (function() {
       var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
       var server = handle.wrappedJSObject;
       
-      var driver = server.newDriver(window.bridge.content());
+      var driver = server.newDriver(window.bridge.getRecordingWindow());
       /*
       for (var x in driver) {
         dump(x);
@@ -192,7 +192,7 @@ builder.local = new (function() {
         'name': 'newSession',
         'context': '',
         'parameters': {
-          'window_title':window.bridge.content().document.title
+          'window_title':window.bridge.getRecordingWindow().document.title
         }
       };
       commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
@@ -261,7 +261,7 @@ builder.local = new (function() {
     // Need to recreate the playback system, as it may be bound to the wrong tab. This happens
     // when the recorder tab is closed and subsequently reopened.
     handler = new CommandHandlerFactory();
-    browserbot = new MozillaBrowserBot(window.bridge.content());
+    browserbot = new MozillaBrowserBot(window.bridge.getRecordingWindow());
     selenium = new Selenium(browserbot);
     handler.registerAll(selenium);
     

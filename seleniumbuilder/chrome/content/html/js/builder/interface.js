@@ -154,8 +154,8 @@ builder.interface = new(function () {
     // allows for waitForPageToLoad events to be generated, for recorders to be attached to
     // newly opened pages, and for local playback to notice when it can go to the next step.
     builder.loadlistener.attach(
-        /* root window */ window.bridge.recorderWindow,
-        /* window */ window.bridge.recorderWindow,
+        /* root window */ window.bridge.getRecordingWindow(),
+        /* window */ window.bridge.getRecordingWindow(),
         /* load */ function(url) {
           builder.storage.set('currenturl', url);
           builder.storage.set('pageloading', false);
@@ -167,7 +167,7 @@ builder.interface = new(function () {
     
     // Set the initial value of currenturl - this is necessary so that the startup-url field is
     // populated.
-    builder.storage.set('currenturl', window.bridge.recorderWindow.document.location.toString());
+    builder.storage.set('currenturl', window.bridge.getRecordingWindow().document.location.toString());
   });
 })();
 
@@ -295,7 +295,7 @@ builder.interface.startup = new(function () {
       }
     };
     builder.storage.addChangeListener('pageloading', pageLoadListener);
-    window.bridge.recorderWindow.location = url.href();
+    window.bridge.getRecordingWindow().location = url.href();
 
     e.preventDefault();
   }
@@ -454,7 +454,7 @@ builder.interface.record = new(function () {
       }
     }
     // Keep track of which page we're on at this step.
-    params._url = window.bridge.recorderWindow.location.toString();
+    params._url = window.bridge.getRecordingWindow().location.toString();
     // The "open" method records the wrong URL if we start recording by entering a different
     // URL than the one we are currently at in the recording window.
     if (name == 'open' && builder.storage.get('baseurl')) {
@@ -487,7 +487,7 @@ builder.interface.record = new(function () {
       help: '#record-help',
       button: null,
       create: function () {
-        return new builder.Recorder(window.bridge.recorderWindow, builder.interface.record_action);
+        return new builder.Recorder(window.bridge.getRecordingWindow(), builder.interface.record_action);
       }
     },
     assert: {
@@ -496,7 +496,7 @@ builder.interface.record = new(function () {
       create: function () {
         window.bridge.focusContent();
         return new builder.AssertExplorer(
-          window.bridge.recorderWindow,
+          window.bridge.getRecordingWindow(),
           function() {},
           function(method, params) {
             builder.interface.record_action(method.replace("assert", "verify"), params);
@@ -541,11 +541,11 @@ builder.interface.record = new(function () {
    */
   function setRecordWindow(win) {
     // Detach the load listener from the page we were listening on.
-    builder.loadlistener.detach(window.bridge.recorderWindow);
+    builder.loadlistener.detach(window.bridge.getRecordingWindow());
     
-    window.bridge.recorderWindow = win;
+    window.bridge.setCustomRecordingWindow(win);
     recorderInstance.destroy();
-    recorderInstance = new builder.Recorder(window.bridge.recorderWindow, builder.interface.record_action);
+    recorderInstance = new builder.Recorder(window.bridge.getRecordingWindow(), builder.interface.record_action);
     
     // Reattach the load listeners to their new location.
     
@@ -553,8 +553,8 @@ builder.interface.record = new(function () {
     // allows for waitForPageToLoad events to be generated, for recorders to be attached to
     // newly opened pages, and for local playback to notice when it can go to the next step.
     builder.loadlistener.attach(
-        /* root window */ window.bridge.recorderWindow,
-        /* window */ window.bridge.recorderWindow,
+        /* root window */ window.bridge.getRecordingWindow(),
+        /* window */ window.bridge.getRecordingWindow(),
         /* load */ function(url) {
           builder.storage.set('currenturl', url);
           builder.storage.set('pageloading', false);
@@ -566,7 +566,7 @@ builder.interface.record = new(function () {
     
     // Set the initial value of currenturl - this is necessary so that the startup-url field is
     // populated.
-    builder.storage.set('currenturl', window.bridge.recorderWindow.document.location.toString());
+    builder.storage.set('currenturl', window.bridge.getRecordingWindow().document.location.toString());
   }
   
   builder.setRecordWindow = setRecordWindow;
@@ -644,7 +644,7 @@ builder.interface.record = new(function () {
         // If the user has navigated to this page by entering an URL in the location
         // bar, adjust the locator for the open step that's been generated.
         if (manual_open && builder.lastStep().method() == 'open') {
-          builder.lastStep().locator(get_open_url(bridge.recorderWindow.location.toString()));
+          builder.lastStep().locator(get_open_url(bridge.getRecordingWindow().location.toString()));
           manual_open = false;
           // Attach a recorder to the newly loaded page.
           setRecordMode(currentRecordMode);

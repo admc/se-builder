@@ -481,12 +481,12 @@ builder.Recorder = function (target_window, record_action) {
   function bind_browser(browser) {
     // Firefox 3.5 Only
     observe(browser, 'BrowserBack', function () {
-      if (browser.content == window.bridge.content()) { record_action('goBack', {}); }
+      if (browser.content == window.bridge.getRecordingWindow()) { record_action('goBack', {}); }
     });
 
     // The other BrowserReload* functions are just wrappers around this
     observe(browser, 'BrowserReloadWithFlags', function () {
-      if (browser.content == window.bridge.content()) { record_action('refresh', {}); }
+      if (browser.content == window.bridge.getRecordingWindow()) { record_action('refresh', {}); }
     });
 
     // Listen for the user actually typing in a URL into the navigation bar.
@@ -518,14 +518,14 @@ builder.Recorder = function (target_window, record_action) {
   }, 200);
   
   // Now listen on navigation functions in the browser.
-  bind_browser(window.bridge.browser());
+  bind_browser(window.bridge.getBrowser());
 
   return {
     /** Turns off the recorder. */
     destroy: function () {
       builder.loadlistener.on_all_frames(target_window, unbindFrame, 0);
       clearInterval(checkFrames);
-      unbind_browser(window.bridge.browser());
+      unbind_browser(window.bridge.getBrowser());
     }
   };
 };

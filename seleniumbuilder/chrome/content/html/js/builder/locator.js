@@ -103,7 +103,7 @@ builder.locator = new(function () {
     if (nodeName == "html") {
       return "//html";
     }
-    var parent = getMyXPath(node.parentNode, window.bridge.content().document);
+    var parent = getMyXPath(node.parentNode, window.bridge.getRecordingWindow().document);
 
     if (parent.indexOf("']") > -1) {
 
@@ -113,7 +113,7 @@ builder.locator = new(function () {
 
       // Attempt to key on the text content of the node for extra precision.
       if (text && text.length < 30) {
-        var win = window.bridge.content();
+        var win = window.bridge.getRecordingWindow();
         var attempt = parent.substr(0, parent.indexOf("']") + 2) + "//" + nodeName;
         // If the text contains whitespace characters that aren't spaces, we convert any
         // runs of whitespace into single spaces and trim off the ends, then use the
@@ -145,7 +145,7 @@ builder.locator = new(function () {
    * Uses the given locator to find the node it identifies. 
    */
   function findNode(locatorType, locator) {
-    var win = window.bridge.content();
+    var win = window.bridge.getRecordingWindow();
     return new MozillaBrowserBot(win).findElementBy(locatorType, locator, win.document, win);
   }
   

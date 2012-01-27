@@ -71,7 +71,7 @@ builder.AssertExplorer = function (top_window, change_status, record_assertion, 
     }
 
     var tag = e.target.nodeName.toUpperCase();
-    var selection = window.bridge.content().getSelection();
+    var selection = window.bridge.getRecordingWindow().getSelection();
 
     if (selection && selection.toString().replace(/^\s*/, '').replace(/\s*$/, '').length > 0) {
       record_assertion('assertTextPresent', {
