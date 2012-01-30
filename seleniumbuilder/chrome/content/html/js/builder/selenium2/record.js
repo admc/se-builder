@@ -108,14 +108,14 @@ builder.sel2.assertExplore = function() {
   builder.sel2.assertExploring = true;
   builder.sel2.stopRecording();
   jQuery('#record-panel').show();
-  window.bridge.focusContent();
+  window.bridge.focusRecordingTab();
   builder.sel2.assertExplorer = new builder.AssertExplorer(
     window.bridge.getRecordingWindow(),
     function() {},
     function(method, params) {
       builder.sel2.recordAssertion(method, params);
       setTimeout(function() { builder.sel2.stopAssertExploring(); }, 1);
-      window.bridge.focusWindow();
+      window.bridge.focusRecorderWindow();
     },
     /*for_choosing_locator*/
     false

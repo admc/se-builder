@@ -54,7 +54,7 @@ builder.dialogs.locator = new(function () {
       attachSearchers(true);
       // Keep on looking for new frames with no attached searchers.
       searcherInterval = setInterval(attachSearchers, 500, true);
-      window.bridge.focusContent();
+      window.bridge.focusRecordingTab();
     }
   }
 
@@ -100,7 +100,7 @@ builder.dialogs.locator = new(function () {
               current_alts = call[alt_property];
               update_suggested();
               toggle_searcher();
-              window.bridge.focusWindow();
+              window.bridge.focusRecorderWindow();
               setTimeout(function () { builder.interface.record.resume() }, 0);
             },
             /*for_choosing_locator*/ true)

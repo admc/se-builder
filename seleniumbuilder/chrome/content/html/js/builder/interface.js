@@ -126,7 +126,7 @@ builder.interface = new(function () {
             builder.interface.switchTo('shutdown');
             originalShutdown();
           } else {
-            window.bridge.focusWindow();
+            window.bridge.focusRecorderWindow();
           }
         } else {
           builder.interface.switchTo('shutdown');
@@ -494,7 +494,7 @@ builder.interface.record = new(function () {
       help: '#record-assert-help',
       button: '#record-assert',
       create: function () {
-        window.bridge.focusContent();
+        window.bridge.focusRecordingTab();
         return new builder.AssertExplorer(
           window.bridge.getRecordingWindow(),
           function() {},
@@ -502,7 +502,7 @@ builder.interface.record = new(function () {
             builder.interface.record_action(method.replace("assert", "verify"), params);
             //setTimeout(function() { builder.interface.switchTo('record'); }, 0);
             setTimeout(function() { builder.setRecordMode('record'); }, 0);
-            window.bridge.focusWindow();
+            window.bridge.focusRecorderWindow();
           },
           /*for_choosing_locator*/
           false

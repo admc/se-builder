@@ -146,7 +146,7 @@ function startSearchers(stepID, pIndex) {
   attachSearchers(stepID, pIndex, true);
   // Keep on looking for new frames with no attached searchers.
   searcherInterval = setInterval(function() { attachSearchers(stepID, pIndex); }, 500, true);
-  window.bridge.focusContent();
+  window.bridge.focusRecordingTab();
 }
 
 /**
@@ -187,7 +187,7 @@ function attachSearchers(stepID, pIndex, force) {
             var loc = builder.sel2.extractSel2Locator(params);
             var pName = step.getParamNames()[pIndex];
             stopSearchers();
-            window.bridge.focusWindow();
+            window.bridge.focusRecorderWindow();
             step[pName] = loc;
             builder.sel2.updateStepDisplay(stepID);
             builder.storage.set('save_required', true);
