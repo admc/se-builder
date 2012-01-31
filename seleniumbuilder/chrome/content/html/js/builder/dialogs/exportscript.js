@@ -67,7 +67,7 @@ builder.dialogs.exportscript = new(function () {
           path.path);
         if (file) {
           builder.storage.set('save_required', false);
-          builder.interface.suite.update();
+          builder.gui.suite.update();
         }
         builder.dialogs.exportscript.hide();
       },
@@ -100,7 +100,7 @@ builder.dialogs.exportscript = new(function () {
             format: myFormat
           }
         );
-        builder.interface.suite.update();
+        builder.gui.suite.update();
       }
       builder.dialogs.exportscript.hide();
     },

@@ -64,7 +64,7 @@ builder.suite = new (function () {
       builder.setCurrentScript(new builder.sel2.Sel2Script());
       builder.sel2.updateStepsDisplay();
     }
-    builder.interface.suite.update();
+    builder.gui.suite.update();
     builder.storage.set('suiteSaveRequired', true);
     return selectedScriptIndex;
   }
@@ -250,6 +250,6 @@ builder.suite = new (function () {
     selectedScriptIndex = -1;
     builder.storage.set('suitePath', null);
     builder.storage.set('suiteSaveRequired', false);
-    builder.interface.suite.update();
+    builder.gui.suite.update();
   };
 })();

@@ -13,6 +13,18 @@ builder.loader.loadScripts = function() {
   }
 };
 
+/** Functions that get executed once everything has been loaded. */
+builder.postLoadHooks = [];
+
+/** Register a function to be executed once everything has been loaded. */
+builder.registerPostLoadHook = function(f) {
+  if (builder.loaded) {
+    f();
+  } else {
+    builder.postLoadHooks.push(f);
+  }
+};
+
 builder.loader.loadScripts(
   // Load Libraries
   "lib/jquery-ui-1.8.17.custom/js/jquery-1.7.1.min.js",
@@ -46,7 +58,13 @@ builder.loader.loadScripts(
   "builder/locator.js",
   "builder/recorder.js",
   "builder/assertexplorer.js",
-  "builder/interface.js",
+  "builder/listeners.js",
+  "builder/gui.js",
+  "builder/gui/menu.js",
+  "builder/gui/suite.js",
+  "builder/views/booting.js",
+  "builder/views/startup.js",
+  "builder/views/script.js",
   "builder/seleniumpatch.js",
   "builder/methods.js",
   // Load in user-extensions.js

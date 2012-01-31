@@ -28,7 +28,7 @@ builder.rc = new (function () {
     hostport = a_hostport;
     
     script = builder.getScript();
-    builder.clearResults();
+    builder.views.script.clearResults();
     jQuery('#edit-clearresults').show();
     var msg = 'cmd=getNewBrowserSession&1=' + browserstring + '&2=' + this.enc(script.baseUrl) + '&3=null';
     this.post(msg, builder.rc.startJob, builder.rc.xhrfailed);

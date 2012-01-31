@@ -49,7 +49,7 @@ builder.dialogs.locator = new(function () {
       hasSearchers = false;
     } else {
       jQuery(this).addClass('is-on')
-      builder.interface.record.pause();
+      builder.interface.record.pause(); // qqDPS
       hasSearchers = true;
       attachSearchers(true);
       // Keep on looking for new frames with no attached searchers.

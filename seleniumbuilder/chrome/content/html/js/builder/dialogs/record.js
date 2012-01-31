@@ -23,7 +23,7 @@ builder.dialogs.record = new(function () {
                   builder.suite.addEmptyScript(1);
                   builder.clearAndStartRecordingAt(e, jQuery("#startup-url-2").val());
                   node.html('');
-                  builder.interface.updateRunSuiteOnRC();
+                  builder.gui.menu.updateRunSuiteOnRC();
                 }}),
               newNode('br'),
               newNode('input', {type:'submit', value:'Record new Selenium 2 script', class:'button',
@@ -31,7 +31,7 @@ builder.dialogs.record = new(function () {
                   builder.suite.addEmptyScript(2);
                   builder.sel2.startRecording(jQuery("#startup-url-2").val(), true);
                   node.html('');
-                  builder.interface.updateRunSuiteOnRC();
+                  builder.gui.menu.updateRunSuiteOnRC();
                 }}),
               newNode('a', 'Cancel', {
                   class: 'button',

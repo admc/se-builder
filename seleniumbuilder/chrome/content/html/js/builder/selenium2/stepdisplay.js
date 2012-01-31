@@ -141,7 +141,7 @@ function stopSearchers(stepID, pIndex) {
 }
 
 function startSearchers(stepID, pIndex) {
-  builder.interface.record.pause();
+  //builder.interface.record.pause(); qqDPS
   hasSearchers = true;
   attachSearchers(stepID, pIndex, true);
   // Keep on looking for new frames with no attached searchers.

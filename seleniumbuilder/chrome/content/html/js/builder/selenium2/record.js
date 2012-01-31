@@ -187,7 +187,7 @@ builder.sel2.startRecording = function(urlText, useCurrentScript) {
       jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
         builder.sel2.recording = true;    
-        builder.interface.switchTo('edit');
+        builder.gui.switchView(builder.views.script);
         if (!useCurrentScript) {
           builder.setCurrentScript(new builder.sel2.Sel2Script());
         }

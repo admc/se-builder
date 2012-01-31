@@ -255,7 +255,7 @@ builder.local = new (function() {
     postPlayCallback = thePostPlayCallback;
     playResult = {success: true};
     
-    builder.clearResults();
+    builder.views.script.clearResults();
     jQuery('#edit-clearresults').show();
     
     // Need to recreate the playback system, as it may be bound to the wrong tab. This happens
