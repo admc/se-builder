@@ -11,6 +11,14 @@ builder.views.script.clearResults = function() {
   jQuery('#edit-clearresults').hide();
 };
 
+builder.views.script.show = function() {
+  jQuery('#edit-panel, #steplist, #menu').show();
+};
+
+builder.views.script.hide = function() {
+  jQuery('#edit-panel, #steplist, #menu').hide();
+};
+
 builder.registerPostLoadHook(function() {
   // Buttons visible while recording:
   jQuery('#record-stop-button').click(function (e) {

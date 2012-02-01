@@ -32,7 +32,7 @@ builder.gui.suite.update = function() {
     var scriptNames = builder.suite.getScriptNames();
     var selectedScriptIndex = builder.suite.getSelectedScriptIndex();
     for (var i = 0; i < scriptNames.length; i++) {
-      jQuery('#scriptlist').append(create_script_li(scriptNames[i], i,
+      jQuery('#scriptlist').append(builder.gui.suite.create_script_li(scriptNames[i], i,
           i == selectedScriptIndex));
     }
   } else {
