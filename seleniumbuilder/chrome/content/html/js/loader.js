@@ -51,7 +51,7 @@ builder.loader.loadScripts(
   "selenium/selenium-api.js",
   "selenium/selenium-commandhandlers.js",
   // Load Selenium Builder
-  "builder/nodegen.js",
+  "builder/utils.js",
   "builder/storage.js",
   "builder/loadlistener.js",
   "builder/seleniumfunction.js",

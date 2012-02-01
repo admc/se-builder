@@ -1,4 +1,12 @@
 /**
+ * Converts runs of whitespace into single spaces and trims string to match behaviour of
+ * XPath's normalize-space.
+ */
+builder.normalizeWhitespace = function(text) {
+  return text.replace(/\s+/g, " ").replace(/^ /, "").replace(/ $/, "");
+};
+
+/**
  * Create a new DOM node for the current document.
  * @param tagname The name of the node
  * 
