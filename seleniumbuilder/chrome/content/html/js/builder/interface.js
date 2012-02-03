@@ -491,8 +491,8 @@ builder.interface.record = new(function () {
       }
     },
     assert: {
-      help: '#record-assert-help',
-      button: '#record-assert',
+      help: '#record-verify-help',
+      button: '#record-verify',
       create: function () {
         window.bridge.focusRecordingTab();
         return new builder.AssertExplorer(
@@ -594,7 +594,7 @@ builder.interface.record = new(function () {
       }
     });
 
-    jQuery('#record-assert').click(function (e) {
+    jQuery('#record-verify').click(function (e) {
       if (builder.storage.get('selMajorVersion') == "2") {
         if (builder.sel2.assertExploring) {
           builder.sel2.stopAssertExploring();

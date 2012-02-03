@@ -25,11 +25,11 @@ builder.registerPostLoadHook(function() {
     builder.sel2.stopRecording();
   });
 
-  jQuery('#record-assert').click(function (e) {
-    if (builder.sel2.assertExploring) {
-      builder.sel2.stopAssertExploring();
+  jQuery('#record-verify').click(function (e) {
+    if (builder.sel2.verifyExploring) {
+      builder.sel2.stopVerifyExploring();
     } else {
-      builder.sel2.assertExplore();
+      builder.sel2.verifyExplore();
     }
   });
   

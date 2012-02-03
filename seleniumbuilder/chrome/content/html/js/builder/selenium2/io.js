@@ -381,6 +381,17 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "",
     "storeElementSelected":
       "        ${{variable}:boolean} = wd.findElement(By.{locatorBy}({locator})).isSelected();\n",
+    "assertElementNotSelected":
+      "        if ({negNot}wd.findElement(By.{locatorBy}({locator})).isSelected()) {\n" +
+      "            wd.close();\n" +
+      "            throw new RuntimeException(\"{negNot}assertElementSelected failed\");\n" +
+      "        }\n",
+    "verifyElementNotSelected":
+      "        if ({negNot}wd.findElement(By.{locatorBy}({locator})).isSelected()) {\n" +
+      "            System.err.println(\"{negNot}verifyElementSelected failed\");\n" +
+      "        }\n",
+    "waitForElementNotSelected":
+      "",
     "assertElementValue":
       "        if ({posNot}wd.findElement(By.{locatorBy}({locator})).getAttribute(\"value\").equals({value})) {\n" +
       "            wd.close();\n" +

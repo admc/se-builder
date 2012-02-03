@@ -243,6 +243,31 @@ builder.sel2.docs = {
     },
     "description": "Stores the page source in the given variable."
   },
+  "assertElementSelected": {
+    "params": {
+      "locator": "How to find the element."
+    },
+    "description": "Asserts that the given element is selected. If this is not the case, script execution will stop and be marked as failed."
+  },
+  "verifyElementSelected": {
+    "params": {
+      "locator": "How to find the element."
+    },
+    "description": "Verifies that the given element is selected. If this is not the case, script execution will be marked as failed, but the script will continue running."
+  },
+  "waitForElementSelected": {
+    "params": {
+      "locator": "How to find the element."
+    },
+    "description": "Waits for an element to be selected."
+  },
+  "storeElementSelected": {
+    "params": {
+      "variable": "Name of the variable to store the attribute value in.",
+      "locator": "How to find the element."
+    },
+    "description": "Stores whether the element is selected in the given variable."
+  },
   "assertElementAttribute": {
     "params": {
       "locator": "How to find the element.",

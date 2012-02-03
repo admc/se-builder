@@ -57,7 +57,7 @@ builder.loader.loadScripts(
   "builder/seleniumfunction.js",
   "builder/locator.js",
   "builder/recorder.js",
-  "builder/assertexplorer.js",
+  "builder/verifyexplorer.js",
   "builder/listeners.js",
   "builder/gui.js",
   "builder/gui/menu.js",

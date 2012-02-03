@@ -1,8 +1,8 @@
 builder.sel2.recording = false;
 builder.sel2.recorder = null;
 builder.sel2.pageLoadListener = null;
-builder.sel2.assertExploring = false;
-builder.sel2.assertExplorer = null;
+builder.sel2.verifyExploring = false;
+builder.sel2.verifyExplorer = null;
 
 /**
  * Code to interface with recorder.js.
@@ -28,30 +28,6 @@ builder.sel2.recordStep = function(type, params) {
   }
   builder.getCurrentScript().addStep(newStep);
   builder.sel2.updateStepsDisplay();
-  builder.storage.set('save_required', true);
-};
-
-builder.sel2.recordAssertion = function(type, params) {
-  switch (type) {
-    case "assertVisible": {
-      builder.getCurrentScript().addStep(new builder.sel2.Sel2Step("verifyElementPresent", builder.sel2.extractSel2Locator(params)));
-      builder.sel2.updateStepsDisplay();
-      break;
-    }
-    case "assertTextPresent": {
-      builder.getCurrentScript().addStep(new builder.sel2.Sel2Step("verifyTextPresent", params.pattern));
-      builder.sel2.updateStepsDisplay();
-      break;
-    }
-    case "assertSelectedValues":
-      // qqDPS not yet implemented
-      break;
-    case "assertValue": {
-      builder.getCurrentScript().addStep(new builder.sel2.Sel2Step("verifyElementValue", builder.sel2.extractSel2Locator(params), params["equal to"]));
-      builder.sel2.updateStepsDisplay();
-      break;
-    }
-  }
   builder.storage.set('save_required', true);
 };
 
@@ -104,28 +80,27 @@ function endsWith(a, b) {
   return a.substring(a.length - b.length) == b;
 }
 
-builder.sel2.assertExplore = function() {
-  builder.sel2.assertExploring = true;
+builder.sel2.verifyExplore = function() {
+  builder.sel2.verifyExploring = true;
   builder.sel2.stopRecording();
   jQuery('#record-panel').show();
   window.bridge.focusRecordingTab();
-  builder.sel2.assertExplorer = new builder.AssertExplorer(
+  builder.sel2.verifyExplorer = new builder.VerifyExplorer(
     window.bridge.getRecordingWindow(),
     function() {},
-    function(method, params) {
-      builder.sel2.recordAssertion(method, params);
-      setTimeout(function() { builder.sel2.stopAssertExploring(); }, 1);
+    function(step) {
+      builder.getCurrentScript().addStep(step);
+      builder.sel2.updateStepsDisplay();
+      setTimeout(function() { builder.sel2.stopVerifyExploring(); }, 1);
       window.bridge.focusRecorderWindow();
-    },
-    /*for_choosing_locator*/
-    false
+    }
   );
 };
 
-builder.sel2.stopAssertExploring = function() {
-  builder.sel2.assertExploring = false;
-  builder.sel2.assertExplorer.destroy();
-  builder.sel2.assertExplorer = null;
+builder.sel2.stopVerifyExploring = function() {
+  builder.sel2.verifyExploring = false;
+  builder.sel2.verifyExplorer.destroy();
+  builder.sel2.verifyExplorer = null;
   builder.sel2.continueRecording();
 };
 

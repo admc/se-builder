@@ -517,6 +517,38 @@ pb.playbackFunctions = {
     });
   },
   
+  "verifyElementNotSelected": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        if (!result.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordResult({success: false, message: "Element is selected."});
+        }
+      });
+    });
+  },
+  "assertElementNotSelected": function() {
+    pb.findElement(pb.param("locator"), function(result) {
+      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        if (!result.value) {
+          pb.recordResult({success: true});
+        } else {
+          pb.recordError("Element is selected.");
+        }
+      });
+    });
+  },
+  "waitForElementNotSelected": function() {
+    pb.wait(function(callback) {
+      pb.findElement(pb.param("locator"), function(result) {
+        pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+          callback(!result.value);
+        }, /*error*/ function() { callback(false); });
+      }, /*error*/ function() { callback(false); });
+    });
+  },
+  
   "verifyElementValue": function() {
     pb.findElement(pb.param("locator"), function(result) {
       pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {

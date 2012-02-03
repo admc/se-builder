@@ -150,7 +150,7 @@ function startSearchers(stepID, pIndex) {
 }
 
 /**
- * Attach an AssertExplorer to each frame in Firefox to allow the user to select a new locator.
+ * Attach a VerifyExplorer to each frame in Firefox to allow the user to select a new locator.
  * The code also attaches a boolean to the frames to prevent attaching multiple searchers, but
  * since this can't be easily cleared when searching is complete, it can be overridden with the
  * force parameter.
@@ -177,27 +177,23 @@ function attachSearchers(stepID, pIndex, force) {
           continue;
         }
         frame._selenium_builder_hasSearcher = true;
-        searchers.push(new builder.AssertExplorer(
+        searchers.push(new builder.VerifyExplorer(
           frame,
           function() {},
           // This function is called when the user selects a new element.
-          function(method, params) {
-            var step = builder.getCurrentScript().getStepWithID(stepID);
-            builder.storage.set('save_required', true);
-            var loc = builder.sel2.extractSel2Locator(params);
-            var pName = step.getParamNames()[pIndex];
+          function(recordedStep) {
+            var originalStep = builder.getCurrentScript().getStepWithID(stepID);
+            originalStep[originalStep.getParamNames()[pIndex]] = recordedStep.locator;
             stopSearchers();
             window.bridge.focusRecorderWindow();
-            step[pName] = loc;
             builder.sel2.updateStepDisplay(stepID);
             builder.storage.set('save_required', true);
             // Update the edit-param view.
             jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
             jQuery('#' + stepID + '-p' + pIndex).show();
             editParam(stepID, pIndex);
-          },
-          /*for_choosing_locator*/ true)
-        );
+          }
+        ));
       }
     }
   }
