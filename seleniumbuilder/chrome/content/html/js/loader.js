@@ -54,8 +54,7 @@ builder.loader.loadScripts(
   "builder/utils.js",
   "builder/storage.js",
   "builder/loadlistener.js",
-  "builder/seleniumfunction.js",
-  "builder/locator.js",
+  "builder/locator2.js",
   "builder/recorder.js",
   "builder/verifyexplorer.js",
   "builder/listeners.js",
@@ -66,13 +65,14 @@ builder.loader.loadScripts(
   "builder/views/startup.js",
   "builder/views/script.js",
   "builder/seleniumpatch.js",
-  "builder/methods.js",
+  "builder/selenium1/selenium1.js",
   // Load in user-extensions.js
   "user-extensions.js",
   // Deal with the changes it made
   "builder/extensions.js",
   // Load more Builder
-  "builder/selenium2/methods.js",
+  "builder/selenium2/selenium2.js",
+  "builder/script.js",
   "builder/selenium2/versionconverter.js",
   "builder/selenium2/io.js",
   "builder/selenium2/script.js",

@@ -1,22 +1,21 @@
-builder.setCurrentScript = function(script) {
+builder.setScript = function(script) {
   builder.storage.set('script', script);
 };
 
-builder.getCurrentScript = function() {
+builder.getScript = function() {
   return builder.storage.get('script');
 };
 
 /**
- * Defines a Sel2Script object that encapsulates a single test script.
+ * Defines a Script object that encapsulates a single test script.
 */
-builder.sel2.Sel2Script = function() {
+builder.Script = function(seleniumVersion) {
   this.steps = [];
   this.path = null;
-  this.seleniumVersion = "2";
-  this.version = "1";
+  this.seleniumVersion = seleniumVersion;
 };
 
-builder.sel2.Sel2Script.prototype = {
+builder.Script.prototype = {
   getStepIndexForID: function(id) {
     for (var i = 0; i < this.steps.length; i++) {
       if (this.steps[i].id == id) { return i; }
@@ -69,39 +68,43 @@ builder.sel2.Sel2Script.prototype = {
   }
 };
 
-builder.sel2.__idCounter = 1; // Start at 1 so the ID is always true.
+builder.__idCounter = 1; // Start at 1 so the ID is always true.
 
 /**
  * @param type The type of step
  * Further arguments used as parameters
  */
-builder.sel2.Sel2Step = function(type) {
+builder.Step = function(type) {
   this.type = type;
-  this.id = builder.sel2.__idCounter;
-  builder.sel2.__idCounter++;
-  var pNames = builder.sel2.paramNames[this.type];
+  this.id = builder.__idCounter;
+  builder.__idCounter++;
+  var pNames = this.type.getParamNames();
   if (pNames) {
     for (var i = 0; i < pNames.length; i++) {
       if (i + 1 < arguments.length) {
         this[pNames[i]] = arguments[i + 1];
       } else {
-        this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
+        this[pNames[i]] = this.type.getParamType(pNames[n]) == "locator"
+          ? builder.locator.empty()
+          : "";
       }
     }
   }
   this.changeType(this.type);
 };
 
-builder.sel2.Sel2Step.prototype = {
+builder.Step.prototype = {
   getParamNames: function() {
-    return builder.sel2.paramNames[this.type];
+    return this.type.getParamNames();
   },
   changeType: function(newType) {
     this.type = newType;
-    var pNames = builder.sel2.paramNames[this.type];
+    var pNames = this.type.getParamNames();
     for (var i = 0; i < pNames.length; i++) {
       if (!this[pNames[i]]) {
-        this[pNames[i]] = pNames[i].startsWith("locator") ? {type: "id", value: ""} : "";
+        this[pNames[i]] = this.type.getParamType(pNames[n]) == "locator"
+          ? builder.locator.empty()
+          : "";
       }
     }
   }
