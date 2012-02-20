@@ -11,7 +11,7 @@ var OTHER     = 3;
 var STORE     = 4;
 
 for (m in Selenium.prototype) {
-  if (!builder.originalSelMembers[m]) {
+  if (!builder.selenium1.originalSelMembers[m]) {
     if (m.startsWith("do")) {
       addToCategory(ACTION, "extensions", decapitate(m, "do"));
     }
@@ -20,9 +20,9 @@ for (m in Selenium.prototype) {
       addToCategory(WAIT, "extensions", m);
       addToCategory(STORE, "extensions", m.replace(/^(is|get)/, "store"));
     }
-    if (m.startsWith("locateElementBy")) {
+    /*if (m.startsWith("locateElementBy")) {
       builder.locator_types.push(decapitate(m, "locateElementBy"));
-    }
+    }*/ // qqDPS disabled
   }
 }
 
@@ -33,14 +33,14 @@ for (m in Selenium.prototype) {
  * @param method The method entry to add.
  */
 function addToCategory(tab, catName, method) {
-  for (i in builder.methods[tab].categories) {
-    cat = builder.methods[tab].categories[i];
+  for (i in builder.selenium1.__methodRegistry[tab].categories) {
+    cat = builder.selenium1.__methodRegistry[tab].categories[i];
     if (cat.name == catName) {
       cat.contents.push(method);
       return;
     }
   }
-  builder.methods[tab].categories.push({
+  builder.selenium1.__methodRegistry[tab].categories.push({
     name: catName,
     contents: [method]
   });

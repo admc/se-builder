@@ -71,7 +71,7 @@ builder.Script.prototype = {
 builder.__idCounter = 1; // Start at 1 so the ID is always true.
 
 /**
- * @param type The type of step
+ * @param type The type of step (from builder.selenium1.stepTypes or builder.selenium2.stepTypes)
  * Further arguments used as parameters
  */
 builder.Step = function(type) {

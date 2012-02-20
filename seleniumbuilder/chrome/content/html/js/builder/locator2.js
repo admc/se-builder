@@ -4,18 +4,31 @@
  * builder.locator.methods.id to "searchField".) The "preferredMethod" property specifies which
  * method should be used.
  */
+ 
+builder.locator = {};
 
 /**
  * Available types of locator, to be used as keys. Use eg builder.locator.methods.xpath to refer to
  * the idea of an xpath locator.
  */
 builder.locator.methods = {
-  id:    { builder.selenium1: "id",    builder.selenium2: "id" },
-  name:  { builder.selenium1: "name",  builder.selenium2: "name" },
-  link:  { builder.selenium1: "link",  builder.selenium2: "link text" },
-  css:   { builder.selenium1: "css",   builder.selenium2: "css selector" },
-  xpath: { builder.selenium1: "xpath", builder.selenium2: "xpath" }
+  id:    {},
+  name:  {},
+  link:  {},
+  css:   {},
+  xpath: {}
 };
+
+builder.locator.methods.id[builder.selenium1] = "id";
+builder.locator.methods.id[builder.selenium2] = "id";
+builder.locator.methods.name[builder.selenium1] = "name";
+builder.locator.methods.name[builder.selenium2] = "name";
+builder.locator.methods.link[builder.selenium1] = "link";
+builder.locator.methods.link[builder.selenium2] = "link text";
+builder.locator.methods.css[builder.selenium1] = "css";
+builder.locator.methods.css[builder.selenium2] = "css selector";
+builder.locator.methods.xpath[builder.selenium1] = "xpath";
+builder.locator.methods.xpath[builder.selenium2] = "xpath";
 
 /**
  * @param The preferred location method (one of builder.locator.methods).

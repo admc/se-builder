@@ -102,7 +102,7 @@ builder.selenium2.__stepData = {
 /** Map of step types. */
 builder.selenium2.stepTypes = {};
 for (var n in builder.selenium2.__stepData) {
-  builder.selenium2.stepTypes.push(new builder.selenium2.StepType(n));
+  builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
 }
 
 /** List of categories. */
