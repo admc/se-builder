@@ -1,4 +1,7 @@
 builder.selenium1.StepType = function(name, baseFunction) {
+  dump(name);
+  dump("      =      ");
+  dump(baseFunction);
   this.name = name;
   this.baseFunction = baseFunction;
   try {

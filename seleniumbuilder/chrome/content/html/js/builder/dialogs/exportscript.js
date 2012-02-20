@@ -45,7 +45,7 @@ builder.dialogs.exportscript = new(function () {
     var li_node = newNode('li',
       newNode('a', myFormat.name, {
         click: function(event) {
-          if (builder.saveSel2Script(script, myFormat)) {
+          if (builder.selenium2.saveScript(script, myFormat)) {
             builder.storage.set('save_required', false);
           }
           builder.dialogs.exportscript.hide();

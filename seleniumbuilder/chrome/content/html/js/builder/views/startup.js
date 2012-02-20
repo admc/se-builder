@@ -27,7 +27,7 @@ builder.registerPostLoadHook(function () {
     builder.sel2.startRecording(jQuery('#startup-url').val(), false);
   });
   jQuery('#startup-open-sel2 a').click(function() {
-    builder.openSel2File(builder.sel2.loadScript());
+    builder.openSel2File(builder.selenium2.loadScript());
   });
   
   // Populate the input field for the URL to record from.

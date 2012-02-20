@@ -324,7 +324,7 @@ builder.interface.startup = new(function () {
    * Imports a Selenium2 file.
    */
   function import_sel2_file() {
-    var script = builder.loadSel2Script();
+    var script = builder.selenium2.loadScriptJSON();
     if (script) {
       open_file(null, builder.convertSel2To1(script));
     }
@@ -409,7 +409,7 @@ builder.interface.startup = new(function () {
     jQuery('#startup-import a').click(import_file);
     jQuery('#startup-import-sel2 a').click(import_sel2_file);
     jQuery('#startup-open-sel2 a').click(function() {
-      var script = builder.sel2.loadScript();
+      var script = builder.selenium2.loadScript();
       open_sel2_file(script);
     });
     jQuery('#startup-suite-import a').click(import_suite);
@@ -927,7 +927,7 @@ builder.interface.suite = new(function () {
     });
     
     jQuery('#suite-importscript-sel2').click(function() {
-      var script = builder.loadSel2Script();
+      var script = builder.selenium2.loadScriptJSON();
       if (script) {
         // Save the current script and unselect it to make sure that when we overwrite its
         // info in the GUI by opening the new script, we don't overwrite its info in
@@ -940,7 +940,7 @@ builder.interface.suite = new(function () {
     });
     
     jQuery('#suite-addscript-sel2').click(function() {
-      var script = builder.sel2.loadScript();
+      var script = builder.selenium2.loadScript();
       if (script) {
         // Save the current script and unselect it to make sure that when we overwrite its
         // info in the GUI by opening the new script, we don't overwrite its info in

@@ -2,16 +2,14 @@
  * Code for exporting/importing Selenium 2 scripts in a variety of formats.
 */
 
-builder.sel2.loadScript = function(path) {
-  var scriptJSON = builder.loadSel2Script(path);
-  var script = new builder.sel2.Sel2Script();
+builder.selenium2.loadScript = function(path) {
+  var scriptJSON = builder.selenium2.loadScriptJSON(path);
+  var script = new builder.Script(builder.selenium2);
   script.path = scriptJSON.path;
   script.path.format = builder.sel2Formats[0];
-  script.seleniumVersion = scriptJSON.seleniumVersion;
-  script.version = scriptJSON.version;
-
+  
   for (var i = 0; i < scriptJSON.steps.length; i++) {
-    var step = new builder.sel2.Sel2Step(scriptJSON.steps[i].type);
+    var step = new builder.Step(builder.selenium2.stepTypes[scriptJSON.steps[i].type]);
     script.steps.push(step);
     var pNames = step.getParamNames();
     for (var j = 0; j < pNames.length; j++) {
@@ -24,7 +22,7 @@ builder.sel2.loadScript = function(path) {
   return script;
 };
 
-builder.loadSel2Script = function(path) {
+builder.selenium2.loadScriptJSON = function(path) {
   var file = null;
   if (path == null) {
     file = showFilePicker(window, "Select a File", 
@@ -44,7 +42,7 @@ builder.loadSel2Script = function(path) {
   return script;
 };
 
-builder.saveSel2Script = function(script, format, path) {
+builder.selenium2.saveScript = function(script, format, path) {
   try {
     var file = null;
     if (path == null) {
@@ -89,9 +87,9 @@ builder.createLangSel2Formatter = function(lang_info) {
       var used_vars = {};
       for (var i = 0; i < script.steps.length; i++) {
         var step = script.steps[i];
-        var line = lang_info.lineForType[step.type];
+        var line = lang_info.lineForType[step.type.name];
         if (typeof line == 'undefined') {
-          throw("Cannot export step of type \"" + step.type + "\".");
+          throw("Cannot export step of type \"" + step.type.name + "\".");
         }
         if (line instanceof Function) {
           t += line(step, lang_info.escapeValue);
@@ -99,7 +97,7 @@ builder.createLangSel2Formatter = function(lang_info) {
         }
         var pNames = script.steps[i].getParamNames();
         for (var j = 0; j < pNames.length; j++) {
-          if (pNames[j].startsWith("locator")) {
+          if (step.type.getParamType(pNames[j]) == "locator") {
             line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]].value, pNames[j]));
             line = line.replace(new RegExp("\{" + pNames[j] + "By\}", "g"), lang_info.locatorByForType(step.type, step[pNames[j]].type, j + 1));
           } else {
@@ -157,9 +155,9 @@ builder.createLangSel2Formatter = function(lang_info) {
       var nes = [];
       for (var i = 0; i < script.steps.length; i++) {
         var step = script.steps[i];
-        var line = lang_info.lineForType[step.type];
+        var line = lang_info.lineForType[step.type.name];
         if (typeof line == 'undefined') {
-          nes.push(step.type);
+          nes.push(step.type.name);
         }
       }
       return nes;
@@ -177,7 +175,7 @@ builder.sel2Formats.push({
       steps: []
     };
     for (var i = 0; i < script.steps.length; i++) {
-      var cleanStep = { type: script.steps[i].type };
+      var cleanStep = { type: script.steps[i].type.name };
       if (script.steps[i].negated) {
         cleanStep.negated = true;
       }
@@ -448,7 +446,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "        wd.getScreenshotAs(FILE).renameTo(new File({file}));\n"
   },
   locatorByForType: function(stepType, locatorType, locatorIndex) {
-    if ({"select.select":1, "select.deselect":1}[stepType] && locatorIndex == 2) {
+    if ({"select.select":1, "select.deselect":1}[stepType.name] && locatorIndex == 2) {
       return {
         "index": "ByIndex",
         "value": "ByValue",
@@ -467,7 +465,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
       "partial link text": "partialLinkText"}[locatorType];
   },
   escapeValue: function(stepType, value, pName) {
-    if (stepType.startsWith("store") && pName == "variable") { return value; }
+    if (stepType.name.startsWith("store") && pName == "variable") { return value; }
     function esc(v) { return "\"" + v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\""; }
     var output = "";
     var lastChunk = "";
@@ -651,7 +649,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
     if ({
       "assertElementPresent": 1,
       "verifyElementPresent": 1
-    }[stepType]) {
+    }[stepType.name]) {
       return {
         "class": "find_elements_by_class_name",
         "id": "find_elements_by_id",
