@@ -16,7 +16,9 @@ builder.selenium2.StepType.prototype = {
   /** @return List of parameter names. */
   getParamNames: function() { return builder.selenium2.__stepData[this.name] },
   /** @return Whether the given parameter is a "locator" or "string". */
-  getParamType: function(paramName) { return paramName == "locator" ? "locator" : "string" }
+  getParamType: function(paramName) { return paramName == "locator" ? "locator" : "string" },
+  /** @return Whether setting negated to true on a step of this type is valid. */
+  getNegatable: function() { return name.startsWith("assert") || name.startsWith("verify"); }
 };
 
 /** Internal step data - converted into stepTypes below. */

@@ -77,6 +77,7 @@ builder.__idCounter = 1; // Start at 1 so the ID is always true.
 builder.Step = function(type) {
   this.type = type;
   this.id = builder.__idCounter;
+  this.negated = false;
   builder.__idCounter++;
   var pNames = this.type.getParamNames();
   if (pNames) {

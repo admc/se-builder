@@ -386,7 +386,7 @@ builder.interface.startup = new(function () {
     builder.interface.switchTo('edit');
     
     builder.setCurrentScript(script);
-    builder.sel2.updateStepsDisplay();
+    builder.stepdisplay.update();
 
     builder.storage.set('testscriptpath', script.path);
     builder.storage.set('save_required', false);

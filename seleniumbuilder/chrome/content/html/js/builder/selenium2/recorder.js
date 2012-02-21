@@ -22,12 +22,12 @@ builder.sel2.Recorder = function (target_window, record_action) {
    */
   function writeJsonClicks(e) {
     var params = builder.locator.create(e.target);
-    if (isTypeOrClickInSamePlace(builder.getCurrentScript().getLastStep(), params)) {
+    if (isTypeOrClickInSamePlace(builder.getScript().getLastStep(), params)) {
       if (e.type == 'dblclick' &&
-          { 'clickElement': 1, 'clickElementWithOffset': 1, 'doubleClickElement': 1 }[builder.getCurrentScript().getLastStep().type])
+          { 'clickElement': 1, 'clickElementWithOffset': 1, 'doubleClickElement': 1 }[builder.getScript().getLastStep().type])
       {
-        builder.getCurrentScript().getLastStep().changeType('doubleClickElement');
-        builder.sel2.updateStepsDisplay();
+        builder.getScript().getLastStep().changeType('doubleClickElement');
+        builder.stepdisplay.update();
       }
       return;
     }
@@ -85,10 +85,10 @@ builder.sel2.Recorder = function (target_window, record_action) {
   /** Record change events, e.g. typing, selecting, radio buttons. */
   function writeJsonChange(e) {
     var params = builder.locator.create(e.target);
-    var step = builder.getCurrentScript().getLastStep();
+    var step = builder.getScript().getLastStep();
     var prevStep =
-      builder.getCurrentScript().steps.length >= 2
-        ? builder.getCurrentScript().steps[builder.getCurrentScript().steps - 2]
+      builder.getScript().steps.length >= 2
+        ? builder.getScript().steps[builder.getScript().steps - 2]
         : null;
     
     // Under some circumstances, for example when the user presses an arrow key, an event can
@@ -103,7 +103,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
       if (isTypeOrClickInSamePlace(step, params)) {
         step.changeType("sendKeysToElement");
         step.text = e.target.value;
-        builder.sel2.updateStepsDisplay();
+        builder.stepdisplay.update();
         return;
       }
       // Also need to check for previous step in case of using enter to submit forms -
@@ -111,7 +111,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
       if (isTypeOrClickInSamePlace(prevStep, params)) {
         prevStep.changeType("sendKeysToElement");
         prevStep.text = e.target.value;
-        builder.sel2.updateStepsDisplay();
+        builder.stepdisplay.update();
         return;
       }
 
@@ -119,7 +119,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
       params.text = e.target.value;
       // Check if this is FF re-submitting text that's already been entered. This happens if the
       // user presses enter to submit a form while focus is on an input field.
-      var script = builder.getCurrentScript();
+      var script = builder.getScript();
       if (script.steps.length >= 2) {
         if (script.steps[script.steps.length - 1].type == "submitElement" &&
             script.steps[script.steps.length - 2].type == "sendKeysToElement" &&
@@ -135,7 +135,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
     // Selecting
     if (e.target.type.toLowerCase() == 'select' || e.target.type.toLowerCase() == 'select-one') {
       record_action("setElementSelected", params);
-      var newStep = builder.getCurrentScript().getLastStep();      
+      var newStep = builder.getScript().getLastStep();      
       if (newStep.locator.alternatives["xpath"]) {
         newStep.locator = {
           "alternatives": {},
@@ -149,7 +149,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
           "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[" + (e.target.selectedIndex + 1) + "]"
         };
       }
-      builder.sel2.updateStepsDisplay();
+      builder.stepdisplay.update();
       return;
     }
     
@@ -165,7 +165,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
         }
         if (newlyAdded) {
           record_action("setElementSelected", params);
-          var newStep = builder.getCurrentScript().getLastStep();
+          var newStep = builder.getScript().getLastStep();
           if (newStep.locator.alternatives["xpath"]) {
             newStep.locator = {
               "alternatives": {},
@@ -190,7 +190,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
         }
         if (!stillThere) {
           record_action("setElementNotSelected", params);
-          var newStep = builder.getCurrentScript().getLastStep();
+          var newStep = builder.getScript().getLastStep();
           if (newStep.locator.alternatives["xpath"]) {
             newStep.locator = {
               "alternatives": {},
@@ -207,7 +207,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
         }
       }
       e.target.__sb_oldVal = currentVal;
-      builder.sel2.updateStepsDisplay();
+      builder.stepdisplay.update();
     }
     
     // Radio button
@@ -216,7 +216,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
       if (isTypeOrClickInSamePlace(step, params)) {
         step.changeType("setElementSelected");
         step.locator = builder.sel2.extractSel2Locator(params);
-        builder.sel2.updateStepsDisplay();
+        builder.stepdisplay.update();
         return;
       }
 
@@ -242,14 +242,14 @@ builder.sel2.Recorder = function (target_window, record_action) {
    * However it has the advantage of providing the selectors needed for closer modification.
    */
   function writeJsonType(e) {
-    var lastStep = builder.getCurrentScript().getLastStep();
+    var lastStep = builder.getScript().getLastStep();
     if (lastStep.type == "sendKeysToElement") {
       if (e.which >= 32 || e.which == 9 || e.which == 10) {
        lastStep.text += String.fromCharCode(e.which);
       } else if (e.which == 8) {
         lastStep.text = lastStep.text.substr(lastStep.text - 1);
       }
-      builder.sel2.updateStepsDisplay();
+      builder.stepdisplay.update();
     } else {
       var params = builder.locator.create(e.target);
       if (e.which >= 32 || e.which == 9 || e.which == 10) {
@@ -276,8 +276,8 @@ builder.sel2.Recorder = function (target_window, record_action) {
         return;
       }
       if (e.type == 'dblclick' && { "clickElement":1, "clickAt":1 }[builder.lastStep().method()]) {
-        builder.getCurrentScript().getLastStep().changeType("doubleClickElement");
-        builder.sel2.updateStepsDisplay();
+        builder.getScript().getLastStep().changeType("doubleClickElement");
+        builder.stepdisplay.update();
         return;
       }
     }
@@ -301,14 +301,14 @@ builder.sel2.Recorder = function (target_window, record_action) {
   // qqDPS Not needed for Selenium 2?
    /*
   function writeJsonKeyPress(e) {
-    var lastStep = builder.getCurrentScript().getLastStep();
+    var lastStep = builder.getScript().getLastStep();
     if (e.which == 13) { // 13 is the key code for enter
       var previousId = lastStep ? lastStep.id : null;
       // If the keypress is used to trigger a click, this key event will be immediately
       // followed by a click event. Hence, wait 100 ms and check if another step got recorded
       // in the meantime.
       setTimeout(function () {
-        var step = builder.getCurrentScript().getLastStep();
+        var step = builder.getScript().getLastStep();
         if (!step ||
             step.id == previousId ||
             step.type != "clickElement" ||

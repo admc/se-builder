@@ -1,9 +1,11 @@
-builder.selenium1.StepType = function(name, baseFunction) {
+builder.selenium1.StepType = function(name, baseFunction, negator) {
   dump(name);
   dump("      =      ");
   dump(baseFunction);
   this.name = name;
   this.baseFunction = baseFunction;
+  this.negatable = !!negator;
+  this.negator = negator;
   try {
     this.params = get_parameters(baseFunction);
   } catch (e) {
@@ -20,7 +22,9 @@ builder.selenium1.StepType.prototype = {
   /** @return Whether the given parameter is a "locator" or "string". */
   getParamType: function(paramName) {
     return paramName.toLowerCase().indexOf("locator") == -1 ? "string" : "locator";
-  }
+  },
+  /** @return Whether setting negated to true on a step of this type is valid. */
+  getNegatable: function() { return this.negatable; }
 };
 
 /**
@@ -66,6 +70,8 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
       if (reg_cat.variants) {
         variants = reg_cat.variants;
       }
+      var negator = null;
+      if (reg_cat.negator) { negator = reg_cat.negator; }
       for (var v = 0; v < variants.length; v++) {
         var variant = variants[v];
         var step = new builder.selenium1.StepType(variant(baseName), Selenium.prototype[baseName]);

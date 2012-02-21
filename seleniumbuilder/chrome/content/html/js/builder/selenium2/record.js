@@ -26,8 +26,8 @@ builder.sel2.recordStep = function(type, params) {
   } catch (e) {
     alert(e);
   }
-  builder.getCurrentScript().addStep(newStep);
-  builder.sel2.updateStepsDisplay();
+  builder.getScript().addStep(newStep);
+  builder.stepdisplay.update();
   builder.storage.set('save_required', true);
 };
 
@@ -89,8 +89,8 @@ builder.sel2.verifyExplore = function() {
     window.bridge.getRecordingWindow(),
     function() {},
     function(step) {
-      builder.getCurrentScript().addStep(step);
-      builder.sel2.updateStepsDisplay();
+      builder.getScript().addStep(step);
+      builder.stepdisplay.update();
       setTimeout(function() { builder.sel2.stopVerifyExploring(); }, 1);
       window.bridge.focusRecorderWindow();
     }
@@ -166,8 +166,8 @@ builder.sel2.startRecording = function(urlText, useCurrentScript) {
         if (!useCurrentScript) {
           builder.setCurrentScript(new builder.sel2.Sel2Script());
         }
-        builder.getCurrentScript().addStep(new builder.sel2.Sel2Step("get", url.href()));
-        builder.sel2.updateStepsDisplay();
+        builder.getScript().addStep(new builder.sel2.Sel2Step("get", url.href()));
+        builder.stepdisplay.update();
         builder.storage.removeChangeListener('pageloading', builder.sel2.pageLoadListener);
         builder.sel2.continueRecording();
       }

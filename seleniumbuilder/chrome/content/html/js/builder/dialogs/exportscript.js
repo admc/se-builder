@@ -31,7 +31,7 @@ builder.dialogs.exportscript = new(function () {
   function create_sel2_format_li(myFormat) {
     var script =
       builder.storage.get('selMajorVersion') == "2"
-      ? builder.getCurrentScript()
+      ? builder.getScript()
       : builder.convertSel1To2(builder.getScript());
     var nonExportables = myFormat.nonExportables(script);
     if (nonExportables.length > 0) {

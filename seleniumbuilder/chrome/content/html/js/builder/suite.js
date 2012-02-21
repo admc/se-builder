@@ -62,7 +62,7 @@ builder.suite = new (function () {
     builder.storage.set('selMajorVersion', selMajorVersion)
     if (selMajorVersion == "2") {
       builder.setCurrentScript(new builder.sel2.Sel2Script());
-      builder.sel2.updateStepsDisplay();
+      builder.stepdisplay.update();
     }
     builder.gui.suite.update();
     builder.storage.set('suiteSaveRequired', true);
@@ -84,7 +84,7 @@ builder.suite = new (function () {
   this.addAndSelectCurrentScript = function() {
     var scr;
     if (builder.storage.get('selMajorVersion') == "2") {
-      scr = builder.getCurrentScript();
+      scr = builder.getScript();
     } else {
       scr = builder.getScript();
     }
@@ -112,7 +112,7 @@ builder.suite = new (function () {
     } else {
       // Update the current script's info:
       if (builder.storage.get('selMajorVersion') == "2") {
-        _scripts[selectedScriptIndex].script = builder.getCurrentScript();
+        _scripts[selectedScriptIndex].script = builder.getScript();
         _scripts[selectedScriptIndex].testscriptpath = builder.storage.get('testscriptpath');
         _scripts[selectedScriptIndex].save_required = builder.storage.get('save_required');
       } else {

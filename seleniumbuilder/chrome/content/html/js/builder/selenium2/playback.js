@@ -2,8 +2,8 @@
  * Code for playing back Selenium 2 scripts locally.
 */
 
-builder.sel2.playback = {};
-pb = builder.sel2.playback;
+builder.selenium2.playback = {};
+pb = builder.selenium2.playback;
 
 /** The WebDriver session ID. */
 pb.sessionId = null;
@@ -33,7 +33,7 @@ pb.waitInterval = null;
 pb.vars = {};
 
 pb.clearResults = function() {
-  var sc = builder.getCurrentScript();
+  var sc = builder.getScript();
   for (var i = 0; i < sc.steps.length; i++) {
     jQuery('#' + sc.steps[i].id + '-content').css('background-color', '#dddddd');
     jQuery('#' + sc.steps[i].id + '-message').hide();
@@ -49,13 +49,13 @@ pb.runTest = function(postPlayCallback) {
   pb.vars = {};
   pb.runTestBetween(
     postPlayCallback,
-    builder.getCurrentScript().steps[0].id,
-    builder.getCurrentScript().steps[builder.getCurrentScript().steps.length - 1].id
+    builder.getScript().steps[0].id,
+    builder.getScript().steps[builder.getScript().steps.length - 1].id
   );
 };
 
 pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
-  pb.script = builder.getCurrentScript();
+  pb.script = builder.getScript();
   pb.postPlayCallback = postPlayCallback;
   pb.currentStep = pb.script.getStepWithID(startStepID);
   pb.finalStep = pb.script.getStepWithID(endStepID);
@@ -762,29 +762,29 @@ pb.playbackFunctions = {
 };
 
 pb.wait = function(testFunction) {
-  builder.sel2.setProgressBar(pb.currentStep.id, 0);
+  builder.stepdisplay.setProgressBar(pb.currentStep.id, 0);
   pb.waitCycle = 0;
   pb.waitInterval = window.setInterval(function() {
     testFunction(function(success) {
       if (success) {
         window.clearInterval(pb.waitInterval);
-        builder.sel2.hideProgressBar(pb.currentStep.id);
+        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
         pb.recordResult({success: true});
         return;
       }
       if (pb.waitCycle++ >= pb.maxWaitCycles) {
         window.clearInterval(pb.waitInterval);
-        builder.sel2.hideProgressBar(pb.currentStep.id);
+        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
         pb.recordError("Wait timed out.");
         return;
       }
       if (pb.stopRequest) {
         window.clearInterval(pb.waitInterval);
-        builder.sel2.hideProgressBar(pb.currentStep.id);
+        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
         pb.shutdown();
         return;
       }
-      builder.sel2.setProgressBar(pb.currentStep.id, pb.waitCycle * 100 / pb.maxWaitCycles);
+      builder.stepdisplay.setProgressBar(pb.currentStep.id, pb.waitCycle * 100 / pb.maxWaitCycles);
     });
   }, pb.waitIntervalAmount);
 };

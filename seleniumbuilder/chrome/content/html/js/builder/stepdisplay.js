@@ -1,12 +1,14 @@
+builder.stepdisplay = {};
+
 var reorderHandlerInstalled = false;
 
 /** Functions for displaying Selenium 2 steps. */
-builder.sel2.clearStepsDisplay = function() {
+builder.stepdisplay.clearDisplay = function() {
   jQuery("#steps").empty();
   jQuery('#recordingSuite0').empty();
 };
 
-builder.sel2.updateStepsDisplay = function() {
+builder.stepdisplay.update = function() {
   if (!reorderHandlerInstalled) {
     // Make steps sortable by dragging.
     jQuery('#steps').sortable({
@@ -18,105 +20,104 @@ builder.sel2.updateStepsDisplay = function() {
         for (var i = 0; i < reorderedSteps.length; i++) {
           reorderedIDs.push(reorderedSteps[i].id);
         }
-        builder.getCurrentScript().reorderSteps(reorderedIDs);
+        builder.getScript().reorderSteps(reorderedIDs);
       }
     });
     reordered = true;
   }
-  builder.sel2.clearStepsDisplay();
-  var script = builder.getCurrentScript();
+  builder.stepdisplay.clearDisplay();
+  var script = builder.getScript();
   for (var i = 0; i < script.steps.length; i++) {
     addStep(script.steps[i]);
   }
 };
 
-builder.sel2.updateStepDisplay = function(stepID) {
-  var step = builder.getCurrentScript().getStepWithID(stepID);
+builder.stepdisplay.updateStep = function(stepID) {
+  var script = builder.getScript();
+  var step = script.getStepWithID(stepID);
   var paramNames = step.getParamNames();
   if (step.negated) {
-    jQuery('#' + stepID + '-type').text("not " + step.type);
+    jQuery('#' + stepID + '-type').text("not " + step.type.getName());
   } else {
-    jQuery('#' + stepID + '-type').text(step.type);
+    jQuery('#' + stepID + '-type').text(step.type.getName());
   }
-  if (builder.sel2.playback.playbackFunctions[step.type]) {
+  if (script.seleniumVersion.playback.canPlayback(step.type)) {
     jQuery('#' + stepID + '-unplayable').hide();
   } else {
     jQuery('#' + stepID + '-unplayable').show();
   }
-  for (var i = 0; i < 3; i++) {
-    if (paramNames.length > i) {
-      jQuery('#' + stepID + 'edit-p' + i).show();
-      jQuery('#' + stepID + 'edit-p' + i + '-name').text(paramNames[i]);
-      jQuery('#' + stepID + '-p' + i).show();
-      jQuery('#' + stepID + '-p' + i + '-name').text(paramNames[i]);
-      if (paramNames[i].startsWith("locator")) {
-        jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]].type + ": " + step[paramNames[i]].value);
-      } else {
-        jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
-      }
-      if (paramNames.length > 1) {
-        jQuery('#' + stepID + '-p' + i).css("display", "block");
-      } else {
-        jQuery('#' + stepID + '-p' + i).css("display", "inline");
-      }
-      if (paramNames.length > 1 || step[paramNames[i]] == "") {
-        jQuery('#' + stepID + '-p' + i + '-name').show();
-      } else {
-        jQuery('#' + stepID + '-p' + i + '-name').hide();
-      }
+  for (var i = 0; i < paramNames.length; i++) {
+    jQuery('#' + stepID + 'edit-p' + i).show();
+    jQuery('#' + stepID + 'edit-p' + i + '-name').text(paramNames[i]);
+    jQuery('#' + stepID + '-p' + i).show();
+    jQuery('#' + stepID + '-p' + i + '-name').text(paramNames[i]);
+    if (step.type.getParamType(paramNames[i]) == "locator") {
+      jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]].type.getName() + ": " + step[paramNames[i]].value);
     } else {
-      jQuery('#' + stepID + 'edit-p' + i).hide();
-      jQuery('#' + stepID + '-p' + i).hide();
+      jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
     }
+    if (paramNames.length > 1) {
+      jQuery('#' + stepID + '-p' + i).css("display", "block");
+    } else {
+      jQuery('#' + stepID + '-p' + i).css("display", "inline");
+    }
+    if (paramNames.length > 1 || step[paramNames[i]] == "") {
+      jQuery('#' + stepID + '-p' + i + '-name').show();
+    } else {
+      jQuery('#' + stepID + '-p' + i + '-name').hide();
+    }
+  } else {
+    jQuery('#' + stepID + 'edit-p' + i).hide();
+    jQuery('#' + stepID + '-p' + i).hide();
   }
 };
 
-builder.sel2.showProgressBar = function(stepID) {
+builder.stepdisplay.showProgressBar = function(stepID) {
   jQuery('#' + stepID + '-progress-done').show();
   jQuery('#' + stepID + '-progress-notdone').show();
 };
 
-builder.sel2.hideProgressBar = function(stepID) {
+builder.stepdisplay.hideProgressBar = function(stepID) {
   jQuery('#' + stepID + '-progress-done').hide();
   jQuery('#' + stepID + '-progress-notdone').hide();
 };
 
-builder.sel2.setProgressBar = function(stepID, percent) {
+builder.stepdisplay.setProgressBar = function(stepID, percent) {
   jQuery('#' + stepID + '-progress-done').css('width', percent);
   jQuery('#' + stepID + '-progress-notdone').css('left', percent).css('width', 100 - percent);
-  builder.sel2.showProgressBar(stepID);
+  builder.stepdisplay.showProgressBar(stepID);
 };
 
 builder.sel2.addNewStep = function() {
-  var newStep = new builder.sel2.Sel2Step('clickElement');
-  builder.getCurrentScript().addStep(newStep);
+  var newStep = new builder.Step('clickElement');
+  builder.getScript().addStep(newStep);
   addStep(newStep);
   builder.storage.set('save_required', true);
   return newStep.id;
 };
 
 function addNewStepBefore(beforeStepID) {
-  var id = builder.sel2.addNewStep();
+  var id = builder.stepdisplay.addNewStep();
   var beforeStepDOM = jQuery('#' + beforeStepID)[0];
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   beforeStepDOM.parentNode.insertBefore(newStepDOM, beforeStepDOM);
-  builder.getCurrentScript().moveStepToBefore(id, beforeStepID);
+  builder.getScript().moveStepToBefore(id, beforeStepID);
   builder.storage.set('save_required', true);
 }
 
 function addNewStepAfter(afterStepID) {
-  var id = builder.sel2.addNewStep();
+  var id = builder.stepdisplay.addNewStep();
   var afterStep = jQuery('#' + afterStepID);
   var newStepDOM = jQuery("#" + id)[0];
   newStepDOM.parentNode.removeChild(newStepDOM);
   afterStep.after(newStepDOM);
-  builder.getCurrentScript().moveStepToAfter(id, afterStepID);
+  builder.getScript().moveStepToAfter(id, afterStepID);
   builder.storage.set('save_required', true);
 }
 
 function deleteStep(stepID) {
-  builder.getCurrentScript().removeStepWithID(stepID);
+  builder.getScript().removeStepWithID(stepID);
   jQuery('#' + stepID).remove();
   builder.storage.set('save_required', true);
 }
@@ -182,11 +183,11 @@ function attachSearchers(stepID, pIndex, force) {
           function() {},
           // This function is called when the user selects a new element.
           function(recordedStep) {
-            var originalStep = builder.getCurrentScript().getStepWithID(stepID);
+            var originalStep = builder.getScript().getStepWithID(stepID);
             originalStep[originalStep.getParamNames()[pIndex]] = recordedStep.locator;
             stopSearchers();
             window.bridge.focusRecorderWindow();
-            builder.sel2.updateStepDisplay(stepID);
+            builder.stepdisplay.updateStep(stepID);
             builder.storage.set('save_required', true);
             // Update the edit-param view.
             jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
@@ -201,7 +202,8 @@ function attachSearchers(stepID, pIndex, force) {
 
 
 function updateTypeDivs(stepID, newType) {
-  if (newType.startsWith("assert") || newType.startsWith("verify")) {
+  var script = builder.getScript();
+  if (newType.getNegatable()) {
     jQuery('#' + stepID + '-edit-negate').show();
     jQuery('#' + stepID + '-edit-negate-label').show();
   } else {
@@ -214,26 +216,26 @@ function updateTypeDivs(stepID, newType) {
   cD.attr('__sb-stepType', newType);
   cD.html('');
   tD.html('');
-  for (var i = 0; i < builder.sel2.categories.length; i++) {
+  for (var i = 0; i < script.seleniumVersion.categories.length; i++) {
     var inCat = false;
-    for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
-      if (builder.sel2.categories[i][1][j] == newType) {
+    for (var j = 0; j < script.seleniumVersion.categories[i][1].length; j++) {
+      if (script.seleniumVersion.categories[i][1][j] == newType) {
         inCat = true;
       }
     }
     if (inCat) {
       cD.append(newNode('li', newNode(
         'span',
-        builder.sel2.categories[i][0],
+        script.seleniumVersion.categories[i][0],
         {
           class: 'selected-cat'
         }
       )));
-      for (var j = 0; j < builder.sel2.categories[i][1].length; j++) {
-        if (builder.sel2.categories[i][1][j] == newType) {
+      for (var j = 0; j < script.seleniumVersion.categories[i][1].length; j++) {
+        if (script.seleniumVersion.categories[i][1][j] == newType) {
           tD.append(newNode('li',newNode(
             'span',
-            builder.sel2.categories[i][1][j],
+            script.seleniumVersion.categories[i][1][j],
             {
               class: 'selected-type'
             }
@@ -241,11 +243,11 @@ function updateTypeDivs(stepID, newType) {
         } else {
           tD.append(newNode('li', newNode(
             'a',
-            builder.sel2.categories[i][1][j],
+            script.seleniumVersion.categories[i][1][j],
             {
               class: 'not-selected-type',
               href: '#',
-              click: mkUpdate(stepID, builder.sel2.categories[i][1][j])
+              click: mkUpdate(stepID, script.seleniumVersion.categories[i][1][j])
             }
           )));
         }
@@ -253,11 +255,11 @@ function updateTypeDivs(stepID, newType) {
     } else {
       cD.append(newNode('li', newNode(
         'a',
-        builder.sel2.categories[i][0],
+        script.seleniumVersion.categories[i][0],
         {
           class: 'not-selected-cat',
           href: '#',
-          click: mkUpdate(stepID, builder.sel2.categories[i][1][0])
+          click: mkUpdate(stepID, script.seleniumVersion.categories[i][1][0])
         }
       )));
     }
@@ -269,16 +271,17 @@ function mkUpdate(stepID, newType) {
 }
 
 function getTypeInfo(type) {
+  var script = builder.getScript();
   var paramInfo = "";
   var longParamInfo = newNode('ul', {class: 'type-info-longparam'});
-  var pNames = builder.sel2.paramNames[type];
+  var pNames = script.seleniumVersion.paramNames[type];
   for (var i = 0; i < pNames.length; i++) {
     paramInfo += pNames[i];
     if (i != pNames.length - 1) {
       paramInfo += ", ";
     }
     jQuery(longParamInfo).append(newNode('li',
-      newNode('b', pNames[i]), ": " + builder.sel2.docs[type].params[pNames[i]]));
+      newNode('b', pNames[i]), ": " + script.seleniumVersion.docs[type].params[pNames[i]]));
   }
   if (pNames.length > 0) { paramInfo = " (" + paramInfo + ")"; }
     
@@ -295,7 +298,7 @@ function getTypeInfo(type) {
 }
 
 function editType(stepID) {
-  var step = builder.getCurrentScript().getStepWithID(stepID);
+  var step = builder.getScript().getStepWithID(stepID);
   
   var catL = newNode(
     'ul',
@@ -347,11 +350,11 @@ function editType(stepID) {
         var type = jQuery('#' + stepID + '-edit-cat-list').attr('__sb-stepType');
         if (type) {
           step.changeType(type);
-          step.negated = (step.type.startsWith("assert") || step.type.startsWith("verify")) && jQuery('#' + stepID + '-edit-negate').attr('checked');
+          step.negated = step.type.getNegatable() && jQuery('#' + stepID + '-edit-negate').attr('checked');
         }
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();
-        builder.sel2.updateStepDisplay(stepID);
+        builder.stepdisplay.updateStep(stepID);
         builder.storage.set('save_required', true);
       }
     })
@@ -363,9 +366,10 @@ function editType(stepID) {
 }
 
 function editParam(stepID, pIndex) {
-  var step = builder.getCurrentScript().getStepWithID(stepID);
+  var script = builder.getScript();
+  var step = script.getStepWithID(stepID);
   var pName = step.getParamNames()[pIndex];
-  if (pName.startsWith("locator")) {
+  if (step.type.getParamType(pName) == "locator") {
     var typeDropDown = newNode(
       'select',
       {
@@ -381,7 +385,7 @@ function editParam(stepID, pIndex) {
       }
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
-      builder.sel2.updateStepDisplay(stepID);
+      builder.stepdisplay.updateStep(stepID);
       builder.storage.set('save_required', true);
     }
     
@@ -462,7 +466,7 @@ function editParam(stepID, pIndex) {
       step[pName] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
-      builder.sel2.updateStepDisplay(stepID);
+      builder.stepdisplay.updateStep(stepID);
       builder.storage.set('save_required', true);
     }
     
@@ -649,6 +653,6 @@ function addStep(step) {
     }
   });
 
-  builder.sel2.updateStepDisplay(step.id);
+  builder.stepdisplay.updateStep(step.id);
   builder.storage.set('save_required', true);
 }

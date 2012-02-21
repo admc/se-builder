@@ -5,14 +5,6 @@ builder.selenium1.__methodRegistry = [
       function(n) { return n; },
       function(n) { return n + 'andWait'; }
     ],
-    modifiers: {
-      before: {
-        text: "Wait for a new page to load after executing this action",
-        when_off: function (name) { return name; },
-        when_on: function (name) { return name + 'AndWait'; },
-        name: 'wait'
-      }
-    },
     categories: [
       {
         name: 'clicks',
@@ -112,49 +104,13 @@ builder.selenium1.__methodRegistry = [
     name: 'assertion',
     variants: [
       function(n) { return n.replace(/^(is|get)/, 'assert'); },
-      function(n) {
-        n = n.replace(/^(is|get)/, 'assert');
-        if ((/Present/).test(n)) {
-          return n.replace('Present', 'NotPresent');
-        } else {
-          return n.replace(/^(is|get|verify|assert)/, "$1Not");
-        }
-      },
-      function(n) { return n.replace(/^(is|get)/, 'verify'); },
-      function(n) {
-        n = n.replace(/^(is|get)/, 'verify');
-        if ((/Present/).test(n)) {
-          return n.replace('Present', 'NotPresent');
-        } else {
-          return n.replace(/^(is|get|verify|assert)/, "$1Not");
-        }
-      }
+      function(n) { return n.replace(/^(is|get)/, 'verify'); }
     ],
-    modifiers: {
-      before: {
-        text: newFragment('assert that something is ', newNode('b', 'not'), ' true'),
-        when_off: function (name) {
-          return name;
-        },
-        when_on: function (name) {
-          if ((/Present/).test(name)) {
-            return name.replace('Present', 'NotPresent');
-          } else {
-            return name.replace(/^(is|get|verify|assert)/, "$1Not");
-          }
-        },
-        name: 'false'
-      },
-      after: {
-        text: ['assert (fail immediately if the condition is not true)',
-          'verify (continue and fail at the end of the script)'],
-        when_off: function (name) {
-          return name.replace(/^(is|get)/, 'assert');
-        },
-        when_on: function (name) {
-          return name.replace(/^(is|get)/, 'verify');
-        },
-        name: 'verify'
+    negator: function(n) {
+      if ((/Present/).test(n)) {
+        return n.replace('Present', 'NotPresent');
+      } else {
+        return n.replace(/^(is|get|verify|assert)/, "$1Not");
       }
     },
     categories: [
@@ -244,25 +200,8 @@ builder.selenium1.__methodRegistry = [
   },
   {
     name: 'wait for condition',
-    variants: [
-      function(n) {
-        return n.replace(/^(is|get)/, 'waitFor');
-      },
-      function(n) {
-        return (/Present/.test(n) ? n.replace("Present", "NotPresent").replace(/^(is|get)/, "waitFor") : n.replace(/^(is|get)/, 'waitForNot'));
-      }
-    ],
-    modifiers: {
-      before: {
-        text: newNode('span', 'wait for the condition to ', newNode('b', 'stop'), ' being true.'),
-        when_off: function (name) {
-          return name.replace(/^(is|get)/, 'waitFor');
-        },
-        when_on: function (name) {
-          return (/Present/.test(name) ? name.replace("Present", "NotPresent").replace(/^(is|get)/, "waitFor") : name.replace(/^(is|get)/, 'waitForNot'));
-        },
-        name: 'false'
-      }
+    negator: function(n) {
+      return (/Present/.test(n) ? n.replace("Present", "NotPresent").replace(/^(is|get)/, "waitFor") : n.replace(/^(is|get)/, 'waitForNot'));
     },
     categories: [
       {
