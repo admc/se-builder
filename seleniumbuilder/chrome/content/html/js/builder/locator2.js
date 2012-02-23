@@ -30,6 +30,15 @@ builder.locator.methods.css[builder.selenium2] = "css selector";
 builder.locator.methods.xpath[builder.selenium1] = "xpath";
 builder.locator.methods.xpath[builder.selenium2] = "xpath";
 
+builder.locator.methodForName = function(seleniumVersion, name) {
+  for (var k in builder.locator.methods) {
+    if (builder.locator.methods[k][seleniumVersion] == name) {
+      return builder.locator.methods[k];
+    }
+  }
+  return null;
+};
+
 /**
  * @param The preferred location method (one of builder.locator.methods).
  * @param Map of locator methods to appropriate values.

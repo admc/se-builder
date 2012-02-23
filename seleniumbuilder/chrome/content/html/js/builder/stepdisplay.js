@@ -157,6 +157,7 @@ function startSearchers(stepID, pIndex) {
  * force parameter.
  */
 function attachSearchers(stepID, pIndex, force) {
+  var script = builder.getScript();
   // To do this, we first must iterate over the windows in the browser - but of course
   // each window may contain multiple tabs!
   var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
@@ -178,9 +179,10 @@ function attachSearchers(stepID, pIndex, force) {
           continue;
         }
         frame._selenium_builder_hasSearcher = true;
+        
         searchers.push(new builder.VerifyExplorer(
           frame,
-          function() {},
+          script.seleniumVersion,
           // This function is called when the user selects a new element.
           function(recordedStep) {
             var originalStep = builder.getScript().getStepWithID(stepID);
@@ -378,11 +380,15 @@ function editParam(stepID, pIndex) {
     );
     
     function okf() {
-      step[pName].type = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
-      step[pName].value = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
-      if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
-        step[pName].alternatives = {};
+      var locMethodName = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
+      var locMethod = builder.locator.methodForName(locTypeName);
+      if (locMethod) {
+        step[pName].preferredMethod = locMethod;
+        step[pName].values[preferredMethod] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
       }
+      /*if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
+        step[pName].alternatives = {};
+      }*/ // qqDPS
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
       builder.stepdisplay.updateStep(stepID);
@@ -411,47 +417,45 @@ function editParam(stepID, pIndex) {
       )
     );
     
-    for (var i = 0; i < builder.sel2.locatorTypes.length; i++) {
-      var lType = builder.sel2.locatorTypes[i];
-      if (lType == step[pName].type) {
+    for (var i = 0; i < builder.locator.methods.length; i++) {
+      var lMethod = builder.locator.methods[i];
+      if (lMethod == step[pName].preferredMethod) {
         jQuery(typeDropDown).append(newNode(
-          'option', lType, { selected: "true" }
+          'option', lMethod[script.seleniumVersion], { selected: "true" }
         ));
       } else {
         jQuery(typeDropDown).append(newNode(
-          'option', lType
+          'option', lMethod[script.seleniumVersion]
         ));
       }
     }
         
-    if (step[pName].alternatives) {
-      var alternativesList = newNode(
-        'ul',
-        {
-          id: stepID + '-p' + pIndex + '-alternatives-list',
-          class: 'b-alternatives'
-        }
-      );
-      var alternativesDiv = newNode(
-        'div',
-        {
-          id: stepID + '-p' + pIndex + '-alternatives-div'
-        },
-        newNode('p', "Suggested alternatives:"),
-        alternativesList
-      );
-      
-      var hasAlts = false;
-      for (var altName in step[pName].alternatives) {
-        if (typeof altName == "string") {
-          hasAlts = true;
-          jQuery(alternativesList).append(createAltItem(step, pIndex, pName, altName, step[pName].alternatives[altName]));
-        }
+    var alternativesList = newNode(
+      'ul',
+      {
+        id: stepID + '-p' + pIndex + '-alternatives-list',
+        class: 'b-alternatives'
       }
-      
-      if (hasAlts) {
-        jQuery(editDiv).append(alternativesDiv);
+    );
+    var alternativesDiv = newNode(
+      'div',
+      {
+        id: stepID + '-p' + pIndex + '-alternatives-div'
+      },
+      newNode('p', "Suggested alternatives:"),
+      alternativesList
+    );
+    
+    var hasAlts = false;
+    for (var altMethod in step[pName].values) {
+      if (altMethod != step[pName].preferredMethod) {
+        hasAlts = true;
+        jQuery(alternativesList).append(createAltItem(step, pIndex, pName, altMethod[script.seleniumVersion], step[pName].values[altMethod]));
       }
+    }
+    
+    if (hasAlts) {
+      jQuery(editDiv).append(alternativesDiv);
     }
     
     jQuery('#' + stepID + '-p' + pIndex).after(editDiv);
@@ -514,6 +518,7 @@ function createAltItem(step, pIndex, pName, altName, altValue) {
 
 /** Adds the given step to the GUI. */
 function addStep(step) {
+  var script = builder.getScript();
   jQuery("#steps").append(
     // List of options that materialises on rollover.
     newNode('div', {id: step.id, class: 'b-step'},
@@ -558,13 +563,13 @@ function addStep(step) {
           id: step.id + 'run-step',
           href: '#',
           class: 'b-task',
-          click: function() { builder.sel2.playback.runTestBetween(null, step.id, step.id); }
+          click: function() { script.seleniumVersion.playback.runTestBetween(null, step.id, step.id); }
         }),
         newNode('a', "run from here", {
           id: step.id + 'run-from-here',
           href: '#',
           class: 'b-task',
-          click: function() { builder.sel2.playback.runTestBetween(null, step.id, null); }
+          click: function() { script.seleniumVersion.playback.runTestBetween(null, step.id, null); }
         })
       ),
       newNode('div', {class: 'b-step-content', id: step.id + '-content'},

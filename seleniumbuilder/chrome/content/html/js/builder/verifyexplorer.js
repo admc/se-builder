@@ -6,18 +6,18 @@
  * node will be chosen if they click now the node is given a outline border.
  *
  * @param {Window} The frame to explore
- * @param {Function(step)} Function called with recorded Selenium 1 verify step
- * @param {Function(step)} Function called with recorded Selenium 2 verify step
+ * @param Selenium version to generate steps for
+ * @param {Function(step)} Function called with recorded verify step
  */
-builder.VerifyExplorer = function(top_window, record_sel1, record_sel2) {
+builder.VerifyExplorer = function(top_window, seleniumVersion, recordStep) {
   this.top_window      = top_window;
-  this.record_sel1     = record_sel1;
-  this.record_sel2     = record_sel2;
+  this.seleniumVersion = seleniumVersion;
+  this.recordStep      = recordStep;
   /** The DOM element the user is currently hovering over and that has been highlit. */
   this.highlit_element = null;
   /** Listener functions attached to frames. Stored so they can be detached again. */
   this.listeners       = {};
-    
+  
   var ae = this;
   
   function attach(frame, level) {
@@ -66,21 +66,30 @@ builder.VerifyExplorer.prototype = {
     window.focus();
 
     // Setup the params
-    var locator = builder.locator.create(e.target);
-    locator = builder.sel2.extractSel2Locator(locator);
-    // qqDPS Convert the locator into a Sel2 one for now.
+    var locator = builder.locator.fromElement(e.target);
 
     var tag = e.target.nodeName.toUpperCase();
     var selection = window.bridge.getRecordingWindow().getSelection();
 
     if (selection && selection.toString().trim().length > 0) {
-      this.record_sel2(new builder.sel2.Sel2Step("verifyTextPresent",
-        builder.normalizeWhitespace(selection.toString())));
+      if (this.seleniumVersion == builder.selenium1) {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyTextPresent,
+          builder.normalizeWhitespace(selection.toString())));
+      }
+      if (this.seleniumVersion == builder.selenium2) {
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyTextPresent,
+          builder.normalizeWhitespace(selection.toString())));
+      }
       return;
     }
     
     if (tag == "SELECT") {
-      this.record_sel2(new builder.sel2.Sel2Step("verifyElementValue", locator, e.target.value));
+      if (this.seleniumVersion == builder.selenium1) {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifySelectedValues, locator, e.target.value));
+      }
+      if (this.seleniumVersion == builder.selenium2) {
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyElementValue, locator, e.target.value));
+      }
       return;
     }
     
@@ -98,19 +107,33 @@ builder.VerifyExplorer.prototype = {
         // checked property.
         var ae = this;
         setTimeout(function () {
-          if (e.target.checked) {
-            ae.record_sel2(new builder.sel2.Sel2Step("verifyElementSelected", locator));
-          } else {
-            ae.record_sel2(new builder.sel2.Sel2Step("verifyElementNotSelected", locator));
+          var step = null;
+          if (ae.seleniumVersion == builder.selenium1) {
+            step = new builder.Step(builder.selenium1.stepTypes.verifyChecked, locator);
           }
+          if (ae.seleniumVersion == builder.selenium2) {
+            step = new builder.Step(builder.selenium1.stepTypes.verifyElementSelected, locator);
+          }
+          step.negated = !e.target.checked;
+          ae.recordStep(step);
         }, 0);
       } else {
-        this.record_sel2(new builder.sel2.Sel2Step("verifyElementValue", locator, e.target.value));
+        if (this.seleniumVersion == builder.selenium1) {
+          this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyValue, locator, e.target.value));
+        }
+        if (this.seleniumVersion == builder.selenium2) {
+          this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyElementValue, locator, e.target.value));
+        }
       }
       return;
     }
     if (tag == "TEXTAREA") {
-      this.record_sel2(new builder.sel2.Sel2Step("verifyElementValue", locator, e.target.value));
+      if (this.seleniumVersion == builder.selenium1) {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyValue, locator, e.target.value));
+      }
+      if (this.seleniumVersion == builder.selenium2) {
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyElementValue, locator, e.target.value));
+      }
       return;
     }
     if (e.target.textContent != "") {
@@ -128,11 +151,24 @@ builder.VerifyExplorer.prototype = {
           }
         }
       }
-      this.record_sel2(new builder.sel2.Sel2Step("verifyTextPresent", builder.normalizeWhitespace(text)));
+      if (this.seleniumVersion == builder.selenium1) {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyTextPresent,
+          builder.normalizeWhitespace(text)));
+      }
+      if (this.seleniumVersion == builder.selenium2) {
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyTextPresent,
+          builder.normalizeWhitespace(text)));
+      }
       return;
     }
     
-    this.record_sel2(new builder.sel2.Sel2Step("verifyElementPresent", locator));
+    
+    if (this.seleniumVersion == builder.selenium1) {
+      this.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyVisible, locator));
+    }
+    if (this.seleniumVersion == builder.selenium2) {
+      this.recordStep(new builder.Step(builder.selenium2.stepTypes.verifyElementPresent, locator));
+    }
   },
 
   /**
