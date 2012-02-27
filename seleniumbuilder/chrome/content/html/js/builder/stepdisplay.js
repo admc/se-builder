@@ -66,7 +66,9 @@ builder.stepdisplay.updateStep = function(stepID) {
     } else {
       jQuery('#' + stepID + '-p' + i + '-name').hide();
     }
-  } else {
+  }
+  // Hide the param display elements that aren't needed.
+  for (var i = paramNames.length; i < 3; i++) {
     jQuery('#' + stepID + 'edit-p' + i).hide();
     jQuery('#' + stepID + '-p' + i).hide();
   }
@@ -88,7 +90,7 @@ builder.stepdisplay.setProgressBar = function(stepID, percent) {
   builder.stepdisplay.showProgressBar(stepID);
 };
 
-builder.sel2.addNewStep = function() {
+builder.stepdisplay.addNewStep = function() {
   var newStep = new builder.Step('clickElement');
   builder.getScript().addStep(newStep);
   addStep(newStep);
@@ -540,6 +542,12 @@ function addStep(step) {
           href: '#',
           class: 'b-task',
           click: function() { editParam(step.id, 1); }
+        }),
+        newNode('a', "edit ", newNode('span', 'p2', {id: step.id + 'edit-p2-name'}), {
+          id: step.id + 'edit-p2',
+          href: '#',
+          class: 'b-task',
+          click: function() { editParam(step.id, 2); }
         }),
         newNode('a', "delete step", {
           id: step.id + 'delete',
