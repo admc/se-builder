@@ -29,6 +29,22 @@ builder.Script.prototype = {
   getLastStep: function() {
     return this.steps.length == 0 ? null : this.steps[this.steps.length - 1];
   },
+  getStepBefore: function(step) {
+    var index = this.getStepIndexForID(step.id);
+    if (index > 0) {
+      return this.steps[index - 1];
+    } else {
+      return null;
+    }
+  },
+  getStepAfter: function(step) {
+    var index = this.getStepIndexForID(step.id);
+    if (index < this.steps.length - 1) {
+      return this.steps[index + 1];
+    } else {
+      return null;
+    }
+  },
   removeStepWithID: function(id) {
     var index = this.getStepIndexForID(id);
     if (index != -1) {

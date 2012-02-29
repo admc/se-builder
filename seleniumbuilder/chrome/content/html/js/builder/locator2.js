@@ -57,6 +57,16 @@ builder.locator.Locator.prototype = {
   withPreferredMethod: function(preferredMethod) {
     var l2 = new builder.locator.Locator(preferredMethod);
     for (var t in this.values) { l2.values[t] = this.values[t]; }
+  },
+  /** @return Whether the locator has a value for the given locator method. */
+  supportsMethod: function(method) {
+    if (this.values[method]) { return true; } else { return false; }
+  },
+  /** @return Get the value for the given method. */
+  getValueForMethod: function(method)    { return this.values[method] || ""; },
+  /** @return Whether the given locator has the same preferred method with the same value. */
+  probablyHasSameTarget: function(l2) {
+    return this.preferredMethod == l2.preferredMethod && this.getValue() == l2.getValue();
   }
 };
 

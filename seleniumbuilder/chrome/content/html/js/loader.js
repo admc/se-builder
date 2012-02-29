@@ -84,7 +84,6 @@ builder.loader.loadScripts(
   "builder/selenium2/record.js",
   "builder/selenium2/docs.js",
   "builder/dialogs/dialogs.js",
-  "builder/dialogs/method.js",
   "builder/dialogs/locator.js",
   "builder/dialogs/values.js",
   "builder/dialogs/exportscript.js",
