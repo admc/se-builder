@@ -23,8 +23,14 @@ builder.registerPostLoadHook(function () {
   // jQuery('#startup-import-sel2 a').click(import_sel2_file);
   // jQuery('#startup-suite-import a').click(import_suite);
   
+  jQuery('#startup-start-recording').submit(function() {
+    builder.storage.set('selMajorVersion', builder.selenium1);
+    builder.record.startRecording(jQuery('#startup-url').val(), false);
+  });
   jQuery('#startup-start-recording-sel2').submit(function() {
-    builder.sel2.startRecording(jQuery('#startup-url').val(), false);
+    builder.storage.set('selMajorVersion', builder.selenium2);
+    builder.record.startRecording(jQuery('#startup-url').val(), false);
+    //builder.sel2.startRecording(jQuery('#startup-url').val(), false);
   });
   jQuery('#startup-open-sel2 a').click(function() {
     builder.openSel2File(builder.selenium2.loadScript());

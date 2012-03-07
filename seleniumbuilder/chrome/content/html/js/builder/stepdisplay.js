@@ -52,7 +52,7 @@ builder.stepdisplay.updateStep = function(stepID) {
     jQuery('#' + stepID + '-p' + i).show();
     jQuery('#' + stepID + '-p' + i + '-name').text(paramNames[i]);
     if (step.type.getParamType(paramNames[i]) == "locator") {
-      jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]].type.getName() + ": " + step[paramNames[i]].value);
+      jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]].getName(script.seleniumVersion) + ": " + step[paramNames[i]].getValue());
     } else {
       jQuery('#' + stepID + '-p' + i + '-value').text(step[paramNames[i]]);
     }

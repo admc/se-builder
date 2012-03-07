@@ -160,6 +160,10 @@ pb.param = function(pName) {
   return pName.startsWith("locator") ? {"type": pb.currentStep[pName].type, "value": output} : output;
 };
 
+pb.canPlayback = function(stepType) {
+  return !!pb.playbackFunctions[stepType.getName()];
+};
+
 pb.playbackFunctions = {
   "print": function() {
     pb.print(pb.param("text"));

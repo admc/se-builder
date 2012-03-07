@@ -7,6 +7,15 @@ builder.normalizeWhitespace = function(text) {
 };
 
 /**
+ * Extracts domain name from URL.
+ * Example: Takes the { 'http', '', 'www.foo.org' } parts from http://www.foo.org/puppies/ and 
+ * glues it back together with slashes.
+ */
+builder.getDomainName = function (url) {
+  return url.split("/", 3).join("/");
+};
+
+/**
  * Create a new DOM node for the current document.
  * @param tagname The name of the node
  * 

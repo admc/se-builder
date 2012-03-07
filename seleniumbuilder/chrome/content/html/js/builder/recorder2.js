@@ -30,6 +30,61 @@ builder.Recorder.prototype = {
   writeJSONClicks: function(e) {
     var locator = builder.locator.fromElement(e.target);
     var lastStep = builder.getScript().getLastStep();
+    
+    if (this.seleniumVersion == builder.selenium1) {
+      if (this.isTypeOrClickInSamePlace(lastStep, locator)) {
+        return;
+      }
+
+      // Selects are handled via change events, so clicks on them can be ignored.
+      if ({ 'select': true, 'option': true }[e.target.tagName.toLowerCase()]) {
+        return;
+      }
+
+      // To keep from generating multiple actions for the same click, we check if the click 
+      // happened in the same place as the last one.
+      if (lastLocator && locator.probablyHasSameTarget(lastLocator)) {
+        if (e.type == 'click') {
+          return;
+        }
+        if (e.type == 'dblclick') {
+          if ({
+              builder.selenium1.stepTypes.click: true,
+              builder.selenium1.stepTypes.clickAt: true,
+              builder.selenium1.stepTypes.doubleClick: true
+            }[lastStep.type])
+          {
+            lastStep.changeType(builder.selenium1.stepTypes.doubleClick);
+            builder.stepdisplay.update();
+            return;
+          }
+        }
+      }
+      lastLocator = locator;
+      // But if the same click happens after more than a second, count it as intentional. 
+      clearTimeout(lastLocTimeout);
+      lastLocTimeout = setTimeout(function () {
+        lastLocator = null;
+      }, 1000);
+
+      if (e.type == 'dblclick') {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.doubleClick, locator));
+        return;
+      }
+      if (e.target.type == "checkbox") {
+        this.recordStep(new builder.Step(builder.selenium1.stepTypes.check, locator));
+        return;
+      }
+      this.recordStep(new builder.Step(builder.selenium1.stepTypes.click, locator));
+      return;
+    }
+    
+    if (this.seleniumVersion == builder.selenium2) {
+      
+      
+    
+    
+    
     if (this.isTypeOrClickInSamePlace(lastStep, locator)) {
       return;
     }
@@ -41,7 +96,6 @@ builder.Recorder.prototype = {
 
     // To keep from generating multiple actions for the same click, we check if the click 
     // happened in the same place as the last one.
-    
     if (lastLocator && locator.probablyHasSameTarget(lastLocator)) {
       if (e.type == 'click') {
         return;

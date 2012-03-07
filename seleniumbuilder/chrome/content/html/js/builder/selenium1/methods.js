@@ -3,7 +3,7 @@ builder.selenium1.__methodRegistry = [
     name: 'action',
     variants: [
       function(n) { return n; },
-      function(n) { return n + 'andWait'; }
+      function(n) { return n + 'AndWait'; }
     ],
     categories: [
       {

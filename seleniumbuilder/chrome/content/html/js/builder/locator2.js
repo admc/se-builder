@@ -119,7 +119,7 @@ builder.locator.fromElement = function(element) {
   if (xpath) {
     // Contrary to the XPath spec, Selenium requires the "//" at the start, even for paths that 
     // don't start at the root.
-    xpath = (stringXpath.substring(0, 2) != "//" ? ("/" + stringXpath) : stringXpath);
+    xpath = (xpath.substring(0, 2) != "//" ? ("/" + xpath) : xpath);
     values[builder.locator.methods.xpath] = xpath;
     if (!preferredMethod) {
       preferredMethod = builder.locator.methods.xpath;

@@ -74,8 +74,12 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
       if (reg_cat.negator) { negator = reg_cat.negator; }
       for (var v = 0; v < variants.length; v++) {
         var variant = variants[v];
-        var step = new builder.selenium1.StepType(variant(baseName), Selenium.prototype[baseName]);
-        builder.selenium1.stepTypes[baseName] = step;
+        var baseFunc = Selenium.prototype[baseName];
+        if (!baseFunc) {
+          baseFunc = Selenium.prototype["do" + baseName.substring(0, 1).toUpperCase() + baseName.substring(1)];
+        }
+        var step = new builder.selenium1.StepType(variant(baseName), baseFunc);
+        builder.selenium1.stepTypes[variant(baseName)] = step;
         catcat[1].push(step);
       }
     }
