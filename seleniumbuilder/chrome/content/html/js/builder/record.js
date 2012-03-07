@@ -1,10 +1,37 @@
 builder.record = {};
 
+builder.record.verifyExploring = false;
+builder.record.verifyExplorer = null;
+
 builder.record.recording = false;
 builder.record.recorder = null;
 builder.record.pageLoadListener = null;
 builder.record.selenium1WaitsListener = null;
 builder.record.selenium1WaitsListenerNoticedLoading = false;
+
+builder.record.verifyExplore = function() {
+  builder.record.verifyExploring = true;
+  builder.record.stop();
+  jQuery('#record-panel').show();
+  window.bridge.focusRecordingTab();
+  builder.record.verifyExplorer = new builder.VerifyExplorer(
+    window.bridge.getRecordingWindow(),
+    builder.getScript().seleniumVersion,
+    function(step) {
+      builder.getScript().addStep(step);
+      builder.stepdisplay.update();
+      setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
+      window.bridge.focusRecorderWindow();
+    }
+  );
+};
+
+builder.record.stopVerifyExploring = function() {
+  builder.record.verifyExploring = false;
+  builder.record.verifyExplorer.destroy();
+  builder.record.verifyExplorer = null;
+  builder.record.continueRecording();
+};
 
 /** Deletes all browser cookies for the domain of the given URL. */
 function deleteURLCookies(url) {
@@ -66,7 +93,7 @@ builder.record.continueRecording = function() {
       jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
         builder.record.recorder.destroy();
-        if (builder.storage.get('selMajorVersion') == builder.selenium1) {
+        if (builder.getScript().seleniumVersion == builder.selenium1) {
           builder.record.recorder = new builder.selenium1.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
         } else {
           builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
@@ -78,7 +105,7 @@ builder.record.continueRecording = function() {
   dump("ATTACHING NEW PLL");
   builder.storage.addChangeListener('pageloading', builder.record.pageLoadListener);
   
-  if (builder.storage.get('selMajorVersion') == builder.selenium1) {
+  if (builder.getScript().seleniumVersion == builder.selenium1) {
     builder.record.selenium1WaitsListenerNoticedLoading = false;
     builder.record.selenium1WaitsListener = function(pageloading) {
       if (pageloading && !builder.record.selenium1WaitsListenerNoticedLoading) {

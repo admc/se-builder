@@ -22,14 +22,14 @@ builder.views.script.hide = function() {
 builder.registerPostLoadHook(function() {
   // Buttons visible while recording:
   jQuery('#record-stop-button').click(function (e) {
-    builder.sel2.stopRecording();
+    builder.record.stop();
   });
 
   jQuery('#record-verify').click(function (e) {
-    if (builder.sel2.verifyExploring) {
-      builder.sel2.stopVerifyExploring();
+    if (builder.record.verifyExploring) {
+      builder.record.stopVerifyExploring();
     } else {
-      builder.sel2.verifyExplore();
+      builder.record.verifyExplore();
     }
   });
   

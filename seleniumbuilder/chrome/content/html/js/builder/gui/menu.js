@@ -51,13 +51,7 @@ builder.registerPostLoadHook(function() {
   );
   // Record button: Record more of the script
   jQuery('#record').click(function () {
-    if (builder.storage.get('selMajorVersion') == "2") {
-      builder.sel2.continueRecording();
-    } else {
-      // The user knows this may fail now.
-      jQuery('#error-panel').hide();
-      // qqDPS
-    }
+    builder.record.continueRecording();
   });
   // Play button: Play back the script in this browser
   jQuery('#run-locally').click(function () {

@@ -63,7 +63,7 @@ builder.selenium1.Recorder.prototype = {
 
     // To keep from generating multiple actions for the same click, we check if the click 
     // happened in the same place as the last one.
-    if (this.lastLocator && locator.probablyHasSameTarget(lastLocator)) {
+    if (this.lastLocator && locator.probablyHasSameTarget(this.lastLocator)) {
       if (e.type == 'click') {
         return;
       }
@@ -248,7 +248,7 @@ builder.selenium1.Recorder.prototype = {
     
     // To keep from generating multiple actions for the same click, update the previous click 
     // step as necessary.
-    if (lastLocator && locator.probablyHasSameTarget(lastLocator)) {
+    if (this.lastLocator && locator.probablyHasSameTarget(this.lastLocator)) {
       if (e.type == 'click') {
         return;
       }
@@ -263,11 +263,12 @@ builder.selenium1.Recorder.prototype = {
         }
       }
     }
-    lastLocator = locator;
+    this.lastLocator = locator;
     // But if the same click happens after more than a second, count it as intentional. 
-    clearTimeout(lastLocTimeout);
-    lastLocTimeout = setTimeout(function () {
-      lastLocator = null;
+    clearTimeout(this.lastLocTimeout);
+    var rec = this;
+    this.lastLocTimeout = setTimeout(function () {
+      rec.lastLocator = null;
     }, 1000);
     
     this.recordStep(new builder.Step(builder.selenium1.clickAt, locator, coordString));
