@@ -53,7 +53,6 @@ builder.loader.loadScripts(
   // Load Selenium Builder
   "builder/utils.js",
   "builder/storage.js",
-  "builder/locator2.js",
   "builder/script.js",
   "builder/loadlistener.js",
   "builder/verifyexplorer.js",
@@ -78,6 +77,7 @@ builder.loader.loadScripts(
   "builder/selenium2/selenium2.js",
   "builder/selenium2/versionconverter.js",
   "builder/selenium2/io.js",
+  "builder/locator2.js",
   "builder/stepdisplay.js",
   "builder/selenium2/playback.js",
   "builder/selenium2/recorder.js",
