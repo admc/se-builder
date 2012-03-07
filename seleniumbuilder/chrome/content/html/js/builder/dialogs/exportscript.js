@@ -29,10 +29,7 @@ builder.dialogs.exportscript = new(function () {
   };
   
   function create_sel2_format_li(myFormat) {
-    var script =
-      builder.storage.get('selMajorVersion') == "2"
-      ? builder.getScript()
-      : builder.convertSel1To2(builder.getScript());
+    var script = builder.getScript();
     var nonExportables = myFormat.nonExportables(script);
     if (nonExportables.length > 0) {
       var l = "";
@@ -128,7 +125,7 @@ builder.dialogs.exportscript = new(function () {
       {
         jQuery(format_list).append(create_overwrite_li());
       }
-      if (builder.storage.get('selMajorVersion') == "2") {
+      if (builder.getScript().seleniumVersion == builder.selenium2) {
         for (var i = 0; i < builder.sel2Formats.length; i++) {
           jQuery(format_list).append(create_sel2_format_li(builder.sel2Formats[i]));
         }

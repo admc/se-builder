@@ -1,7 +1,7 @@
 builder.gui.menu = {};
 
 builder.gui.menu.updateRunSuiteOnRC = function() {
-  if (builder.suite.hasSelenium2Scripts() || builder.storage.get('selMajorVersion')) {
+  if (builder.suite.hasSelenium2Scripts()) { // || builder.getScript().seleniumVersion == builder.selenium2 qqDPS
     jQuery("#run-suite-onrc-li").hide();
   } else {
     jQuery("#run-suite-onrc-li").show();
@@ -10,8 +10,8 @@ builder.gui.menu.updateRunSuiteOnRC = function() {
 
 builder.registerPostLoadHook(function() {
   jQuery("#run-onrc-li").show();
-  builder.storage.addChangeListener('selMajorVersion', function(selMajorVersion) {
-    if (selMajorVersion == "1") {
+  builder.storage.addChangeListener('script', function(script) {
+    if (script.seleniumVersion == builder.selenium1) {
       jQuery("#run-onrc-li").show();
     } else {
       jQuery("#run-onrc-li").hide();
@@ -40,7 +40,6 @@ builder.registerPostLoadHook(function() {
           confirm("If you continue, you will lose all your recent changes."))
       {
         builder.gui.switchView(builder.views.startup);
-        builder.storage.set('selMajorVersion', "1"); // By default.
         builder.storage.set('testscriptpath', null);
         builder.storage.set('save_required', false);
         jQuery('#steps').html('');
@@ -55,10 +54,6 @@ builder.registerPostLoadHook(function() {
   });
   // Play button: Play back the script in this browser
   jQuery('#run-locally').click(function () {
-    if (builder.storage.get('selMajorVersion') == "2") {
-      builder.sel2.playback.runTest();
-    } else {
-      builder.local.runtest();
-    }
+    builder.getScript().seleniumVersion.playback.runTest();
   });
 });

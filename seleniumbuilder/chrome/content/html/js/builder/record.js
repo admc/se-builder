@@ -76,16 +76,14 @@ builder.record.stop = function() {
 };
 
 builder.record.continueRecording = function() {
-  dump("CONTINUING!");
   jQuery('#record-panel').show();
-  if (builder.storage.get('selMajorVersion') == builder.selenium1) {
+  if (builder.getScript().seleniumVersion == builder.selenium1) {
     builder.record.recorder = new builder.selenium1.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
   } else {
     builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
   }
   var isLoading = false;
   builder.record.pageLoadListener = function(pageloading) {
-    dump("         pageLoadListener");
     if (pageloading) {
       isLoading = true;
       jQuery('#heading-record').addClass('is-on');
@@ -102,7 +100,6 @@ builder.record.continueRecording = function() {
       isLoading = false;
     }
   };
-  dump("ATTACHING NEW PLL");
   builder.storage.addChangeListener('pageloading', builder.record.pageLoadListener);
   
   if (builder.getScript().seleniumVersion == builder.selenium1) {
@@ -123,7 +120,7 @@ builder.record.continueRecording = function() {
   }
 };
 
-builder.record.startRecording = function(urlText, useCurrentScript) {
+builder.record.startRecording = function(urlText, useCurrentScript, seleniumVersion) {
   var anchorIndex = urlText.indexOf('#');
   if (anchorIndex != -1) {
     urlText = urlText.substring(0, anchorIndex);
@@ -155,9 +152,9 @@ builder.record.startRecording = function(urlText, useCurrentScript) {
         builder.record.recording = true;    
         builder.gui.switchView(builder.views.script);
         if (!useCurrentScript) {
-          builder.setScript(new builder.Script(builder.storage.get('selMajorVersion')));
+          builder.setScript(new builder.Script(seleniumVersion));
         }
-        if (builder.storage.get('selMajorVersion') == builder.selenium1) {
+        if (seleniumVersion == builder.selenium1) {
           builder.getScript().addStep(new builder.Step(builder.selenium1.stepTypes.open, url.href()));
           builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
         } else {

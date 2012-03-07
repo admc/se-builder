@@ -3,7 +3,6 @@ builder.views.startup = {};
 builder.openSel2File = function(script) {
   // NB Edit interface must be open before we can write into the edit form (jQuery relies on
   // the steps being shown).
-  builder.storage.set('selMajorVersion', "2");
   builder.gui.switchView(builder.views.script);
   
   builder.setCurrentScript(script);
@@ -24,13 +23,10 @@ builder.registerPostLoadHook(function () {
   // jQuery('#startup-suite-import a').click(import_suite);
   
   jQuery('#startup-start-recording').submit(function() {
-    builder.storage.set('selMajorVersion', builder.selenium1);
-    builder.record.startRecording(jQuery('#startup-url').val(), false);
+    builder.record.startRecording(jQuery('#startup-url').val(), false, builder.selenium1);
   });
   jQuery('#startup-start-recording-sel2').submit(function() {
-    builder.storage.set('selMajorVersion', builder.selenium2);
-    builder.record.startRecording(jQuery('#startup-url').val(), false);
-    //builder.sel2.startRecording(jQuery('#startup-url').val(), false);
+    builder.record.startRecording(jQuery('#startup-url').val(), false, builder.selenium2);
   });
   jQuery('#startup-open-sel2 a').click(function() {
     builder.openSel2File(builder.selenium2.loadScript());

@@ -48,8 +48,7 @@ builder.suite = new (function () {
     return _scripts.length - 1;
   };
   
-  this.addEmptyScript = function(selMajorVersion) {
-    selMajorVersion = selMajorVersion || "1";
+  this.addEmptyScript = function(seleniumVersion) {
     this.saveCurrentScript();
     _scripts.push({
       script: null,
@@ -59,11 +58,8 @@ builder.suite = new (function () {
     selectedScriptIndex = _scripts.length - 1;
     builder.storage.set('save_required', true);
     builder.storage.set('testscriptpath', null);
-    builder.storage.set('selMajorVersion', selMajorVersion)
-    if (selMajorVersion == "2") {
-      builder.setCurrentScript(new builder.sel2.Sel2Script());
-      builder.stepdisplay.update();
-    }
+    builder.setCurrentScript(new builder.Script(seleniumVersion));
+    builder.stepdisplay.update();
     builder.gui.suite.update();
     builder.storage.set('suiteSaveRequired', true);
     return selectedScriptIndex;
@@ -82,12 +78,7 @@ builder.suite = new (function () {
    * Adds the script currently loaded into the editor as a new script and selects it.
    */
   this.addAndSelectCurrentScript = function() {
-    var scr;
-    if (builder.storage.get('selMajorVersion') == "2") {
-      scr = builder.getScript();
-    } else {
-      scr = builder.getScript();
-    }
+    var scr = builder.getScript();
     _scripts.push({
       script: scr,
       testscriptpath: builder.storage.get('testscriptpath'),
@@ -111,15 +102,9 @@ builder.suite = new (function () {
       this.addAndSelectCurrentScript();
     } else {
       // Update the current script's info:
-      if (builder.storage.get('selMajorVersion') == "2") {
-        _scripts[selectedScriptIndex].script = builder.getScript();
-        _scripts[selectedScriptIndex].testscriptpath = builder.storage.get('testscriptpath');
-        _scripts[selectedScriptIndex].save_required = builder.storage.get('save_required');
-      } else {
-        _scripts[selectedScriptIndex].script = builder.getScript();
-        _scripts[selectedScriptIndex].testscriptpath = builder.storage.get('testscriptpath');
-        _scripts[selectedScriptIndex].save_required = builder.storage.get('save_required');
-      }
+      _scripts[selectedScriptIndex].script = builder.getScript();
+      _scripts[selectedScriptIndex].testscriptpath = builder.storage.get('testscriptpath');
+      _scripts[selectedScriptIndex].save_required = builder.storage.get('save_required');
     }
   }
   

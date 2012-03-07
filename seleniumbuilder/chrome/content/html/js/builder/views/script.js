@@ -45,11 +45,7 @@ builder.registerPostLoadHook(function() {
   
   // Stop playback buttons
   jQuery('#edit-stop-local-playback').click(function() {
-    if (builder.storage.get('selMajorVersion') == "2") {
-      builder.sel2.playback.stopTest();
-    } else {
-      builder.local.stoptest();
-    }
+    builder.getScript().seleniumVersion.playback.stopTest();
   });
   jQuery('#edit-stop-rc-playback').click(function() {
     builder.rc.stoptest();
@@ -57,12 +53,8 @@ builder.registerPostLoadHook(function() {
 
   // Clear play results:
   jQuery('#edit-clearresults').click(function() {
-    if (builder.storage.get('selMajorVersion') == "2") {
-      builder.sel2.playback.clearResults();
-      jQuery('#edit-clearresults').hide();
-    } else {
-      builder.views.script.clearResults();
-    }
+    builder.getScript().seleniumVersion.playback.clearResults();
+    jQuery('#edit-clearresults').hide();
   });
   
   // Bind to the testscriptpath value to display the path of the script 

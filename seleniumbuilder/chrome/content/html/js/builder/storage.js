@@ -40,9 +40,7 @@ builder.storage = new(function () {
     // Whether the current suite has unsaved changes
     suiteSaveRequired: [],
     // The current script (currently only used for Selenium 2)
-    script: [],
-    // Whether we're looking at a Sel 1 or Sel 2 script
-    selMajorVersion: []
+    script: []
   };
 
   /**

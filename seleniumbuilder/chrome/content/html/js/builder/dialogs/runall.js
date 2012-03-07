@@ -140,7 +140,7 @@ builder.dialogs.runall = new(function () {
     if (currentScriptIndex < scriptNames.length && !requestStop) {
       jQuery("#script-num-" + currentScriptIndex).css('background-color', '#ffffaa');
       builder.suite.switchToScript(currentScriptIndex);
-      if (builder.storage.get('selMajorVersion') == "2") {
+      if (builder.getScript().seleniumVersion == builder.selenium2) {
         builder.sel2.playback.runTest(builder.dialogs.runall.processLocalResult);
       } else {
         builder.local.runtest(builder.dialogs.runall.processLocalResult);
