@@ -377,19 +377,20 @@ function editParam(stepID, pIndex) {
   var step = script.getStepWithID(stepID);
   var pName = step.getParamNames()[pIndex];
   if (step.type.getParamType(pName) == "locator") {
+    var tdd_id = stepID + '-p' + pIndex + '-locator-type-chooser';
     var typeDropDown = newNode(
       'select',
       {
-        id: stepID + '-p' + pIndex + '-locator-type-chooser'
+        id: tdd_id
       }
     );
     
     function okf() {
-      var locMethodName = jQuery('#' + stepID + '-p' + pIndex + '-locator-type-chooser').val();
-      var locMethod = builder.locator.methodForName(locTypeName);
+      var locMethodName = jQuery('#' + tdd_id).val();
+      var locMethod = builder.locator.methodForName(script.seleniumVersion, locMethodName);
       if (locMethod) {
         step[pName].preferredMethod = locMethod;
-        step[pName].values[preferredMethod] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+        step[pName].values[locMethod] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
       }
       /*if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
         step[pName].alternatives = {};
@@ -407,7 +408,7 @@ function editParam(stepID, pIndex) {
       },
       typeDropDown,
       ": ",
-      newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName].value}),
+      newNode('input', {id: stepID + '-p' + pIndex + '-edit-input', type:'text', value: step[pName].getValue()}),
       newNode('a', "OK", {
         id: stepID + '-p' + pIndex + '-OK',
         class: 'button',
@@ -422,8 +423,8 @@ function editParam(stepID, pIndex) {
       )
     );
     
-    for (var i = 0; i < builder.locator.methods.length; i++) {
-      var lMethod = builder.locator.methods[i];
+    for (var k in builder.locator.methods) {
+      var lMethod = builder.locator.methods[k];
       if (lMethod == step[pName].preferredMethod) {
         jQuery(typeDropDown).append(newNode(
           'option', lMethod[script.seleniumVersion], { selected: "true" }
