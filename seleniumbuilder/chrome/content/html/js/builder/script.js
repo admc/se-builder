@@ -116,14 +116,10 @@ builder.Step.prototype = {
   },
   changeType: function(newType) {
     this.type = newType;
-    /*dump("                                                ");*/
-    dump(this.type.name);
     var pNames = this.type.getParamNames();
-    /*dump("    ");
-    dump(pNames);*/
     for (var i = 0; i < pNames.length; i++) {
       if (!this[pNames[i]]) {
-        this[pNames[i]] = this.type.getParamType(pNames[n]) == "locator"
+        this[pNames[i]] = this.type.getParamType(pNames[i]) == "locator"
           ? builder.locator.empty()
           : "";
       }

@@ -217,7 +217,8 @@ function updateTypeDivs(stepID, newType) {
   jQuery('#' + stepID + '-type-info').html(getTypeInfo(newType));
   var cD = jQuery('#' + stepID + '-edit-cat-list');
   var tD = jQuery('#' + stepID + '-edit-type-list');
-  cD.attr('__sb-stepType', newType);
+  //cD.attr('__sb-stepType', newType);
+  cD[0].__sb_stepType = newType;
   cD.html('');
   tD.html('');
   for (var i = 0; i < script.seleniumVersion.categories.length; i++) {
@@ -237,9 +238,9 @@ function updateTypeDivs(stepID, newType) {
       )));
       for (var j = 0; j < script.seleniumVersion.categories[i][1].length; j++) {
         if (script.seleniumVersion.categories[i][1][j] == newType) {
-          tD.append(newNode('li',newNode(
+          tD.append(newNode('li', newNode(
             'span',
-            script.seleniumVersion.categories[i][1][j],
+            script.seleniumVersion.categories[i][1][j].getName(),
             {
               class: 'selected-type'
             }
@@ -247,7 +248,7 @@ function updateTypeDivs(stepID, newType) {
         } else {
           tD.append(newNode('li', newNode(
             'a',
-            script.seleniumVersion.categories[i][1][j],
+            script.seleniumVersion.categories[i][1][j].getName(),
             {
               class: 'not-selected-type',
               href: '#',
@@ -352,7 +353,8 @@ function editType(stepID) {
       class: 'button',
       href: '#',
       click: function (e) {
-        var type = jQuery('#' + stepID + '-edit-cat-list').attr('__sb-stepType');
+        //var type = jQuery('#' + stepID + '-edit-cat-list').attr('__sb-stepType');
+        var type = jQuery('#' + stepID + '-edit-cat-list')[0].__sb_stepType;
         if (type) {
           step.changeType(type);
           step.negated = step.type.getNegatable() && jQuery('#' + stepID + '-edit-negate').attr('checked');
