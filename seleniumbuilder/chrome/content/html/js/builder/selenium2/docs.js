@@ -1,4 +1,4 @@
-builder.sel2.docs = {
+builder.selenium2.docs = {
   "get": {
     "params": {
       "url": "The URL to go to."

@@ -91,7 +91,7 @@ builder.stepdisplay.setProgressBar = function(stepID, percent) {
 };
 
 builder.stepdisplay.addNewStep = function() {
-  var newStep = new builder.Step('clickElement');
+  var newStep = new builder.Step(script.seleniumVersion.defaultStepType);
   builder.getScript().addStep(newStep);
   addStep(newStep);
   builder.storage.set('save_required', true);
@@ -278,24 +278,25 @@ function getTypeInfo(type) {
   var script = builder.getScript();
   var paramInfo = "";
   var longParamInfo = newNode('ul', {class: 'type-info-longparam'});
-  var pNames = script.seleniumVersion.paramNames[type];
+  var pNames = type.getParamNames();
   for (var i = 0; i < pNames.length; i++) {
     paramInfo += pNames[i];
     if (i != pNames.length - 1) {
       paramInfo += ", ";
     }
     jQuery(longParamInfo).append(newNode('li',
-      newNode('b', pNames[i]), ": " + script.seleniumVersion.docs[type].params[pNames[i]]));
+      newNode('b', pNames[i]), ": " + script.seleniumVersion.docs[type.getName()].params[pNames[i]]));
   }
   if (pNames.length > 0) { paramInfo = " (" + paramInfo + ")"; }
     
   var body = newNode('div', {class: 'type-info-body'});
-  jQuery(body).html(builder.sel2.docs[type].description + " Parameter expressions of the form <i>${varname}</i> are replaced by the contents of the variable <i>varname</i>");
+  jQuery(body).html(script.seleniumVersion.docs[type.getName()].description);
+  jQuery(body).append("<br>Parameter expressions of the form <i>${varname}</i> are replaced by the contents of the variable <i>varname</i>");
   
   return newNode(
     'div',
     { class: 'type-info' },
-    newNode('div', {class: 'type-info-head'}, type + paramInfo),
+    newNode('div', {class: 'type-info-head'}, type.getName() + paramInfo),
     longParamInfo,
     body
   );

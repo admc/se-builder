@@ -1,16 +1,18 @@
-builder.selenium1.StepType = function(name, baseFunction, negator) {
-  dump(name);
+builder.selenium1.StepType = function(name, baseFunction, negator, baseName) {
+  /*dump(name);
   dump("      =      ");
-  dump(baseFunction);
+  dump(baseFunction);*/
   this.name = name;
   this.baseFunction = baseFunction;
   this.negatable = !!negator;
   this.negator = negator;
+  this.baseName = baseName;
+  this.params = [];
   try {
     this.params = get_parameters(baseFunction);
   } catch (e) {
-    dump(e);
-    dump(name);
+    /*dump(e);
+    dump(name);*/
   }
 };
 
@@ -74,14 +76,18 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
       if (reg_cat.negator) { negator = reg_cat.negator; }
       for (var v = 0; v < variants.length; v++) {
         var variant = variants[v];
+        var adjustedBaseName = baseName
         var baseFunc = Selenium.prototype[baseName];
         if (!baseFunc) {
-          baseFunc = Selenium.prototype["do" + baseName.substring(0, 1).toUpperCase() + baseName.substring(1)];
+          adjustedBaseName = "do" + baseName.substring(0, 1).toUpperCase() + baseName.substring(1);
+          baseFunc = Selenium.prototype[adjustedBaseName];
         }
-        var step = new builder.selenium1.StepType(variant(baseName), baseFunc);
+        var step = new builder.selenium1.StepType(variant(baseName), baseFunc, negator, adjustedBaseName);
         builder.selenium1.stepTypes[variant(baseName)] = step;
         catcat[1].push(step);
       }
     }
   }
 }
+
+builder.selenium1.defaultStepType = builder.selenium1.stepTypes.click;

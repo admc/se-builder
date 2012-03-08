@@ -115,3 +115,65 @@ bridge.boot = function() {
     }
   }, 100);
 };
+
+/**
+ * Loads the given URL from the file system given a chrome:// URL.
+ */
+bridge.loadFile = function(url, success, error) {
+  var data = "";
+  // Get rid of the random number get-string meant to discourage caching.
+  if (url.match("[?]")) {
+    url = url.split("?")[0];
+  }
+  var prefix = "chrome://seleniumbuilder/";
+  var path = "chrome/" + url.substring(prefix.length);
+  var MY_ID = "seleniumbuilder@saucelabs.com";
+  var file = null;
+  try {
+    // We may be on FF 4 or later
+    Components.utils.import("resource://gre/modules/AddonManager.jsm");
+    AddonManager.getAddonByID(MY_ID, function(addon) {
+      file = addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
+      var data = null;
+      try {
+        data = bridge.readFile(file);
+      } catch (e) {
+        error(e);
+        return;
+      }
+      success(data);
+    });
+  } catch (e) {
+    // We're on Firefox < 4, so we can use nsIExtensionManager.
+    var em = Components.classes["@mozilla.org/extensions/manager;1"].
+        getService(Components.interfaces.nsIExtensionManager);
+    file = em.getInstallLocation(MY_ID).getItemFile(MY_ID, path);
+    var data = null;
+    try {
+      data = bridge.readFile(file);
+    } catch (e) {
+      error(e);
+      return;
+    }
+    window.setTimeout(function() { success(data); }, 1000); // Pretend this took time.
+  }
+};
+
+bridge.readFile = function(file) {
+  var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"].
+              createInstance(Components.interfaces.nsIFileInputStream);
+  var cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"].
+              createInstance(Components.interfaces.nsIConverterInputStream);
+  fstream.init(file, -1, 0, 0);
+  cstream.init(fstream, "UTF-8", 0, 0); // you can use another encoding here if you wish
+
+  var str = {};
+  var read = 0;
+  var data = "";
+  do { 
+    read = cstream.readString(0xffffffff, str); // read as much as we can and put it in str.value
+    data += str.value;
+  } while (read != 0);
+  cstream.close(); // this closes fstream
+  return data;
+}

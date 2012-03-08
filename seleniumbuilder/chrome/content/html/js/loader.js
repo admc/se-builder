@@ -74,6 +74,7 @@ builder.loader.loadScripts(
   "builder/selenium1/selenium1.js",
   "builder/selenium1/recorder.js",
   "builder/selenium1/playback.js",
+  "builder/selenium1/docs.js",
   "builder/selenium2/selenium2.js",
   "builder/selenium2/versionconverter.js",
   "builder/selenium2/io.js",

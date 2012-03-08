@@ -442,6 +442,7 @@ table.cat-table {
   padding: 5px;
   margin: 2px;
   -moz-border-radius: 5px;
+	font-size: 100%;
 }
 
 table.cat-table td {

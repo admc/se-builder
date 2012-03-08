@@ -107,6 +107,8 @@ for (var n in builder.selenium2.__stepData) {
   builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
 }
 
+builder.selenium2.defaultStepType = builder.selenium2.stepTypes.clickElement;
+
 /** List of categories. */
 builder.selenium2.categories = [
   ["Navigation", [
