@@ -101,7 +101,7 @@ builder.Step = function(type) {
       if (i + 1 < arguments.length) {
         this[pNames[i]] = arguments[i + 1];
       } else {
-        this[pNames[i]] = this.type.getParamType(pNames[n]) == "locator"
+        this[pNames[i]] = this.type.getParamType(pNames[i]) == "locator"
           ? builder.locator.empty()
           : "";
       }

@@ -91,8 +91,9 @@ builder.stepdisplay.setProgressBar = function(stepID, percent) {
 };
 
 builder.stepdisplay.addNewStep = function() {
+  var script = builder.getScript();
   var newStep = new builder.Step(script.seleniumVersion.defaultStepType);
-  builder.getScript().addStep(newStep);
+  script.addStep(newStep);
   addStep(newStep);
   builder.storage.set('save_required', true);
   return newStep.id;
