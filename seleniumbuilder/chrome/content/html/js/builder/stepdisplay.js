@@ -186,9 +186,9 @@ function attachSearchers(stepID, pIndex, force) {
           frame,
           script.seleniumVersion,
           // This function is called when the user selects a new element.
-          function(recordedStep) {
+          function(locator) {
             var originalStep = builder.getScript().getStepWithID(stepID);
-            originalStep[originalStep.getParamNames()[pIndex]] = recordedStep.locator;
+            originalStep[originalStep.getParamNames()[pIndex]] = locator;
             stopSearchers();
             window.bridge.focusRecorderWindow();
             builder.stepdisplay.updateStep(stepID);
@@ -197,7 +197,8 @@ function attachSearchers(stepID, pIndex, force) {
             jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
             jQuery('#' + stepID + '-p' + pIndex).show();
             editParam(stepID, pIndex);
-          }
+          },
+          /* justReturnLocator */ true
         ));
       }
     }

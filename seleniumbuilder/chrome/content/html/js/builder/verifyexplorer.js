@@ -8,15 +8,17 @@
  * @param {Window} The frame to explore
  * @param Selenium version to generate steps for
  * @param {Function(step)} Function called with recorded verify step
+ * @param boolean Instead of returning an entire ste, just returns the locator for the selected element.
  */
-builder.VerifyExplorer = function(top_window, seleniumVersion, recordStep) {
-  this.top_window      = top_window;
-  this.seleniumVersion = seleniumVersion;
-  this.recordStep      = recordStep;
+builder.VerifyExplorer = function(top_window, seleniumVersion, recordStep, justReturnLocator) {
+  this.top_window        = top_window;
+  this.seleniumVersion   = seleniumVersion;
+  this.recordStep        = recordStep;
   /** The DOM element the user is currently hovering over and that has been highlit. */
-  this.highlit_element = null;
+  this.highlit_element   = null;
   /** Listener functions attached to frames. Stored so they can be detached again. */
-  this.listeners       = {};
+  this.listeners         = {};
+  this.justReturnLocator = justReturnLocator;
   
   var ae = this;
   
@@ -67,6 +69,7 @@ builder.VerifyExplorer.prototype = {
 
     // Setup the params
     var locator = builder.locator.fromElement(e.target);
+    if (this.justReturnLocator) { this.recordStep(locator); return; }
 
     var tag = e.target.nodeName.toUpperCase();
     var selection = window.bridge.getRecordingWindow().getSelection();
