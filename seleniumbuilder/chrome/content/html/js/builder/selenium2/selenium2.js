@@ -4,7 +4,9 @@
  * export a stepTypes map and a categories list that have the same interface so that most code
  * doesn't have to know which version of Selenium is being used.
  */
-builder.selenium2 = {};
+builder.selenium2 = {
+  toString: function() { return "__SELENIUM_2__"; }
+};
 
 builder.selenium2.StepType = function(name) {
   this.name = name;

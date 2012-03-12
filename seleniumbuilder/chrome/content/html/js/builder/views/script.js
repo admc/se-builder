@@ -53,7 +53,7 @@ builder.registerPostLoadHook(function() {
 
   // Clear play results:
   jQuery('#edit-clearresults').click(function() {
-    builder.getScript().seleniumVersion.playback.clearResults();
+    builder.views.script.clearResults();
     jQuery('#edit-clearresults').hide();
   });
   

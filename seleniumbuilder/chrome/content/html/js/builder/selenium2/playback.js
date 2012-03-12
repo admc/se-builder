@@ -32,15 +32,6 @@ pb.waitInterval = null;
 /** Stored variables. */
 pb.vars = {};
 
-pb.clearResults = function() {
-  var sc = builder.getScript();
-  for (var i = 0; i < sc.steps.length; i++) {
-    jQuery('#' + sc.steps[i].id + '-content').css('background-color', '#dddddd');
-    jQuery('#' + sc.steps[i].id + '-message').hide();
-    jQuery('#' + sc.steps[i].id + '-error').hide();
-  }
-};
-
 pb.stopTest = function() {
   pb.stopRequest = true;
 };
@@ -64,7 +55,7 @@ pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
 };
 
 pb.startSession = function() {
-  pb.clearResults();
+  builder.views.script.clearResults();
   pb.stopRequest = false;
   jQuery('#edit-clearresults').show();
   jQuery('#edit-local-playing').show();
