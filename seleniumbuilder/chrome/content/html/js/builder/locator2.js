@@ -12,11 +12,11 @@ builder.locator = {};
  * the idea of an xpath locator.
  */
 builder.locator.methods = {
-  id:    {},
-  name:  {},
-  link:  {},
-  css:   {},
-  xpath: {}
+  id:    {toString: function() { return "id"; }},
+  name:  {toString: function() { return "name"; }},
+  link:  {toString: function() { return "link"; }},
+  css:   {toString: function() { return "css"; }},
+  xpath: {toString: function() { return "xpath"; }}
 };
 
 builder.locator.methods.id[builder.selenium1] = "id";
