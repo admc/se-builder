@@ -1,95 +1,133 @@
 /**
- * A class that can record clicks and typing on a window and all sub-windows. This version is
- * for recording Selenium 2 scripts.
+ * A class that can record clicks and typing on a window and all sub-windows.
  *
- * @param {Window} target_window The window to monitor
- * @param {Function(method, params)} A callback to be called when an event is detected
- *
- * @return {
- *    destroy: Function()  Removes the event listeners from all sub-windows
- * }
- *
- * @depends builder.locator
+ * @param {Window} The frame to explore
+ * @param {Function(step)} Function called with recorded steps
  */
-builder.sel2.Recorder = function (target_window, record_action) {
+builder.selenium2.Recorder = function(top_window, recordStep) {
+  this.top_window = top_window;
+  this.recordStep = recordStep;
+  
+  // These three variables are used to notice when the same event gets issued twice in a row.
+  /** The last locator clicked on. */
+  this.lastLocator = false;
+  /** Timeout used to reset the above values after a second. */
+  this.lastLocTimeout;
   /**
    * List of frames to which the recorder has been bound. Gets continually updated via timeout.
    */
-  var bound = [];
+  this.bound = [];
+  /** Listener functions attached to frames. Stored so they can be detached again. */
+  this.listeners = {};
+  
+  var rec = this;
+  // Shims for listeners.
+  this.listeners.writeJsonClicks   = function(e) { rec.writeJsonClicks(e);   };
+  this.listeners.writeJsonClickAt  = function(e) { rec.writeJsonClickAt(e);  };
+  this.listeners.writeJsonType     = function(e) { rec.writeJsonType(e);     };
+  this.listeners.writeJsonChange   = function(e) { rec.writeJsonChange(e);   };
+  this.listeners.writeJsonKeyPress = function(e) { rec.writeJsonKeyPress(e); };
+  this.listeners.bindFrame         = function(frame, level) { rec.bindFrame(frame, level);   };
+  this.listeners.unbindFrame       = function(frame, level) { rec.unbindFrame(frame, level); };
+  
+  // Initialise the recorder by binding to all frames in the recorder window.
+  builder.loadlistener.on_all_frames(top_window, this.listeners.bindFrame, 0);
+  // Periodically check if new frames have appeared.  
+  this.checkFrames = setInterval(function () {
+    builder.loadlistener.on_all_frames(rec.top_window, function (frame, level) {
+      if (rec.bound.indexOf(frame) == -1) {
+        rec.bindFrame(frame, level);
+      }
+    }, 0);
+  }, 200);
+  
+  // Now listen on navigation functions in the browser.
+  this.bind_browser(window.bridge.getBrowser());
+};
 
+builder.selenium2.Recorder.prototype = {
   /**
    * Create an event from a received click on any element.
    */
-  function writeJsonClicks(e) {
-    var params = builder.locator.create(e.target);
-    if (isTypeOrClickInSamePlace(builder.getScript().getLastStep(), params)) {
-      if (e.type == 'dblclick' &&
-          { 'clickElement': 1, 'clickElementWithOffset': 1, 'doubleClickElement': 1 }[builder.getScript().getLastStep().type])
-      {
-        builder.getScript().getLastStep().changeType('doubleClickElement');
-        builder.stepdisplay.update();
-      }
-      return;
-    }
+  writeJsonClicks: function(e) {
+    var locator = builder.locator.fromElement(e.target);
+    var lastStep = builder.getScript().getLastStep();
+    
+    if (this.isTypeOrClickInSamePlace(lastStep, locator)) { return; }
+    // Selects are handled via change events, so clicks on them can be ignored.
+    if ({ 'select': true, 'option': true }[e.target.tagName.toLowerCase()]) { return; }
 
+    // To keep from generating multiple actions for the same click, we check if the click 
+    // happened in the same place as the last one.
+    if (this.lastLocator && locator.probablyHasSameTarget(this.lastLocator)) {
+      if (e.type == 'click') {
+        return;
+      }
+      if (e.type == 'dblclick') {
+        if (lastStep.type == builder.selenium2.stepTypes.clickElement ||
+            lastStep.type == builder.selenium2.stepTypes.clickElementWithOffset ||
+            lastStep.type == builder.selenium2.stepTypes.doubleClickElement)
+        {
+          lastStep.changeType(builder.selenium2.stepTypes.doubleClickElement);
+          builder.stepdisplay.update();
+          return;
+        }
+      }
+    }
+    this.lastLocator = locator;
+    // But if the same click happens after more than a second, count it as intentional. 
+    clearTimeout(this.lastLocTimeout);
+    var rec = this;
+    this.lastLocTimeout = setTimeout(function () {
+      rec.lastLocator = null;
+    }, 1000);
+    
     // Selects are handled via change events, so clicks on them can be ignored.
     if ({ 'select': true, 'option': true }[e.target.tagName.toLowerCase()]) {
       return;
     }
-
+    
     if (e.type == 'dblclick') {
-      record_action('doubleClickElement', params);
+      this.recordStep(new builder.Step(builder.selenium2.stepTypes.doubleClickElement, locator));
     } else if (e.target.type == "checkbox") {
       if (jQuery(e.target).attr('checked')) {
-        record_action('setElementSelected', params);
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, locator));
       } else {
-        record_action('setElementNotSelected', params);
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementNotSelected, locator));
       }
     } else {
       if (e.target.type == "submit") {
         // If we click on a submit element, submit the form.
-        record_action('submitElement', params);
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.submitElement, locator));
       } else {
-        record_action('clickElement', params);
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.clickElement, locator));
       }
     }
-  }
-
-  /**
-   * Return true if the given step is a type/click step with the same locator as the given params.
-   */
-  function isTypeOrClickInSamePlace(step, params) {
-    if (params && step && { "sendKeysToElement": 1, "clickElement": 1, "doubleClickElement": 1, "setElementSelected": 1 }[step.type])
+  },
+  isTypeOrClickInSamePlace: function(step, locator) {
+    if (step.type != builder.selenium2.stepTypes.sendKeysToElement &&
+        step.type != builder.selenium2.stepTypes.clickElement &&
+        step.type != builder.selenium2.stepTypes.doubleClickElement &&
+        step.type != builder.selenium2.stepTypes.setElementSelected &&
+        step.type != builder.selenium2.stepTypes.setElementNotSelected &&
+        step.type != builder.selenium2.stepTypes.submitElement)
     {
-      var loc2 = builder.sel2.extractSel2Locator(params);
-      for (var i = 0; i < builder.loc_type_1_2.length; i++) {
-        var type = builder.loc_type_1_2[i][1];
-        if (step.locator.alternatives) {
-          if (step.locator.alternatives[type] && loc2.alternatives[type] &&
-              step.locator.alternatives[type] == loc2.alternatives[type])
-          {
-            return true;
-          }
-        } else {
-          if (step.locator.type == type && step.locator.value == loc2.alternatives[type]) {
-            return true;
-          }
+      return false;
+    }
+    var stepParams = step.getParamNames();
+    for (var i = 0; i < stepParams; i++) {
+      if (stepParams[i] == "locator") {
+        if (locator.probablyHasSameTarget(step["locator"])) {
+          return true;
         }
       }
-      return false;
-    } else {
-      return false;
     }
-  }
-
+    return false;
+  },
   /** Record change events, e.g. typing, selecting, radio buttons. */
-  function writeJsonChange(e) {
-    var params = builder.locator.create(e.target);
-    var step = builder.getScript().getLastStep();
-    var prevStep =
-      builder.getScript().steps.length >= 2
-        ? builder.getScript().steps[builder.getScript().steps - 2]
-        : null;
+  writeJsonChange: function(e) {
+    var locator = builder.locator.fromElement(e.target);
+    var lastStep = builder.getScript().getLastStep();
     
     // Under some circumstances, for example when the user presses an arrow key, an event can
     // be triggered in Firefox with no e.target.type. Ignore these. 
@@ -98,58 +136,36 @@ builder.sel2.Recorder = function (target_window, record_action) {
     }
     
     // Typing
-    if ({ "textarea": 1, "text": 1, "password": 1 }[e.target.type.toLowerCase()]) {
+    if ({ textarea: 1, text: 1, password: 1 }[e.target.type.toLowerCase()]) {
       // Continue typing or replace a click with a type.
-      if (isTypeOrClickInSamePlace(step, params)) {
-        step.changeType("sendKeysToElement");
-        step.text = e.target.value;
+      if (this.isTypeOrClickInSamePlace(lastStep, locator)) {
+        lastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        lastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
       }
       // Also need to check for previous step in case of using enter to submit forms -
       // otherwise we get a spurious extra "type" step after the submit click step.
-      if (isTypeOrClickInSamePlace(prevStep, params)) {
-        prevStep.changeType("sendKeysToElement");
-        prevStep.text = e.target.value;
+      var nextToLastStep = builder.getScript().getStepBefore(lastStep);
+      if (this.isTypeOrClickInSamePlace(nextToLastStep, locator)) {
+        nextToLastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        nextToLastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
       }
-
+      
       // Start typing
-      params.text = e.target.value;
-      // Check if this is FF re-submitting text that's already been entered. This happens if the
-      // user presses enter to submit a form while focus is on an input field.
-      var script = builder.getScript();
-      if (script.steps.length >= 2) {
-        if (script.steps[script.steps.length - 1].type == "submitElement" &&
-            script.steps[script.steps.length - 2].type == "sendKeysToElement" &&
-            script.steps[script.steps.length - 2].text == params.text)
-        {
-          return;
-        }
-      }
-      record_action("sendKeysToElement", params);
-      return;
+      this.recordStep(new builder.Step(selenium2.stepTypes.sendKeysToElement, locator, e.target.value));
     }
     
     // Selecting
     if (e.target.type.toLowerCase() == 'select' || e.target.type.toLowerCase() == 'select-one') {
-      record_action("setElementSelected", params);
-      var newStep = builder.getScript().getLastStep();      
-      if (newStep.locator.alternatives["xpath"]) {
-        newStep.locator = {
-          "alternatives": {},
-          "type": "xpath",
-          "value": newStep.locator.alternatives.xpath + "/option[" + (e.target.selectedIndex + 1) + "]"
-        };
-      } else if (newStep.locator.alternatives["id"]) {
-        newStep.locator = {
-          "alternatives": {},
-          "type": "id",
-          "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[" + (e.target.selectedIndex + 1) + "]"
-        };
-      }
-      builder.stepdisplay.update();
+      var vals = {};
+      vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[" + (e.target.selectedIndex + 1) + "]";
+      var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
+      
+      // Add select
+      this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, optLoc));
       return;
     }
     
@@ -164,21 +180,11 @@ builder.sel2.Recorder = function (target_window, record_action) {
           }
         }
         if (newlyAdded) {
-          record_action("setElementSelected", params);
-          var newStep = builder.getScript().getLastStep();
-          if (newStep.locator.alternatives["xpath"]) {
-            newStep.locator = {
-              "alternatives": {},
-              "type": "xpath",
-              "value": newStep.locator.alternatives.xpath + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"
-            };
-          } else if (newStep.locator.alternatives["id"]) {
-            newStep.locator = {
-              "alternatives": {},
-              "type": "id",
-              "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"
-            };
-          }
+          var vals = {};
+          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']";
+          var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
+          
+          this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, optLoc));
         }
       }
       for (var o = 0; o < oldVal.length; o++) {
@@ -189,21 +195,11 @@ builder.sel2.Recorder = function (target_window, record_action) {
           }
         }
         if (!stillThere) {
-          record_action("setElementNotSelected", params);
-          var newStep = builder.getScript().getLastStep();
-          if (newStep.locator.alternatives["xpath"]) {
-            newStep.locator = {
-              "alternatives": {},
-              "type": "xpath",
-              "value": newStep.locator.alternatives.xpath + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"
-            };
-          } else if (newStep.locator.alternatives["id"]) {
-            newStep.locator = {
-              "alternatives": {},
-              "type": "id",
-              "value": "//*[@id='" + newStep.locator.alternatives.id + "']/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"
-            };
-          }
+          var vals = {};
+          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']";
+          var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
+          
+          this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementNotSelected, optLoc));
         }
       }
       e.target.__sb_oldVal = currentVal;
@@ -213,97 +209,90 @@ builder.sel2.Recorder = function (target_window, record_action) {
     // Radio button
     if (e.target.type == 'radio') {
       // Replace a click with a radio button check
-      if (isTypeOrClickInSamePlace(step, params)) {
-        step.changeType("setElementSelected");
-        step.locator = builder.sel2.extractSel2Locator(params);
+      if (isTypeOrClickInSamePlace(lastStep, locator)) {
+        lastStep.changeType(builder.selenium2.stepTypes.setElementSelected);
+        lastStep.locator = locator
         builder.stepdisplay.update();
         return;
       }
 
       // Add radio button check
-      record_action("setElementSelected", params);
+      this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, locator));
       return;
     }
-  }
-
+  },
   /** Finds the frame for a given document. */
-  function findFrame(d) {
-    for (i in bound) {
-      if (bound[i].document == d) {
-        return bound[i];
+  findFrame: function(d) {
+    for (i in this.bound) {
+      if (this.bound[i].document == d) {
+        return this.bound[i];
       }
     }
     return null;
-  }
-
+  },
   /**
    * This is horrendously primitive support for typing at new-school HTML fun-stuff
    * It will approximately work for appending stuff but monitoring changes is nigh impossible.
    * However it has the advantage of providing the selectors needed for closer modification.
    */
-  function writeJsonType(e) {
+  writeJsonType: function(e) {
+    var locator = builder.locator.fromElement(e.target);
     var lastStep = builder.getScript().getLastStep();
-    if (lastStep.type == "sendKeysToElement") {
+    if (lastStep.type == builder.selenium2.stepTypes.sendKeysToElement) {
       if (e.which >= 32 || e.which == 9 || e.which == 10) {
-       lastStep.text += String.fromCharCode(e.which);
+        lastStep.text += String.fromCharCode(e.which);
       } else if (e.which == 8) {
-        lastStep.text = lastStep.text.substr(lastStep.text - 1);
+        lastStep.text = lastStep.text.substr(lastStep.text.length - 1);
       }
       builder.stepdisplay.update();
     } else {
-      var params = builder.locator.create(e.target);
       if (e.which >= 32 || e.which == 9 || e.which == 10) {
-        params.value = String.fromCharCode(e.which);
+        this.recordStep(new builder.Step(builder.selenium2.stepTypes.sendKeysToElement, locator, String.fromCharCode(e.which)));
       }
-      record_action('sendKeysToElement', params);
     }
-  }
-
+  },
   /**
    * Record exact position of clicks for elements where it might be important (e.g canvas tags).
    */
-  function writeJsonClickAt(e) {
-    var params = builder.locator.create(e.target);
+  writeJsonClickAt: function(e) {
+    var locator = builder.locator.fromElement(e.target);
+    var lastStep = builder.getScript().getLastStep();
     var offset = jQuery(e.target).offset();
-    params.coordString = (e.clientX - offset.left) + "," + (e.clientY - offset.top);
-
+    var coordString = (e.clientX - offset.left) + "," + (e.clientY - offset.top);
+    
     // To keep from generating multiple actions for the same click, update the previous click 
-    // step as necessary. 
-    var locator = params._default;
-    var locValue = params[locator];
-    if ((lastLocValue == locValue) && (lastLocator == locator)) {
+    // step as necessary.
+    if (this.lastLocator && locator.probablyHasSameTarget(this.lastLocator)) {
       if (e.type == 'click') {
         return;
       }
-      if (e.type == 'dblclick' && { "clickElement":1, "clickAt":1 }[builder.lastStep().method()]) {
-        builder.getScript().getLastStep().changeType("doubleClickElement");
-        builder.stepdisplay.update();
-        return;
+      if (e.type == 'dblclick') {
+        if (lastStep.type == builder.selenium2.stepTypes.clickElement ||
+            lastStep.type == builder.selenium2.stepTypes.clickAt ||
+            lastStep.type == builder.selenium2.stepTypes.doubleClickElement)
+        {
+          lastStep.changeType(builder.selenium2.stepTypes.doubleClickElement);
+          builder.stepdisplay.update();
+          return;
+        }
       }
     }
-    lastLocValue = locValue;
-    lastLocator = locator;
-    clearTimeout(lastLocTimeout);
-    // If the clicks happen more than a second apart we count them separately.
-    lastLocTimeout = setTimeout(function () {
-      lastLocValue = null;
-      lastLocator = null;
+    this.lastLocator = locator;
+    // But if the same click happens after more than a second, count it as intentional. 
+    clearTimeout(this.lastLocTimeout);
+    var rec = this;
+    this.lastLocTimeout = setTimeout(function () {
+      rec.lastLocator = null;
     }, 1000);
-
-    record_action("clickElementWithOffset", params);
-  }
-
-  /**
-   * Attempt to catch enter keys as they often trigger events.
-   * However, the browser often uses them to trigger clicks, in which case we want to record the
-   * click.
-   */
-  // qqDPS Not needed for Selenium 2?
-   /*
-  function writeJsonKeyPress(e) {
-    var lastStep = builder.getScript().getLastStep();
+    
+    this.recordStep(new builder.Step(builder.selenium2.clickAt, locator, coordString));
+  },
+  // qqDPS Doesn't work in Selenium 2 yet.
+  /*
+  writeJsonKeyPress: function(e) {
     if (e.which == 13) { // 13 is the key code for enter
-      var previousId = lastStep ? lastStep.id : null;
+      var previousId = builder.getScript().getLastStep() ? builder.getScript().getLastStep().id : null;
+      var recordStep = this.recordStep;
       // If the keypress is used to trigger a click, this key event will be immediately
       // followed by a click event. Hence, wait 100 ms and check if another step got recorded
       // in the meantime.
@@ -311,21 +300,21 @@ builder.sel2.Recorder = function (target_window, record_action) {
         var step = builder.getScript().getLastStep();
         if (!step ||
             step.id == previousId ||
-            step.type != "clickElement" ||
+            step.type != builder.selenium2.stepTypes.clickElement ||
             e.target.nodeName.toLowerCase() == 'textbox')
         {
           // Ignore enter keypresses on select and option elements.
           if ({'select': true, 'option': true}[e.target.nodeName.toLowerCase()]) {
             return;
           }
-          params = builder.locator.create(e.target);
-          params.text = "\\13";
-          record_action("sendKeysToElement", params);
+          recordStep(new builder.Step(
+            builder.selenium2.stepTypes.sendKeysToElement,
+            builder.locator.fromElement(e.target),
+            "\\13"));
         }
       }, 100);
     }
-  }*/
-
+  },*/
   /**
    * Given a function and a recording function, returns a new function that first executes the 
    * original function and then calls the recording function, passing in the Observer function,
@@ -335,7 +324,7 @@ builder.sel2.Recorder = function (target_window, record_action) {
    * @param original The function to wrap.
    * @param observer The observer function to wrap it in.
    */
-  function wrapWithObserver(original, observer) {
+  wrapWithObserver: function(original, observer) {
     if (typeof original != 'function') { // FIXME - there should be better handling of this.
       return original;
     }
@@ -353,35 +342,31 @@ builder.sel2.Recorder = function (target_window, record_action) {
     
     replacement.__original__ = original;
     return replacement;
-  }
-
+  },
   /**
    * Attach an observer function to the given field of the given object.
    * @param object The object to one of whose fields we want to attach an observer
    * @param fieldName The name of the field
    * @param The observer function 
    */
-  function observe(object, fieldName, observer) {
+  observe: function(object, fieldName, observer) {
     if (object && object[fieldName]) {
-      object[fieldName] = new wrapWithObserver(object[fieldName], observer);
+      object[fieldName] = new this.wrapWithObserver(object[fieldName], observer);
     }
-  }
-
+  },
   /**
    * Detach observers from the given object's fields.
    * @param object The object to detach observers from
    * @param fieldNames___ All arguments beyond the 1st are the names of the fields to unobserve
    */
-  function unobserve(object, fieldNames___) {
+ unobserve: function(object, fieldNames___) {
     for (var i = 1; i < arguments.length; i++) {
       var fieldName = arguments[i];
       if (object && object[fieldName] && object[fieldName].__original__) {
         object[fieldName] = object[fieldName].__original__;
       }
     }
-  }
-
-  // qqDPS Alert handling not yet implemented for Sel 2.
+  },
   // FIXME: if possible this should be hooked in at a chrome level to avoid 
   // splattering messily if a web-app overrides the alert function.
   // event DOMWillOpenModalDialog doesn't seem to give enough information.
@@ -389,128 +374,125 @@ builder.sel2.Recorder = function (target_window, record_action) {
    * Attach observers to the alert, prompt, and confirm dialog functions to record the fact that
    * the test runner will have to wait for and then deal with the dialog. 
    */
-  function overrideDialogs(frame) {
-    observe(frame.wrappedJSObject, 'alert', function (thiz, args, retval) {
-      record_action("waitForAlert", { 'equal to': args[0] });
+  overrideDialogs: function(frame) {
+    // qqDPS No Selenium 2 alert support yet.
+    /*
+    var rec = this;
+    this.observe(frame.wrappedJSObject, 'alert', function (thiz, args, retval) {
+      rec.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForAlert, args[0]));
     });
-    observe(frame.wrappedJSObject, 'prompt', function (thiz, args, retval) {
-      record_action("answerOnNextPrompt", { 'answer': retval });
-      builder.reorderLastSteps(); // qqDPS
+    this.observe(frame.wrappedJSObject, 'prompt', function (thiz, args, retval) {
       // Necessary: Selenium raises an error if a second alert/prompt/confirmation occurs
       // before this gets called.
-      record_action("verifyPrompt", { 'equal to': args[0] }); 
+      rec.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyPrompt, args[0]));
+      rec.recordStep(new builder.Step(builder.selenium1.stepTypes.answerOnNextPrompt, retval));
     });
-    observe(frame.wrappedJSObject, 'confirm', function (thiz, args, retval) {
+    this.observe(frame.wrappedJSObject, 'confirm', function (thiz, args, retval) {
+      rec.recordStep(new builder.Step(builder.selenium1.stepTypes.verifyConfirmation, args[0]));
       if (retval) {
-        record_action("chooseOkOnNextConfirmation", {});
+        rec.recordStep(new builder.Step(builder.selenium1.stepTypes.chooseOkOnNextConfirmation));
       } else {
-        record_action("chooseCancelOnNextConfirmation", {});
+        rec.recordStep(new builder.Step(builder.selenium1.stepTypes.chooseCancelOnNextConfirmation));
       }
-      builder.reorderLastSteps();
-      record_action("verifyConfirmation", { 'equal to': args[0] });
     });
-  }
-
+    */
+  },
   /** Remove observers for dialogs. */
-  function underrideDialogs(frame) {
-    unobserve(frame.wrappedJSObject, 'alert', 'prompt', 'confirm');
-  }
-
+  underrideDialogs: function(frame) {
+    this.unobserve(frame.wrappedJSObject, 'alert', 'prompt', 'confirm');
+  },
+  /** Turns off autocomplete for the given fields. */
+  deactivateAutocomplete: function(elements) {
+    for (var i = 0; i < elements.length; i++) {
+      jQuery(elements[i]).attr("autocomplete", "off");
+    }
+  },
+  /** Reactivate autocomplete for the given elements. */
+  reactivateAutocomplete: function(elements) {
+    for (var i = 0; i < elements.length; i++) {
+      jQuery(elements[i]).removeAttr("autocomplete");
+    }
+  },
   /**
    * Attaches listeners to everything in the frame.
    * @param frame The frame to attach listeners to.
    * @param level The level of the frame - level 0 means it's a page in the browser
    */
-  function bindFrame(frame, level) {
+  bindFrame: function(frame, level) {
     // Remember that this frame has been bound to.
-    bound.push(frame);
-        
+    this.bound.push(frame);
+    
     // Turns out there are cases where people are canceling click on purpose, so I am manually
     // going to attach click listeners to all links.
     var links = frame.document.getElementsByTagName('a');
     for (var i = 0; i < links.length; i++) {
-      jQuery(links[i]).bind("click", {}, writeJsonClicks, true);
+      jQuery(links[i]).bind("click", {}, this.listeners.writeJsonClicks, true);
       for (var z = 0; z < links[i].childNodes.length; z++) {
-        jQuery(links[i].childNodes[z]).bind("click", {}, writeJsonClicks, true);
+        jQuery(links[i].childNodes[z]).bind("click", {}, this.listeners.writeJsonClicks, true);
       }
     }
 
-    overrideDialogs(frame);
+    this.overrideDialogs(frame);
 
     jQuery('canvas').
-        bind('click', {}, writeJsonClickAt, true).
-        bind('keypress', {}, writeJsonType, true);
+        bind('click', {}, this.listeners.writeJsonClickAt, true).
+        bind('keypress', {}, this.listeners.writeJsonType, true);
 
     jQuery(frame.document).
-        bind("dblclick", {}, writeJsonClicks, true).
-        bind("keyup", {}, writeJsonChange, true).
-        bind("change", {}, writeJsonChange, true)
+        bind("dblclick", {}, this.listeners.writeJsonClicks, true).
+        bind("keyup", {}, this.listeners.writeJsonChange, true).
+        bind("change", {}, this.listeners.writeJsonChange, true)
 
 
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
-          bind("keypress", {}, writeJsonType, true).
-          bind("click", {}, writeJsonClickAt, true);
+          bind("keypress", {}, this.listeners.writeJsonType, true).
+          bind("click", {}, this.listeners.writeJsonClickAt, true);
     } else {
       jQuery(frame.document).
-          bind("click", {}, writeJsonClicks, true);/*.
-          bind("keypress", {}, writeJsonKeyPress, true);*/
+          bind("click", {}, this.listeners.writeJsonClicks, true).
+          bind("keypress", {}, this.listeners.writeJsonKeyPress, true);
     }
 
     // Turn off autocomplete.
-    deactivateAutocomplete(frame.document.getElementsByTagName('form'));
-    deactivateAutocomplete(frame.document.getElementsByTagName('input'));
-    deactivateAutocomplete(frame.document.getElementsByTagName('textarea'));
-  }
-
-  /** Turns off autocomplete for the given fields. */
-  function deactivateAutocomplete(elements) {
-    for (var i = 0; i < elements.length; i++) {
-      jQuery(elements[i]).attr("autocomplete", "off");
-    }
-  }
-  
-  /** Reactivate autocomplete for the given elements. */
-  function reactivateAutocomplete(elements) {
-    for (var i = 0; i < elements.length; i++) {
-      jQuery(elements[i]).removeAttr("autocomplete");
-    }
-  }
-
+    this.deactivateAutocomplete(frame.document.getElementsByTagName('form'));
+    this.deactivateAutocomplete(frame.document.getElementsByTagName('input'));
+    this.deactivateAutocomplete(frame.document.getElementsByTagName('textarea'));
+  },
   /**
    * Remove all the listeners from everything in the frame.
    */
-  function unbindFrame(frame, level) {
+  unbindFrame: function(frame, level) {
     if (!frame.document) { return; }
     
     var links = frame.document.getElementsByTagName('a');
     for (var i = 0; i < links.length; i++) {
-      jQuery(links[i]).unbind("click", writeJsonClicks, true);
+      jQuery(links[i]).unbind("click", this.listeners.writeJsonClicks, true);
       for (var z = 0; z < links[i].childNodes.length; z++) {
-        jQuery(links[i].childNodes[z]).unbind("click", writeJsonClicks, true);
+        jQuery(links[i].childNodes[z]).unbind("click", this.listeners.writeJsonClicks, true);
       }
     }
 
-    underrideDialogs(frame);
+    this.underrideDialogs(frame);
     
     jQuery('canvas').
-        unbind('click', writeJsonClickAt, true).
-        unbind('keypress', writeJsonType, true);
+        unbind('click', this.listeners.writeJsonClickAt, true).
+        unbind('keypress', this.listeners.writeJsonType, true);
     
-    jQuery(frame.document).unbind("dblclick", writeJsonClicks, true);
+    jQuery(frame.document).unbind("dblclick", this.listeners.writeJsonClicks, true);
     
     jQuery(frame.document).
-        unbind("keyup", writeJsonChange, true).
-        unbind("change", writeJsonChange, true);
+        unbind("keyup", this.listeners.writeJsonChange, true).
+        unbind("change", this.listeners.writeJsonChange, true);
     
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
-          unbind("keypress", writeJsonType, true).
-          unbind("click", writeJsonClickAt, true);
+          unbind("keypress", this.listeners.writeJsonType, true).
+          unbind("click", this.listeners.writeJsonClickAt, true);
     } else {
       jQuery(frame.document).
-          unbind("click", writeJsonClicks, true);/*.
-          unbind("keypress", writeJsonKeyPress, true);*/
+          unbind("click", this.listeners.writeJsonClicks, true).
+          unbind("keypress", this.listeners.writeJsonKeyPress, true);
     }
 
     // Turn autocomplete back on. Unfortunately, this also turns on autocomplete for elements
@@ -522,62 +504,47 @@ builder.sel2.Recorder = function (target_window, record_action) {
     // turns into
     // <input name="email" type="text"></p>
     // when read in from jQuery.
-    reactivateAutocomplete(frame.document.getElementsByTagName('form'));
-    reactivateAutocomplete(frame.document.getElementsByTagName('input'));
-    reactivateAutocomplete(frame.document.getElementsByTagName('textarea'));
-  }
-
+    this.reactivateAutocomplete(frame.document.getElementsByTagName('form'));
+    this.reactivateAutocomplete(frame.document.getElementsByTagName('input'));
+    this.reactivateAutocomplete(frame.document.getElementsByTagName('textarea'));
+  },
   /**
    * Add listeners into common navigation functions.
    */
-  function bind_browser(browser) {
+  bind_browser: function(browser) {
+    var rec = this;
     // Firefox 3.5 Only
-    observe(browser, 'BrowserBack', function () {
-      if (browser.content == window.bridge.getRecordingWindow()) { record_action('goBack', {}); }
+    this.observe(browser, 'BrowserBack', function () {
+      if (browser.content == window.bridge.getRecordingWindow()) {
+        rec.recordStep(new builder.Step(builder.selenium2.stepTypes.goBack));
+      }
     });
 
     // The other BrowserReload* functions are just wrappers around this
-    observe(browser, 'BrowserReloadWithFlags', function () {
-      if (browser.content == window.bridge.getRecordingWindow()) { record_action('refresh', {}); }
+    this.observe(browser, 'BrowserReloadWithFlags', function () {
+      if (browser.content == window.bridge.getRecordingWindow()) {
+        rec.recordStep(new builder.Step(builder.selenium2.stepTypes.refresh));
+      }
     });
 
     // Listen for the user actually typing in a URL into the navigation bar.
     // (browser is a window, gBrowser is a Browser, and mCurrentBrowser is a TabBrowser)
-    observe(browser.gBrowser.mCurrentBrowser, 'loadURIWithFlags', function (browser, url) {
+    this.observe(browser.gBrowser.mCurrentBrowser, 'loadURIWithFlags', function (browser, url) {
       // We can't find out what the URL was until after we get destroyed (and then bound to
       // the next content window) so we rely on who ever is listening to do this for us.
-      record_action('open', {}, /* user opened page manually*/ true);
+      rec.recordStep(new builder.Step(builder.selenium2.stepTypes.get, ""));
     });
-  }
-
+  },
   /**
    * Remove listeners from common navigation functions.
    */
-  function unbind_browser(browser) {
-    unobserve(browser, 'BrowserBack', 'BrowserReloadWithFlags');
-    unobserve(browser.gBrowser.mCurrentBrowser, 'loadURIWithFlags');
+  unbind_browser: function(browser) {
+    this.unobserve(browser, 'BrowserBack', 'BrowserReloadWithFlags');
+    this.unobserve(browser.gBrowser.mCurrentBrowser, 'loadURIWithFlags');
+  },
+  destroy: function() {
+    builder.loadlistener.on_all_frames(this.top_window, this.listeners.unbindFrame, 0);
+    clearInterval(this.checkFrames);
+    this.unbind_browser(window.bridge.getBrowser());
   }
-
-  // Initialise the recorder by binding to all frames in the recorder window.
-  builder.loadlistener.on_all_frames(target_window, bindFrame, 0);
-  // Periodically check if new frames have appeared.
-  var checkFrames = setInterval(function () {
-    builder.loadlistener.on_all_frames(target_window, function (frame, level) {
-      if (bound.indexOf(frame) == -1) {
-        bindFrame(frame, level);
-      }
-    }, 0);
-  }, 200);
-  
-  // Now listen on navigation functions in the browser.
-  bind_browser(window.bridge.getBrowser());
-  
-  return {
-    /** Turns off the recorder. */
-    destroy: function () {
-      builder.loadlistener.on_all_frames(target_window, unbindFrame, 0);
-      clearInterval(checkFrames);
-      unbind_browser(window.bridge.getBrowser());
-    }
-  };
 };

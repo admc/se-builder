@@ -228,7 +228,7 @@ builder.selenium1.Recorder.prototype = {
       if (e.which >= 32 || e.which == 9 || e.which == 10) {
         lastStep.value += String.fromCharCode(e.which);
       } else if (e.which == 8) {
-        lastStep.value = lastStep.value.substr(prev.lastStep.value.length - 1);
+        lastStep.value = lastStep.value.substr(lastStep.value.length - 1);
       }
       builder.stepdisplay.update();
     } else {
@@ -281,7 +281,7 @@ builder.selenium1.Recorder.prototype = {
       // followed by a click event. Hence, wait 100 ms and check if another step got recorded
       // in the meantime.
       setTimeout(function () {
-        var step = builder.getScript().getLastStep()();
+        var step = builder.getScript().getLastStep();
         if (!step ||
             step.id == previousId ||
             step.type != builder.selenium1.stepTypes.click ||
@@ -291,7 +291,7 @@ builder.selenium1.Recorder.prototype = {
           if ({'select': true, 'option': true}[e.target.nodeName.toLowerCase()]) {
             return;
           }
-          this.recordStep(new builder.Step(
+          recordStep(new builder.Step(
             builder.selenium1.stepTypes.keyPress,
             builder.locator.fromElement(e.target),
             "\\13"));
