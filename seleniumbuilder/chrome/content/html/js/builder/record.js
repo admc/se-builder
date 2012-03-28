@@ -91,9 +91,25 @@ builder.record.continueRecording = function() {
       jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
         builder.record.recorder.destroy();
+        var script = builder.getScript();
         if (builder.getScript().seleniumVersion == builder.selenium1) {
+          // If we've navigated to this location manually, the URL has not yet been set, so we do
+          // this now.
+          var ls = script.getLastStep();
+          if (ls && ls.type == builder.selenium1.stepTypes.open && (ls.url || "") == "") {
+            ls.url = window.bridge.getRecordingWindow().location + "";
+            builder.stepdisplay.update();
+          }
+          
           builder.record.recorder = new builder.selenium1.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
         } else {
+          // If we've navigated to this location manually, the URL has not yet been set, so we do
+          // this now.
+          var ls = script.getLastStep();
+          if (ls && ls.type == builder.selenium2.stepTypes.get && (ls.url || "") == "") {
+            ls.url = window.bridge.getRecordingWindow().location + "";
+            builder.stepdisplay.update();
+          }
           builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
         }
       }
