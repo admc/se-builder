@@ -2,11 +2,10 @@ builder.views.script = {};
 
 builder.views.script.clearResults = function() {
   var script = builder.getScript();
-  if (script.steps) { script = script.steps; }
-  for (var i = 0; i < script.length; i++) {
-    jQuery('#' + script[i].uuid + '-content').css('background-color', '#dddddd');
-    jQuery('#' + script[i].uuid + 'error').hide();
-    jQuery('#' + script[i].uuid + 'message').hide();  
+  for (var i = 0; i < script.steps.length; i++) {
+    jQuery('#' + script.steps[i].id + '-content').css('background-color', '#dddddd');
+    jQuery('#' + script.steps[i].id + 'error').hide();
+    jQuery('#' + script.steps[i].id + 'message').hide();  
   }
   jQuery('#edit-clearresults').hide();
 };

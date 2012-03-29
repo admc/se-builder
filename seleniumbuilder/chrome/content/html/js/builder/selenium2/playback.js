@@ -3,60 +3,59 @@
 */
 
 builder.selenium2.playback = {};
-pb = builder.selenium2.playback;
 
 /** The WebDriver session ID. */
-pb.sessionId = null;
+builder.selenium2.playback.sessionId = null;
 /** The CommandProcessor used to talk to WebDriver with. */
-pb.commandProcessor = null;
+builder.selenium2.playback.commandProcessor = null;
 /** The script being played back. */
-pb.script = null;
+builder.selenium2.playback.script = null;
 /** The step being played back. */
-pb.currentStep = null;
+builder.selenium2.playback.currentStep = null;
 /** The step after which playback should stop. */
-pb.finalStep = null;
+builder.selenium2.playback.finalStep = null;
 /** The function to call with a result object after the run has concluded one way or another. */
-pb.postPlayCallback = null;
+builder.selenium2.playback.postPlayCallback = null;
 /** The result object returned at the end of the run. */
-pb.playResult = null;
+builder.selenium2.playback.playResult = null;
 /** Whether the user has requested test stoppage. */
-pb.stopRequest = false;
+builder.selenium2.playback.stopRequest = false;
 /** What interval to check waits for. */
-pb.waitIntervalAmount = 300;
+builder.selenium2.playback.waitIntervalAmount = 300;
 /** How many wait cycles are run before waits time out. */
-pb.maxWaitCycles = 60000 / pb.waitIntervalAmount;
+builder.selenium2.playback.maxWaitCycles = 60000 / builder.selenium2.playback.waitIntervalAmount;
 /** How many wait cycles have been run. */
-pb.waitCycle = 0;
+builder.selenium2.playback.waitCycle = 0;
 /** The wait interval. */
-pb.waitInterval = null;
+builder.selenium2.playback.waitInterval = null;
 /** Stored variables. */
-pb.vars = {};
+builder.selenium2.playback.vars = {};
 
-pb.stopTest = function() {
-  pb.stopRequest = true;
+builder.selenium2.playback.stopTest = function() {
+  builder.selenium2.playback.stopRequest = true;
 };
 
-pb.runTest = function(postPlayCallback) {
-  pb.vars = {};
-  pb.runTestBetween(
+builder.selenium2.playback.runTest = function(postPlayCallback) {
+  builder.selenium2.playback.vars = {};
+  builder.selenium2.playback.runTestBetween(
     postPlayCallback,
     builder.getScript().steps[0].id,
     builder.getScript().steps[builder.getScript().steps.length - 1].id
   );
 };
 
-pb.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
-  pb.script = builder.getScript();
-  pb.postPlayCallback = postPlayCallback;
-  pb.currentStep = pb.script.getStepWithID(startStepID);
-  pb.finalStep = pb.script.getStepWithID(endStepID);
-  pb.playResult = {success: true};
-  pb.startSession();
+builder.selenium2.playback.runTestBetween = function(postPlayCallback, startStepID, endStepID) {
+  builder.selenium2.playback.script = builder.getScript();
+  builder.selenium2.playback.postPlayCallback = postPlayCallback;
+  builder.selenium2.playback.currentStep = builder.selenium2.playback.script.getStepWithID(startStepID);
+  builder.selenium2.playback.finalStep = builder.selenium2.playback.script.getStepWithID(endStepID);
+  builder.selenium2.playback.playResult = {success: true};
+  builder.selenium2.playback.startSession();
 };
 
-pb.startSession = function() {
+builder.selenium2.playback.startSession = function() {
   builder.views.script.clearResults();
-  pb.stopRequest = false;
+  builder.selenium2.playback.stopRequest = false;
   jQuery('#edit-clearresults').show();
   jQuery('#edit-local-playing').show();
   jQuery('#edit-stop-local-playback').show();
@@ -66,7 +65,7 @@ pb.startSession = function() {
   var server = handle.wrappedJSObject;
   var driver = server.newDriver(window.bridge.getRecordingWindow());
   var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
-  pb.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
+  builder.selenium2.playback.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
   var newSessionCommand = {
     'name': 'newSession',
     'context': '',
@@ -74,64 +73,66 @@ pb.startSession = function() {
       'window_title':window.bridge.getRecordingWindow().document.title
     }
   };
-  pb.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
-    pb.sessionId = JSON.parse(result).value;
-    pb.playStep();
+  builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+    builder.selenium2.playback.sessionId = JSON.parse(result).value;
+    builder.selenium2.playback.playStep();
   });
 };
 
-pb.findElement = function(locator, callback, errorCallback) {
-  pb.execute('findElement', {using: locator.type, value: locator.value}, callback, errorCallback);
+builder.selenium2.playback.findElement = function(locator, callback, errorCallback) {
+  builder.selenium2.playback.execute('findElement', {using: locator.type, value: locator.value}, callback, errorCallback);
 };
 
-pb.execute = function(name, parameters, callback, errorCallback) {
+builder.selenium2.playback.execute = function(name, parameters, callback, errorCallback) {
   var cmd = {
     'name': name,
     'context': '',
     'parameters': parameters,
-    'sessionId': {"value": pb.sessionId}
+    'sessionId': {"value": builder.selenium2.playback.sessionId}
   };
-  pb.commandProcessor.execute(JSON.stringify(cmd), function(result) {
+  builder.selenium2.playback.commandProcessor.execute(JSON.stringify(cmd), function(result) {
     result = JSON.parse(result);
     if (result.status != 0) {
       if (errorCallback) {
         errorCallback(result);
       } else {
-        pb.recordError(result.value.message);
+        builder.selenium2.playback.recordError(result.value.message);
       }
     } else {
       if (callback) {
         callback(result);
       } else {
-        pb.recordResult({success: true});
+        builder.selenium2.playback.recordResult({success: true});
       }
     }
   });
 };
 
-pb.clearElement = function(target) {
-  pb.execute('isElementSelected', {id: target}, function(result) {
+builder.selenium2.playback.clearElement = function(target) {
+  builder.selenium2.playback.execute('isElementSelected', {id: target}, function(result) {
     if (result.value) {
-      pb.execute('clickElement', {id: target});
+      builder.selenium2.playback.execute('clickElement', {id: target});
     }
   });
 };
 
 /** Performs ${variable} substitution for parameters. */
-pb.param = function(pName) {
+builder.selenium2.playback.param = function(pName) {
   var output = "";
   var hasDollar = false;
   var insideVar = false;
   var varName = "";
-  var text = pName.startsWith("locator") ? pb.currentStep[pName].value : pb.currentStep[pName];
+  var text = builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
+    ? builder.selenium2.playback.currentStep[pName].getValue() : builder.selenium2.playback.currentStep[pName];
+  //pName.startsWith("locator") ? builder.selenium2.playback.currentStep[pName].value : builder.selenium2.playback.currentStep[pName];
   for (var i = 0; i < text.length; i++) {
     var ch = text.substring(i, i + 1);
     if (insideVar) {
       if (ch == "}") {
-        if (pb.vars[varName] == undefined) {
+        if (builder.selenium2.playback.vars[varName] == undefined) {
           throw "Variable not set: " + varName + ".";
         }
-        output += pb.vars[varName];
+        output += builder.selenium2.playback.vars[varName];
         insideVar = false;
         hasDollar = false;
         varName = "";
@@ -148,396 +149,398 @@ pb.param = function(pName) {
     }
   }
   
-  return pName.startsWith("locator") ? {"type": pb.currentStep[pName].type, "value": output} : output;
+  //return pName.startsWith("locator") ? {"type": builder.selenium2.playback.currentStep[pName].type, "value": output} : output;
+  return builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
+    ? {"type": builder.selenium2.playback.currentStep[pName].getName(builder.selenium2), "value": output} : output;
 };
 
-pb.canPlayback = function(stepType) {
-  return !!pb.playbackFunctions[stepType.getName()];
+builder.selenium2.playback.canPlayback = function(stepType) {
+  return !!builder.selenium2.playback.playbackFunctions[stepType.getName()];
 };
 
-pb.playbackFunctions = {
+builder.selenium2.playback.playbackFunctions = {
   "print": function() {
-    pb.print(pb.param("text"));
-    pb.recordResult({success: true});
+    builder.selenium2.playback.print(builder.selenium2.playback.param("text"));
+    builder.selenium2.playback.recordResult({success: true});
   },
   "store": function() {
-    pb.vars[pb.param("variable")] = pb.param("text");
-    pb.recordResult({success: true});
+    builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = builder.selenium2.playback.param("text");
+    builder.selenium2.playback.recordResult({success: true});
   },
   "get": function() {
-    pb.execute('get', {url: pb.param("url")});
+    builder.selenium2.playback.execute('get', {url: builder.selenium2.playback.param("url")});
   },
   "goBack": function() {
-    pb.execute('goBack', {});
+    builder.selenium2.playback.execute('goBack', {});
   },
   "goForward": function() {
-    pb.execute('goForward', {});
+    builder.selenium2.playback.execute('goForward', {});
   },
   "clickElement": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('clickElement', {id: result.value.ELEMENT});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
   "doubleClickElement": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('clickElement', {id: result.value.ELEMENT});
-      pb.execute('clickElement', {id: result.value.ELEMENT});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('clickElement', {id: result.value.ELEMENT});
+      builder.selenium2.playback.execute('clickElement', {id: result.value.ELEMENT});
     });
   },
   "submitElement": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('submitElement', {id: result.value.ELEMENT});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('submitElement', {id: result.value.ELEMENT});
     });
   },
   "sendKeysToElement": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('sendKeysToElement', {id: result.value.ELEMENT, value: pb.param("text").split("")});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('sendKeysToElement', {id: result.value.ELEMENT, value: builder.selenium2.playback.param("text").split("")});
     });
   },
   "setElementSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       var target = result.value.ELEMENT;
-      pb.execute('isElementSelected', {id: target}, function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: target}, function(result) {
         if (!result.value) {
-          pb.execute('clickElement', {id: target});
+          builder.selenium2.playback.execute('clickElement', {id: target});
         } else {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         }
       });
     });
   },
   "setElementNotSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       var target = result.value.ELEMENT;
-      pb.execute('isElementSelected', {id: target}, function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: target}, function(result) {
         if (result.value) {
-          pb.execute('clickElement', {id: target});
+          builder.selenium2.playback.execute('clickElement', {id: target});
         } else {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         }
       });
     });
   },
   "clearSelections": function() {
-    pb.findElement(pb.param("locator"), function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       var target = result.value.ELEMENT;
-      pb.execute('findChildElements', {id: target, using: "tag name", value: "option"}, function(result) {
+      builder.selenium2.playback.execute('findChildElements', {id: target, using: "tag name", value: "option"}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
-          pb.clearElement(result.value[i].ELEMENT);
+          builder.selenium2.playback.clearElement(result.value[i].ELEMENT);
         }
-        pb.recordResult({success: true});
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   "refresh": function() {
-    pb.execute('refresh', {});
+    builder.selenium2.playback.execute('refresh', {});
   },
   "verifyTextPresent": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.param("text")) != -1) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordResult({success: false, message: "Text not present."});
+        builder.selenium2.playback.recordResult({success: false, message: "Text not present."});
       }
     });
   },
   "assertTextPresent": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(pb.param("text")) != -1) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordError("Text not present.");
+        builder.selenium2.playback.recordError("Text not present.");
       }
     });
   },
   "waitForTextPresent": function() {
-    pb.wait(function(callback) {
-      pb.execute('getPageSource', {}, function(result) {
-        callback(result.value.indexOf(pb.param("text")) != -1);
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+        callback(result.value.indexOf(builder.selenium2.playback.param("text")) != -1);
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeTextPresent": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      pb.vars[pb.param("variable")] = result.value.indexOf(pb.param("text")) != -1;
-      pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value.indexOf(builder.selenium2.playback.param("text")) != -1;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
   
   "verifyBodyText": function() {
-    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.param("text")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.param("text")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Body text does not match."});
+          builder.selenium2.playback.recordResult({success: false, message: "Body text does not match."});
         }
       });
     });
   },
   "assertBodyText": function() {
-    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.param("text")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.param("text")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Body text does not match.");
+          builder.selenium2.playback.recordError("Body text does not match.");
         }
       });
     });
   },
   "waitForBodyText": function() {
-    pb.wait(function(callback) {
-      pb.findElement({type: 'tag name', value: 'body'}, function(result) {
-        pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-          callback(result.value == pb.param("text"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+        builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == builder.selenium2.playback.param("text"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeBodyText": function() {
-    pb.findElement({type: 'tag name', value: 'body'}, function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        pb.vars[pb.param("variable")] = result.value;
-        pb.recordResult({success: true});
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   
   "verifyElementPresent": function() {
-    pb.findElement(pb.param("locator"), null, function(result) {
-      pb.recordResult({success: false, message: "Element not found."});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), null, function(result) {
+      builder.selenium2.playback.recordResult({success: false, message: "Element not found."});
     });
   },
   "assertElementPresent": function() {
-    pb.findElement(pb.param("locator"), null, function(result) {
-      pb.recordError("Element not found.");
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), null, function(result) {
+      builder.selenium2.playback.recordError("Element not found.");
     });
   },
   "waitForElementPresent": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"),
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"),
         /*success*/ function(result) { callback(true);  },
         /*error  */ function(result) { callback(false); }
       );
     });
   },
   "storeElementPresent": function() {
-    pb.findElement(pb.param("locator"),
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"),
     /*success*/
     function(result) {
-      pb.vars[pb.param("variable")] = true;
-      pb.recordResult({success: true});
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = true;
+      builder.selenium2.playback.recordResult({success: true});
     },
     /*failure*/
     function(result) {
-      pb.vars[pb.param("variable")] = false;
-      pb.recordResult({success: true});
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = false;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
   
   "verifyPageSource": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      if (result.value == pb.param("source")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("source")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordResult({success: false, message: "Source does not match."});
+        builder.selenium2.playback.recordResult({success: false, message: "Source does not match."});
       }
     });
   },
   "assertPageSource": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      if (result.value == pb.param("source")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("source")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordError("Source does not match.");
+        builder.selenium2.playback.recordError("Source does not match.");
       }
     });
   },
   "waitForPageSource": function() {
-    pb.wait(function(callback) {
-      pb.execute('getPageSource', {}, function(result) {
-        callback(result.value == pb.param("source"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+        callback(result.value == builder.selenium2.playback.param("source"));
       }, /*error*/ function() { callback(false); });
     });
   },
   "storePageSource": function() {
-    pb.execute('getPageSource', {}, function(result) {
-      pb.vars[pb.param("variable")] = result.value;
-      pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
   
   "verifyText": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.param("text")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.param("text")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Element text does not match."});
+          builder.selenium2.playback.recordResult({success: false, message: "Element text does not match."});
         }
       });
     });
   },
   "assertText": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.param("text")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.param("text")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Element text does not match.");
+          builder.selenium2.playback.recordError("Element text does not match.");
         }
       });
     });
   },
   "waitForText": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"), function(result) {
-        pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-          callback(result.value == pb.param("text"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+        builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == builder.selenium2.playback.param("text"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeText": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
-        pb.vars[pb.param("variable")] = result.value;
-        pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   
   "verifyCurrentUrl": function() {
-    pb.execute('getCurrentUrl', {}, function(result) {
-      if (result.value == pb.param("url")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getCurrentUrl', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("url")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordResult({success: false, message: "URL does not match."});
+        builder.selenium2.playback.recordResult({success: false, message: "URL does not match."});
       }
     });
   },
   "assertCurrentUrl": function() {
-    pb.execute('getCurrentUrl', {}, function(result) {
-      if (result.value == pb.param("url")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getCurrentUrl', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("url")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordError("URL does not match.");
+        builder.selenium2.playback.recordError("URL does not match.");
       }
     });
   },
   "waitForCurrentUrl": function() {
-    pb.wait(function(callback) {
-      pb.execute('getCurrentUrl', {}, function(result) {
-        callback(result.value == pb.param("url"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getCurrentUrl', {}, function(result) {
+        callback(result.value == builder.selenium2.playback.param("url"));
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeCurrentUrl": function() {
-    pb.execute('getCurrentUrl', {}, function(result) {
-      pb.vars[pb.param("variable")] = result.value;
-      pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getCurrentUrl', {}, function(result) {
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
   
   "verifyTitle": function() {
-    pb.execute('getTitle', {}, function(result) {
-      if (result.value == pb.param("title")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getTitle', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("title")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordResult({success: false, message: "Title does not match."});
+        builder.selenium2.playback.recordResult({success: false, message: "Title does not match."});
       }
     });
   },
   "assertTitle": function() {
-    pb.execute('getTitle', {}, function(result) {
-      if (result.value == pb.param("title")) {
-        pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getTitle', {}, function(result) {
+      if (result.value == builder.selenium2.playback.param("title")) {
+        builder.selenium2.playback.recordResult({success: true});
       } else {
-        pb.recordError("Title does not match.");
+        builder.selenium2.playback.recordError("Title does not match.");
       }
     });
   },
   "waitForTitle": function() {
-    pb.wait(function(callback) {
-      pb.execute('getTitle', {}, function(result) {
-        callback(result.value == pb.param("title"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getTitle', {}, function(result) {
+        callback(result.value == builder.selenium2.playback.param("title"));
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeTitle": function() {
-    pb.execute('getTitle', {}, function(result) {
-      pb.vars[pb.param("variable")] = result.value;
-      pb.recordResult({success: true});
+    builder.selenium2.playback.execute('getTitle', {}, function(result) {
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
   
   "verifyElementSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Element not selected."});
+          builder.selenium2.playback.recordResult({success: false, message: "Element not selected."});
         }
       });
     });
   },
   "assertElementSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (result.value) {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Element not selected.");
+          builder.selenium2.playback.recordError("Element not selected.");
         }
       });
     });
   },
   "waitForElementSelected": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"), function(result) {
-        pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+        builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
           callback(result.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeElementSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
-        pb.vars[pb.param("variable")] = result.value;
-        pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   
   "verifyElementNotSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (!result.value) {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Element is selected."});
+          builder.selenium2.playback.recordResult({success: false, message: "Element is selected."});
         }
       });
     });
   },
   "assertElementNotSelected": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
         if (!result.value) {
-          pb.recordResult({success: true});
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Element is selected.");
+          builder.selenium2.playback.recordError("Element is selected.");
         }
       });
     });
   },
   "waitForElementNotSelected": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"), function(result) {
-        pb.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+        builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
           callback(!result.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
@@ -545,92 +548,92 @@ pb.playbackFunctions = {
   },
   
   "verifyElementValue": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.value) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.currentStep.value) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Element value does not match."});
+          builder.selenium2.playback.recordResult({success: false, message: "Element value does not match."});
         }
       });
     });
   },
   "assertElementValue": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
-        if (result.value == pb.currentStep.value) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        if (result.value == builder.selenium2.playback.currentStep.value) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Element value does not match.");
+          builder.selenium2.playback.recordError("Element value does not match.");
         }
       });
     });
   },
   "waitForElementValue": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"), function(result) {
-        pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
-          callback(result.value == pb.currentStep.value);
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+        builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value == builder.selenium2.playback.currentStep.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeElementValue": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
-        pb.vars[pb.param("variable")] = result.value;
-        pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   
   "verifyElementAttribute": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
-        if (result.value == pb.param("value")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: builder.selenium2.playback.param("attributeName") }, function(result) {
+        if (result.value == builder.selenium2.playback.param("value")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordResult({success: false, message: "Attribute value does not match."});
+          builder.selenium2.playback.recordResult({success: false, message: "Attribute value does not match."});
         }
       });
     });
   },
   "assertElementAttribute": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
-        if (result.value == pb.param("value")) {
-          pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: builder.selenium2.playback.param("attributeName") }, function(result) {
+        if (result.value == builder.selenium2.playback.param("value")) {
+          builder.selenium2.playback.recordResult({success: true});
         } else {
-          pb.recordError("Attribute value does not match.");
+          builder.selenium2.playback.recordError("Attribute value does not match.");
         }
       });
     });
   },
   "waitForElementAttribute": function() {
-    pb.wait(function(callback) {
-      pb.findElement(pb.param("locator"), function(result) {
-        pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
-          callback(result.value == pb.param("value"));
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+        builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: builder.selenium2.playback.param("attributeName") }, function(result) {
+          callback(result.value == builder.selenium2.playback.param("value"));
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeElementAttribute": function() {
-    pb.findElement(pb.param("locator"), function(result) {
-      pb.execute('getElementAttribute', {id: result.value.ELEMENT, name: pb.param("attributeName") }, function(result) {
-        pb.vars[pb.param("variable")] = result.value;
-        pb.recordResult({success: true});
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: builder.selenium2.playback.param("attributeName") }, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+        builder.selenium2.playback.recordResult({success: true});
       });
     });
   },
   
   "deleteCookie": function() {
-    pb.execute('deleteCookie', {"name": pb.param("name")});
+    builder.selenium2.playback.execute('deleteCookie', {"name": builder.selenium2.playback.param("name")});
   },
   
   "addCookie": function() {
-    var params = {"cookie": {"name": pb.param("name"), "value": pb.param("value")}};
-    var opts = pb.param("options").split(",");
+    var params = {"cookie": {"name": builder.selenium2.playback.param("name"), "value": builder.selenium2.playback.param("value")}};
+    var opts = builder.selenium2.playback.param("options").split(",");
     for (var i = 0; i < opts.length; i++) {
       var kv = opts[i].trim().split("=");
       if (kv.length == 1) { continue; }
@@ -641,45 +644,45 @@ pb.playbackFunctions = {
         params.cookie.expiry = (new Date().getTime()) / 1000 + parseInt(kv[1]);
       }
     }
-    pb.execute('addCookie', params);
+    builder.selenium2.playback.execute('addCookie', params);
   },
   
   "verifyCookieByName": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          if (result.value[i].value == pb.param("value")) {
-            pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          if (result.value[i].value == builder.selenium2.playback.param("value")) {
+            builder.selenium2.playback.recordResult({success: true});
           } else {
-            pb.recordResult({success: false, message: "Element value does not match."});
+            builder.selenium2.playback.recordResult({success: false, message: "Element value does not match."});
           }
           return;
         }
       }
-      pb.recordResult({success: false, message: "No cookie found with this name."});
+      builder.selenium2.playback.recordResult({success: false, message: "No cookie found with this name."});
     });
   },
   "assertCookieByName": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          if (result.value[i].value == pb.param("value")) {
-            pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          if (result.value[i].value == builder.selenium2.playback.param("value")) {
+            builder.selenium2.playback.recordResult({success: true});
           } else {
-            pb.recordError("Element value does not match.");
+            builder.selenium2.playback.recordError("Element value does not match.");
           }
           return;
         }
       }
-      pb.recordError("No cookie found with this name.");
+      builder.selenium2.playback.recordError("No cookie found with this name.");
     });
   },
   "waitForCookieByName": function() {
-    pb.wait(function(callback) {
-      pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getCookies', {}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
-          if (result.value[i].name == pb.param("name")) {
-            callback(result.value[i].value == pb.param("value"));
+          if (result.value[i].name == builder.selenium2.playback.param("name")) {
+            callback(result.value[i].value == builder.selenium2.playback.param("value"));
             return;
           }
         }
@@ -689,45 +692,45 @@ pb.playbackFunctions = {
     });
   },
   "storeCookieByName": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          pb.vars[pb.param("variable")] = result.value;
-          pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+          builder.selenium2.playback.recordResult({success: true});
           return;
         }
       }
-      pb.recordError("No cookie found with this name.");
+      builder.selenium2.playback.recordError("No cookie found with this name.");
     });
   },
   
   "verifyCookiePresent": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          builder.selenium2.playback.recordResult({success: true});
           return;
         }
       }
-      pb.recordResult({success: false, message: "No cookie found with this name."});
+      builder.selenium2.playback.recordResult({success: false, message: "No cookie found with this name."});
     });
   },
   "assertCookiePresent": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          builder.selenium2.playback.recordResult({success: true});
           return;
         }
       }
-      pb.recordError("No cookie found with this name.");
+      builder.selenium2.playback.recordError("No cookie found with this name.");
     });
   },
   "waitForCookiePresent": function() {
-    pb.wait(function(callback) {
-      pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.wait(function(callback) {
+      builder.selenium2.playback.execute('getCookies', {}, function(result) {
         for (var i = 0; i < result.value.length; i++) {
-          if (result.value[i].name == pb.param("name")) {
+          if (result.value[i].name == builder.selenium2.playback.param("name")) {
             callback(true);
             return;
           }
@@ -738,107 +741,107 @@ pb.playbackFunctions = {
     });
   },
   "storeCookiePresent": function() {
-    pb.execute('getCookies', {}, function(result) {
+    builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
-        if (result.value[i].name == pb.param("name")) {
-          pb.vars[pb.param("variable")] = true;
-          pb.recordResult({success: true});
+        if (result.value[i].name == builder.selenium2.playback.param("name")) {
+          builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = true;
+          builder.selenium2.playback.recordResult({success: true});
           return;
         }
       }
-      pb.vars[pb.param("variable")] = false;
-      pb.recordResult({success: true});
+      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = false;
+      builder.selenium2.playback.recordResult({success: true});
     });
   },
     
   "saveScreenshot": function() {
-    pb.execute("saveScreenshot", pb.param("file"));
+    builder.selenium2.playback.execute("saveScreenshot", builder.selenium2.playback.param("file"));
   }
 };
 
-pb.wait = function(testFunction) {
-  builder.stepdisplay.setProgressBar(pb.currentStep.id, 0);
-  pb.waitCycle = 0;
-  pb.waitInterval = window.setInterval(function() {
+builder.selenium2.playback.wait = function(testFunction) {
+  builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, 0);
+  builder.selenium2.playback.waitCycle = 0;
+  builder.selenium2.playback.waitInterval = window.setInterval(function() {
     testFunction(function(success) {
       if (success) {
-        window.clearInterval(pb.waitInterval);
-        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
-        pb.recordResult({success: true});
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.recordResult({success: true});
         return;
       }
-      if (pb.waitCycle++ >= pb.maxWaitCycles) {
-        window.clearInterval(pb.waitInterval);
-        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
-        pb.recordError("Wait timed out.");
+      if (builder.selenium2.playback.waitCycle++ >= builder.selenium2.playback.maxWaitCycles) {
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.recordError("Wait timed out.");
         return;
       }
-      if (pb.stopRequest) {
-        window.clearInterval(pb.waitInterval);
-        builder.stepdisplay.hideProgressBar(pb.currentStep.id);
-        pb.shutdown();
+      if (builder.selenium2.playback.stopRequest) {
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.shutdown();
         return;
       }
-      builder.stepdisplay.setProgressBar(pb.currentStep.id, pb.waitCycle * 100 / pb.maxWaitCycles);
+      builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, builder.selenium2.playback.waitCycle * 100 / builder.selenium2.playback.maxWaitCycles);
     });
-  }, pb.waitIntervalAmount);
+  }, builder.selenium2.playback.waitIntervalAmount);
 };
 
-pb.playStep = function() {
-  jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffffaa');
-  if (pb.playbackFunctions[pb.currentStep.type]) {
-    pb.playbackFunctions[pb.currentStep.type]();
+builder.selenium2.playback.playStep = function() {
+  jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ffffaa');
+  if (builder.selenium2.playback.playbackFunctions[builder.selenium2.playback.currentStep.type.getName()]) {
+    builder.selenium2.playback.playbackFunctions[builder.selenium2.playback.currentStep.type.getName()]();
   } else {
-    pb.recordError(pb.currentStep.type + " not implemented for playback");
+    builder.selenium2.playback.recordError(builder.selenium2.playback.currentStep.type + " not implemented for playback");
   }
 };
 
-pb.print = function(text) {
-  jQuery('#' + pb.currentStep.id + '-message').show().append(newNode('span', text));
+builder.selenium2.playback.print = function(text) {
+  jQuery('#' + builder.selenium2.playback.currentStep.id + '-message').show().append(newNode('span', text));
 }
 
-pb.recordResult = function(result) {
-  if (pb.currentStep.negated) {
+builder.selenium2.playback.recordResult = function(result) {
+  if (builder.selenium2.playback.currentStep.negated) {
     result.success = !result.success;
-    result.message = pb.currentStep.type + " is true";
+    result.message = builder.selenium2.playback.currentStep.type + " is true";
   }
   if (result.success) {
-    jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ccffcc');
+    jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ccffcc');
   } else {
-    jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ffcccc');
-    pb.playResult.success = false;
+    jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ffcccc');
+    builder.selenium2.playback.playResult.success = false;
     if (result.message) {
-      jQuery('#' + pb.currentStep.id + '-message').html(result.message).show();
-      pb.playResult.errormessage = result.message;
+      jQuery('#' + builder.selenium2.playback.currentStep.id + '-message').html(result.message).show();
+      builder.selenium2.playback.playResult.errormessage = result.message;
     }
   }
   
-  if (pb.stopRequest || pb.currentStep == pb.finalStep) {
-    pb.shutdown();
+  if (builder.selenium2.playback.stopRequest || builder.selenium2.playback.currentStep == builder.selenium2.playback.finalStep) {
+    builder.selenium2.playback.shutdown();
   } else {
-    pb.currentStep = pb.script.steps[pb.script.getStepIndexForID(pb.currentStep.id) + 1];
-    pb.playStep();
+    builder.selenium2.playback.currentStep = builder.selenium2.playback.script.steps[builder.selenium2.playback.script.getStepIndexForID(builder.selenium2.playback.currentStep.id) + 1];
+    builder.selenium2.playback.playStep();
   }
 };
 
-pb.shutdown = function() {
+builder.selenium2.playback.shutdown = function() {
   jQuery('#edit-local-playing').hide();
   jQuery('#edit-stop-local-playback').hide();
-  if (pb.postPlayCallback) {
-    pb.postPlayCallback(pb.playResult);
+  if (builder.selenium2.playback.postPlayCallback) {
+    builder.selenium2.playback.postPlayCallback(builder.selenium2.playback.playResult);
   }
 };
 
-pb.recordError = function(message) {
-  if (pb.currentStep.negated && pb.currentStep.type.startsWith("assert")) {
+builder.selenium2.playback.recordError = function(message) {
+  if (builder.selenium2.playback.currentStep.negated && builder.selenium2.playback.currentStep.type.startsWith("assert")) {
     // Record this as a failed result instead - this way it will be turned into a successful result
     // by recordResult.
-    pb.recordResult({success: false});
+    builder.selenium2.playback.recordResult({success: false});
     return;
   }
-  jQuery('#' + pb.currentStep.id + '-content').css('background-color', '#ff3333');
-  pb.playResult.success = false;
-  jQuery('#' + pb.currentStep.id + '-error').html(message).show();
-  pb.playResult.errormessage = message;
-  pb.shutdown();
+  jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ff3333');
+  builder.selenium2.playback.playResult.success = false;
+  jQuery('#' + builder.selenium2.playback.currentStep.id + '-error').html(message).show();
+  builder.selenium2.playback.playResult.errormessage = message;
+  builder.selenium2.playback.shutdown();
 };
