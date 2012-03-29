@@ -5,7 +5,7 @@ builder.openSel2File = function(script) {
   // the steps being shown).
   builder.gui.switchView(builder.views.script);
   
-  builder.setCurrentScript(script);
+  builder.setScript(script);
   builder.stepdisplay.update();
 
   builder.storage.set('testscriptpath', script.path);
