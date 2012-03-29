@@ -17,19 +17,19 @@ builder.VerifyExplorer = function(top_window, seleniumVersion, recordStep, justR
   /** The DOM element the user is currently hovering over and that has been highlit. */
   this.highlit_element   = null;
   /** Listener functions attached to frames. Stored so they can be detached again. */
-  this.listeners         = {};
   this.justReturnLocator = justReturnLocator;
+  
+  this.listeners = {
+    mouseover: function(e) { ae.handleMouseover(e); },
+    mouseout:  function(e) { ae.resetBorder(e);     },
+    mouseup:   function(e) { ae.handleMouseup(e);   },
+    mousedown: function(e) { ae.absorbMousedown(e); },
+    click:     function(e) { ae.absorbClick(e);     }
+  };
   
   var ae = this;
   
   function attach(frame, level) {
-    ae.listeners = {
-      mouseover: function(e) { ae.handleMouseover(e); },
-      mouseout:  function(e) { ae.resetBorder(e);     },
-      mouseup:   function(e) { ae.handleMouseup(e);   },
-      mousedown: function(e) { ae.absorbMousedown(e); },
-      click:     function(e) { ae.absorbClick(e);     }
-    };
     for (var l in ae.listeners) {
       jQuery(frame.document).bind(l, {}, ae.listeners[l], true);
     }
