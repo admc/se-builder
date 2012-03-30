@@ -58,7 +58,7 @@ builder.suite = new (function () {
     selectedScriptIndex = _scripts.length - 1;
     builder.storage.set('save_required', true);
     builder.storage.set('testscriptpath', null);
-    builder.setCurrentScript(new builder.Script(seleniumVersion));
+    builder.setScript(new builder.Script(seleniumVersion));
     builder.stepdisplay.update();
     builder.gui.suite.update();
     builder.storage.set('suiteSaveRequired', true);

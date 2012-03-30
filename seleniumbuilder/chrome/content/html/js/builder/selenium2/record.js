@@ -164,7 +164,7 @@ builder.sel2.startRecording = function(urlText, useCurrentScript) {
         builder.sel2.recording = true;    
         builder.gui.switchView(builder.views.script);
         if (!useCurrentScript) {
-          builder.setCurrentScript(new builder.sel2.Sel2Script());
+          builder.setScript(new builder.sel2.Sel2Script());
         }
         builder.getScript().addStep(new builder.sel2.Sel2Step("get", url.href()));
         builder.stepdisplay.update();
