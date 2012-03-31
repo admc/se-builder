@@ -436,6 +436,11 @@ New step styling.
   font-style: italic;
 }
 
+/* For some reason, tables have massive text if this isn't added in. */
+table {
+	font-size: 100%;
+}
+
 /* Selenium type chooser */
 table.cat-table {
   background-color: #eeeeee;

@@ -458,7 +458,7 @@ function editParam(stepID, pIndex) {
     for (var altMethod in step[pName].values) {
       if (altMethod != step[pName].preferredMethod) {
         hasAlts = true;
-        jQuery(alternativesList).append(createAltItem(step, pIndex, pName, altMethod[script.seleniumVersion], step[pName].values[altMethod]));
+        jQuery(alternativesList).append(createAltItem(step, pIndex, pName, builder.locator.methods[altMethod][script.seleniumVersion], step[pName].values[altMethod]));
       }
     }
     

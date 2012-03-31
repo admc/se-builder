@@ -74,6 +74,7 @@ builder.loader.loadScripts(
   "builder/selenium1/selenium1.js",
   "builder/selenium1/recorder.js",
   "builder/selenium1/playback.js",
+  "builder/selenium1/rcPlayback.js",
   "builder/selenium1/docs.js",
   "builder/selenium2/selenium2.js",
   "builder/selenium2/versionconverter.js",
@@ -92,7 +93,6 @@ builder.loader.loadScripts(
   "builder/dialogs/rc.js",
   "builder/dialogs/record.js",
   "builder/dialogs/runall.js",
-  "builder/rc.js",
   "builder/local.js",
   "builder/suite.js",
   "builder/ignition.js"

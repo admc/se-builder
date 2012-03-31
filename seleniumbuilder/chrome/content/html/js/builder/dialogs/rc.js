@@ -33,7 +33,8 @@ builder.dialogs.rc = new(function () {
             if (playall) {
               builder.dialogs.runall.runRC(node, hostPort, browserString);
             } else {
-              builder.rc.runtest(hostPort, browserString);
+              builder.getScript().seleniumVersion.rcPlayback.run(hostPort, browserString);
+              //builder.rc.runtest(hostPort, browserString);
             }
           }
         },
