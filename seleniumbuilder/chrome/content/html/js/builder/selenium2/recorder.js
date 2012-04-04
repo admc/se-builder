@@ -115,7 +115,7 @@ builder.selenium2.Recorder.prototype = {
       return false;
     }
     var stepParams = step.getParamNames();
-    for (var i = 0; i < stepParams; i++) {
+    for (var i = 0; i < stepParams.length; i++) {
       if (stepParams[i] == "locator") {
         if (locator.probablyHasSameTarget(step["locator"])) {
           return true;
@@ -155,7 +155,8 @@ builder.selenium2.Recorder.prototype = {
       }
       
       // Start typing
-      this.recordStep(new builder.Step(selenium2.stepTypes.sendKeysToElement, locator, e.target.value));
+      this.recordStep(new builder.Step(builder.selenium2.stepTypes.sendKeysToElement, locator, e.target.value));
+      return;
     }
     
     // Selecting

@@ -97,6 +97,7 @@ builder.selenium1.Recorder.prototype = {
     this.recordStep(new builder.Step(builder.selenium1.stepTypes.click, locator));
   },
   isTypeOrClickInSamePlace: function(step, locator) {
+    dump("tocisp ");
     if (step.type != builder.selenium1.stepTypes.type &&
         step.type != builder.selenium1.stepTypes.click &&
         step.type != builder.selenium1.stepTypes.doubleClick &&
@@ -105,7 +106,7 @@ builder.selenium1.Recorder.prototype = {
       return false;
     }
     var stepParams = step.getParamNames();
-    for (var i = 0; i < stepParams; i++) {
+    for (var i = 0; i < stepParams.length; i++) {
       if (stepParams[i] == "locator") {
         if (locator.probablyHasSameTarget(step["locator"])) {
           return true;
@@ -145,7 +146,8 @@ builder.selenium1.Recorder.prototype = {
       }
       
       // Start typing
-      this.recordStep(new builder.Step(selenium1.stepTypes.type, locator, e.target.value));
+      this.recordStep(new builder.Step(builder.selenium1.stepTypes.type, locator, e.target.value));
+      return;
     }
     
     // Selecting
