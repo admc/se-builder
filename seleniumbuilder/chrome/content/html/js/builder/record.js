@@ -136,7 +136,7 @@ builder.record.continueRecording = function() {
   }
 };
 
-builder.record.startRecording = function(urlText, useCurrentScript, seleniumVersion) {
+builder.record.startRecording = function(urlText, seleniumVersion) {
   var anchorIndex = urlText.indexOf('#');
   if (anchorIndex != -1) {
     urlText = urlText.substring(0, anchorIndex);
@@ -150,7 +150,6 @@ builder.record.startRecording = function(urlText, useCurrentScript, seleniumVers
   }
   // Delete cookies for given URL.
   deleteURLCookies(url.href());
-  builder.storage.set('save_required', true);
   builder.storage.set('baseurl', url.server());
 
   // Now load the page - both to ensure we're on the right page when we start recording
@@ -167,9 +166,7 @@ builder.record.startRecording = function(urlText, useCurrentScript, seleniumVers
         dump("RECORDING ACTIVULATED!");
         builder.record.recording = true;    
         builder.gui.switchView(builder.views.script);
-        if (!useCurrentScript) {
-          builder.setScript(new builder.Script(seleniumVersion));
-        }
+        builder.suite.addScript(new builder.Script(seleniumVersion));
         if (seleniumVersion == builder.selenium1) {
           builder.getScript().addStep(new builder.Step(builder.selenium1.stepTypes.open, url.href()));
           builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));

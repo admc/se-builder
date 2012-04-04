@@ -56,21 +56,14 @@ builder.registerPostLoadHook(function() {
     jQuery('#edit-clearresults').hide();
   });
   
-  // Bind to the testscriptpath value to display the path of the script 
-  builder.storage.addChangeListener('testscriptpath', function (path) {
+  // Display the path of the script 
+  builder.suite.addScriptChangeListener(function () {
+    var path = builder.suite.hasScript() ? builder.getScript().path : null;
     if (path) {
-      if (path.where == "remote") {
-        jQuery("#edit-test-script-nopath").hide();
-        jQuery("#edit-test-script-path").show().html("Currently editing: " +
-          path.customer_name +
-          " / " + path.project_name +
-          " / " + path.test_script);
-      } else {
-        jQuery("#edit-test-script-nopath").hide();
-        jQuery("#edit-test-script-path").show().html(
-          "Currently editing: " + path.path
-        );
-      }  
+      jQuery("#edit-test-script-nopath").hide();
+      jQuery("#edit-test-script-path").show().html(
+        "Currently editing: " + path.path
+      );
     } else {
       jQuery("#edit-test-script-path").hide();
       jQuery("#edit-test-script-nopath").show();

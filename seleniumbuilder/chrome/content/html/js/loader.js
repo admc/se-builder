@@ -80,6 +80,7 @@ builder.loader.loadScripts(
   "builder/selenium2/versionconverter.js",
   "builder/selenium2/io.js",
   "builder/locator2.js",
+  "builder/suite2.js",
   "builder/stepdisplay.js",
   "builder/selenium2/playback.js",
   "builder/selenium2/recorder.js",
@@ -93,7 +94,5 @@ builder.loader.loadScripts(
   "builder/dialogs/rc.js",
   "builder/dialogs/record.js",
   "builder/dialogs/runall.js",
-  "builder/local.js",
-  "builder/suite.js",
   "builder/ignition.js"
 );

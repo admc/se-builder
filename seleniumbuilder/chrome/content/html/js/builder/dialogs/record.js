@@ -20,16 +20,14 @@ builder.dialogs.record = new(function () {
               newNode('input', {id:'startup-url-2', type:'text', class:'texta', size:'24'}),
               newNode('input', {type:'submit', value:'Go!', class:'button',
                 click:function(e) {
-                  builder.suite.addEmptyScript(1);
-                  builder.clearAndStartRecordingAt(e, jQuery("#startup-url-2").val());
+                  builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium1);
                   node.html('');
                   builder.gui.menu.updateRunSuiteOnRC();
                 }}),
               newNode('br'),
               newNode('input', {type:'submit', value:'Record new Selenium 2 script', class:'button',
                 click:function(e) {
-                  builder.suite.addEmptyScript(2);
-                  builder.sel2.startRecording(jQuery("#startup-url-2").val(), true);
+                  builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium2);
                   node.html('');
                   builder.gui.menu.updateRunSuiteOnRC();
                 }}),

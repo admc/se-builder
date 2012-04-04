@@ -52,7 +52,7 @@ builder.dialogs.rc = new(function () {
       var chooseHeader = newNode('h4', 'Selenium RC Settings');
       
       var optDiv = newNode('div', {id: 'options-div'},
-        newNode('table', {style: 'border: none;'},
+        newNode('table', {style: 'border: none;', id: 'rc-options-table'},
           newNode('tr',
             newNode('td', "Host:Port of RC Server "),
             newNode('td', newNode('input', {id: 'rc-hostport', type: 'text', value: window.bridge.rcHostPort()}))

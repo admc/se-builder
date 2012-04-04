@@ -38,9 +38,7 @@ builder.storage = new(function () {
     // The path of the current suite, if any
     suitePath: [],
     // Whether the current suite has unsaved changes
-    suiteSaveRequired: [],
-    // The current script (currently only used for Selenium 2)
-    script: []
+    suiteSaveRequired: []
   };
 
   /**

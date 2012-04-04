@@ -95,7 +95,7 @@ builder.stepdisplay.addNewStep = function() {
   var newStep = new builder.Step(script.seleniumVersion.defaultStepType);
   script.addStep(newStep);
   addStep(newStep);
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
   return newStep.id;
 };
 
@@ -106,7 +106,7 @@ function addNewStepBefore(beforeStepID) {
   newStepDOM.parentNode.removeChild(newStepDOM);
   beforeStepDOM.parentNode.insertBefore(newStepDOM, beforeStepDOM);
   builder.getScript().moveStepToBefore(id, beforeStepID);
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
 }
 
 function addNewStepAfter(afterStepID) {
@@ -116,13 +116,13 @@ function addNewStepAfter(afterStepID) {
   newStepDOM.parentNode.removeChild(newStepDOM);
   afterStep.after(newStepDOM);
   builder.getScript().moveStepToAfter(id, afterStepID);
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
 }
 
 function deleteStep(stepID) {
   builder.getScript().removeStepWithID(stepID);
   jQuery('#' + stepID).remove();
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
 }
 
 var searchers = [];
@@ -193,7 +193,7 @@ function attachSearchers(stepID, pIndex, force) {
             stopSearchers();
             window.bridge.focusRecorderWindow();
             builder.stepdisplay.updateStep(stepID);
-            builder.storage.set('save_required', true);
+            builder.suite.setCurrentScriptSaveRequired(true);
             // Update the edit-param view.
             jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
             jQuery('#' + stepID + '-p' + pIndex).show();
@@ -364,7 +364,7 @@ function editType(stepID) {
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();
         builder.stepdisplay.updateStep(stepID);
-        builder.storage.set('save_required', true);
+        builder.suite.setCurrentScriptSaveRequired(true);
       }
     })
   );
@@ -400,7 +400,7 @@ function editParam(stepID, pIndex) {
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
       builder.stepdisplay.updateStep(stepID);
-      builder.storage.set('save_required', true);
+      builder.suite.setCurrentScriptSaveRequired(true);
     }
     
     var editDiv = newNode(
@@ -479,7 +479,7 @@ function editParam(stepID, pIndex) {
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
       builder.stepdisplay.updateStep(stepID);
-      builder.storage.set('save_required', true);
+      builder.suite.setCurrentScriptSaveRequired(true);
     }
     
     var editDiv = newNode(
@@ -673,5 +673,5 @@ function addStep(step) {
   });
 
   builder.stepdisplay.updateStep(step.id);
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
 }

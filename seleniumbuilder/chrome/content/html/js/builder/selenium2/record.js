@@ -28,7 +28,7 @@ builder.sel2.recordStep = function(type, params) {
   }
   builder.getScript().addStep(newStep);
   builder.stepdisplay.update();
-  builder.storage.set('save_required', true);
+  builder.suite.setCurrentScriptSaveRequired(true);
 };
 
 function extractSel2Value(params, type, sel1_param_name, sel2_param_name) {

@@ -1,18 +1,11 @@
-builder.setScript = function(script) {
-  builder.storage.set('script', script);
-};
-
-builder.getScript = function() {
-  return builder.storage.get('script');
-};
-
 /**
  * Defines a Script object that encapsulates a single test script.
 */
 builder.Script = function(seleniumVersion) {
   this.steps = [];
-  this.path = null;
   this.seleniumVersion = seleniumVersion;
+  this.path = null;
+  this.saveRequired = false;
 };
 
 builder.Script.prototype = {

@@ -1,17 +1,18 @@
 builder.gui.menu = {};
 
 builder.gui.menu.updateRunSuiteOnRC = function() {
-  if (builder.suite.hasSelenium2Scripts()) { // || builder.getScript().seleniumVersion == builder.selenium2 qqDPS
-    jQuery("#run-suite-onrc-li").hide();
-  } else {
+  if (builder.suite.areAllScriptsOfVersion(builder.selenium1)) {
     jQuery("#run-suite-onrc-li").show();
+  } else {
+    jQuery("#run-suite-onrc-li").hide();
   }
 };
 
 builder.registerPostLoadHook(function() {
   jQuery("#run-onrc-li").show();
-  builder.storage.addChangeListener('script', function(script) {
-    if (script.seleniumVersion == builder.selenium1) {
+  builder.suite.addScriptChangeListener(function() {
+    var script = builder.getScript();
+    if (script && script.seleniumVersion == builder.selenium1) {
       jQuery("#run-onrc-li").show();
     } else {
       jQuery("#run-onrc-li").hide();
@@ -34,14 +35,13 @@ builder.registerPostLoadHook(function() {
   );
   // Discard button: discards unsaved changes in script, if any. Returns to startup interface
   // to let user decide what to do next.
-  jQuery('#edit-discard').click(
+  jQuery('#script-discard').click(
     function () {
-      if (builder.storage.get('save_required', false) == false ||
+      if (!builder.getScript().saveRequired ||
           confirm("If you continue, you will lose all your recent changes."))
       {
         builder.gui.switchView(builder.views.startup);
-        builder.storage.set('testscriptpath', null);
-        builder.storage.set('save_required', false);
+        builder.suite.clearSuite();        
         jQuery('#steps').html('');
         // Clear any error messages.
         jQuery('#error-panel').hide();

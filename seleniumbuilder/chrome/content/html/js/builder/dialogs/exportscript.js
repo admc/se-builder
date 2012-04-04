@@ -43,7 +43,7 @@ builder.dialogs.exportscript = new(function () {
       newNode('a', myFormat.name, {
         click: function(event) {
           if (builder.selenium2.saveScript(script, myFormat)) {
-            builder.storage.set('save_required', false);
+            builder.suite.setCurrentScriptSaveRequired(false);
           }
           builder.dialogs.exportscript.hide();
         },
@@ -55,15 +55,15 @@ builder.dialogs.exportscript = new(function () {
   
   /** Creates a li node for overwriting the existing file. */
   function create_overwrite_li() {
-    return newNode('li', newNode('a', "Save as " + builder.storage.get('testscriptpath').format.name + " to " + builder.storage.get('testscriptpath').path, {
+    var path = builder.getScript().path;
+    return newNode('li', newNode('a', "Save as " + path.format.name + " to " + path.path, {
       click: function(event) {
-        var path = builder.storage.get('testscriptpath');
         var file = builder.seleniumadapter.exportScriptWithFormatToPath(
           builder.getScript(),
           path.format,
           path.path);
         if (file) {
-          builder.storage.set('save_required', false);
+          builder.suite.setCurrentScriptSaveRequired(false);
           builder.gui.suite.update();
         }
         builder.dialogs.exportscript.hide();
@@ -89,15 +89,15 @@ builder.dialogs.exportscript = new(function () {
         builder.getScript(),
         myFormat);
       if (file) {
-        builder.storage.set('save_required', false);
-        builder.storage.set('testscriptpath',
+        builder.suite.setCurrentScriptSaveRequired(false);
+        builder.getScript().path = 
           {
             where: "local",
             path: file.path,
             format: myFormat
-          }
-        );
+          };
         builder.gui.suite.update();
+        builder.suite.broadcastScriptChange();
       }
       builder.dialogs.exportscript.hide();
     },
@@ -120,8 +120,8 @@ builder.dialogs.exportscript = new(function () {
           append(newNode('h3', 'Choose export format')).
           append(format_list).
           append(cancel_b);
-      if (builder.storage.get('testscriptpath') &&
-          builder.storage.get('testscriptpath').where == "local")
+      if (builder.getScript().path &&
+          builder.getScript().path.where == "local")
       {
         jQuery(format_list).append(create_overwrite_li());
       }

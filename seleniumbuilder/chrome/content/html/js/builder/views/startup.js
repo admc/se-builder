@@ -8,8 +8,7 @@ builder.openSel2File = function(script) {
   builder.setScript(script);
   builder.stepdisplay.update();
 
-  builder.storage.set('testscriptpath', script.path);
-  builder.storage.set('save_required', false);
+  builder.suite.setCurrentScriptSaveRequired(false);
   
   builder.gui.suite.update();
 }
@@ -23,10 +22,10 @@ builder.registerPostLoadHook(function () {
   // jQuery('#startup-suite-import a').click(import_suite);
   
   jQuery('#startup-start-recording').submit(function() {
-    builder.record.startRecording(jQuery('#startup-url').val(), false, builder.selenium1);
+    builder.record.startRecording(jQuery('#startup-url').val(), builder.selenium1);
   });
   jQuery('#startup-start-recording-sel2').submit(function() {
-    builder.record.startRecording(jQuery('#startup-url').val(), false, builder.selenium2);
+    builder.record.startRecording(jQuery('#startup-url').val(), builder.selenium2);
   });
   jQuery('#startup-open-sel2 a').click(function() {
     builder.openSel2File(builder.selenium2.loadScript());

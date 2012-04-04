@@ -988,7 +988,7 @@ builder.interface.suite = new(function () {
           var path = builder.seleniumadapter.exportSuite(builder.suite.getScriptEntries());
           if (path) {
             builder.storage.set('suitePath', path);
-            builder.storage.set('suiteSaveRequired', false);
+            builder.suite.setSuiteSaveRequired(false);
             builder.interface.suite.update();
           }
         } else {

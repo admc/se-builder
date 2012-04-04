@@ -59,13 +59,13 @@ builder.seleniumadapter = new (function () {
    * Allows user to export a suite.
    * @return The path saved to, or null.
    */
-  this.exportSuite = function(scriptEntries) {
+  this.exportSuite = function(scripts) {
     try {
       var ts = new TestSuite();
-      for (var i = 0; i < scriptEntries.length; i++) {
-        var scriptEntry = scriptEntries[i];
-        var tc = this.convertScriptToTestCase(scriptEntry.script);
-        tc.file = FileUtils.getFile(scriptEntry.testscriptpath.path);
+      for (var i = 0; i < scripts.length; i++) {
+        var script = scripts[i];
+        var tc = this.convertScriptToTestCase(script);
+        tc.file = FileUtils.getFile(scripts.path.path);
         ts.addTestCaseFromContent(tc);
       }
       if (ts.save(false)) {

@@ -8,7 +8,10 @@ builder.gui.suite.create_script_li = function(name, index, isSelected) {
       newNode('a', {
           id: 'suite-script-' + index,
           href: '#suite-script-' + index,
-          click: function() { builder.suite.switchToScript(index); }
+          click: function() {
+            builder.suite.switchToScript(index);
+            builder.stepdisplay.update();
+          }
         },
         name)
     );
@@ -41,14 +44,24 @@ builder.gui.suite.update = function() {
   }
 };
 
+builder.gui.suite.canExport = function() {
+  for (var i = 0; i < builder.suite.scripts.length; i++) {
+    if (builder.suite.scripts[i].seleniumVersion != builder.selenium1) { return false; }
+    if (!builder.suite.scripts[i].path) { return false; }
+    if (builder.suite.scripts[i].path.format.name != "HTML") { return false; }
+  }
+  return true;
+};
+
 builder.registerPostLoadHook(function() {
   jQuery('#edit-suite-stop-playback').click(function() {
     builder.dialogs.runall.stoprun();
   });
   
   jQuery('#suite-removescript').click(function() {
-    builder.suite.deleteScript(builder.suite.getSelectedScriptIndex());
+    builder.suite.removeScript(builder.suite.getSelectedScriptIndex());
     builder.gui.menu.updateRunSuiteOnRC();
+    builder.stepdisplay.update();
   });
   
   jQuery('#suite-addscript').click(function() {
@@ -57,9 +70,7 @@ builder.registerPostLoadHook(function() {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
       // builder.suite.
-      builder.suite.saveAndDeselectCurrentScript();
-      builder.openScript(script.path, script);
-      builder.suite.addAndSelectCurrentScript();
+      builder.suite.addScript(script);
       builder.gui.menu.updateRunSuiteOnRC();
     }
   });
@@ -70,9 +81,7 @@ builder.registerPostLoadHook(function() {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
       // builder.suite.
-      builder.suite.saveAndDeselectCurrentScript();
-      builder.openScript(null, builder.convertSel2To1(script));
-      builder.suite.addAndSelectCurrentScript();
+      builder.suite.addScript(builder.convertSel2To1(script));
       builder.gui.menu.updateRunSuiteOnRC();
     }
   });
@@ -83,9 +92,7 @@ builder.registerPostLoadHook(function() {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
       // builder.suite.
-      builder.suite.saveAndDeselectCurrentScript();
-      builder.openSel2File(script);
-      builder.suite.addAndSelectCurrentScript();
+      builder.suite.addScript(script);
       builder.gui.menu.updateRunSuiteOnRC();
     }
   });
@@ -104,15 +111,13 @@ builder.registerPostLoadHook(function() {
 
   // Discard button: discards unsaved changes in suite, if any. Returns to startup interface
   // to let user decide what to do next.
-  jQuery('#script-discard').click(
+  jQuery('#suite-discard').click(
     function () {
       if (!builder.suite.getSaveRequired() ||
           confirm("If you continue, you will lose all your recent changes."))
       {
-        builder.suite.clearSuite();
         builder.gui.switchView(builder.views.startup);
-        builder.storage.set('testscriptpath', null);
-        builder.storage.set('save_required', false);
+        builder.suite.clearSuite();
         jQuery('#steps').html('');
         // Clear any error messages.
         jQuery('#error-panel').hide();
@@ -122,11 +127,11 @@ builder.registerPostLoadHook(function() {
   
   jQuery('#suite-save').click(
     function() {
-      if (builder.suite.canExport()) {
-        var path = builder.seleniumadapter.exportSuite(builder.suite.getScriptEntries());
+      if (builder.gui.suite.canExport()) {
+        var path = builder.seleniumadapter.exportSuite(builder.suite.scripts);
         if (path) {
-          builder.storage.set('suitePath', path);
-          builder.storage.set('suiteSaveRequired', false);
+          builder.suite.path = path;
+          builder.suite.setSuiteSaveRequired(false);
           builder.gui.suite.update();
         }
       } else {
@@ -135,13 +140,10 @@ builder.registerPostLoadHook(function() {
     }
   );
   
-  builder.storage.addChangeListener('suitePath', function(suitePath) {
-    jQuery('#edit-suite-path').html("Suite: " + (suitePath ? suitePath : '[Untitled Suite]'));
-  });
-  
-  builder.storage.addChangeListener('suiteSaveRequired', function(suiteSaveRequired) {
-    if (suiteSaveRequired) {
-      if (builder.suite.canExport()) {
+  builder.suite.addScriptChangeListener(function() {
+    jQuery('#edit-suite-path').html("Suite: " + (builder.suite.path ? builder.suite.path : '[Untitled Suite]'));
+    if (builder.suite.getSuiteSaveRequired()) {
+      if (builder.gui.suite.canExport()) {
         jQuery('#suite-cannotsave').hide();
         jQuery('#suite-saverequired').show();
       } else {
@@ -155,4 +157,6 @@ builder.registerPostLoadHook(function() {
   });
   
   builder.gui.suite.update();
+  
+  builder.suite.addScriptChangeListener(function() { builder.gui.suite.update(); });
 });
