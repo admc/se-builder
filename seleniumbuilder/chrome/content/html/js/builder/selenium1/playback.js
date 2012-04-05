@@ -112,7 +112,6 @@ function myDump(aMessage) {
 
 builder.selenium1.playback.preprocessParameter = function(p) {
   if (p instanceof builder.locator.Locator) {
-    dump("AL_LOKATOR");
     return builder.selenium1.playback.selenium.preprocessParameter(
       p.getName(builder.selenium1) + "=" + p.getValue()
     );

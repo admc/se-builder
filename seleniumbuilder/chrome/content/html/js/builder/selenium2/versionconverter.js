@@ -1,13 +1,5 @@
 /**
- * Converts Selenium 1 scripts into Selenium 2 scripts and back. If possible.
- * Selenium 2 steps have the following shape or similar:
- * {
- *   type: e.g "get",
- *   locator: e.g { type: "id", value: "my-id" }
- *   value: e.g "someTextToTypeIn"
- * }
-*/
-
+ * Converts Selenium 1 scripts into Selenium 2 scripts and back, if possible. */
 var supportedSel1Steps = [
   "open",
   "waitForPageToLoad",

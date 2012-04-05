@@ -65,7 +65,7 @@ builder.registerPostLoadHook(function() {
   });
   
   jQuery('#suite-addscript').click(function() {
-    var script = builder.seleniumadapter.importScript();
+    var script = builder.selenium1.adapter.importScript();
     if (script) {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
@@ -81,7 +81,7 @@ builder.registerPostLoadHook(function() {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
       // builder.suite.
-      builder.suite.addScript(builder.convertSel2To1(script));
+      builder.suite.addScript(builder.versionConverter.convertScript(script, builder.selenium1));
       builder.gui.menu.updateRunSuiteOnRC();
     }
   });
@@ -128,7 +128,7 @@ builder.registerPostLoadHook(function() {
   jQuery('#suite-save').click(
     function() {
       if (builder.gui.suite.canExport()) {
-        var path = builder.seleniumadapter.exportSuite(builder.suite.scripts);
+        var path = builder.selenium1.adapter.exportSuite(builder.suite.scripts);
         if (path) {
           builder.suite.path = path;
           builder.suite.setSuiteSaveRequired(false);

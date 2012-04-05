@@ -126,7 +126,7 @@ builder.record.continueRecording = function() {
         return;
       }
       if (builder.record.selenium1WaitsListenerNoticedLoading) {
-        builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
+        builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, "60000"));
         builder.record.selenium1WaitsListenerNoticedLoading = false;
         return;
       }
@@ -163,13 +163,12 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
     } else {
       jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
-        dump("RECORDING ACTIVULATED!");
         builder.record.recording = true;    
         builder.gui.switchView(builder.views.script);
         builder.suite.addScript(new builder.Script(seleniumVersion));
         if (seleniumVersion == builder.selenium1) {
           builder.getScript().addStep(new builder.Step(builder.selenium1.stepTypes.open, url.href()));
-          builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
+          builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, "60000"));
         } else {
           builder.getScript().addStep(new builder.Step(builder.selenium2.stepTypes.get, url.href()));
         }

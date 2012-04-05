@@ -6,12 +6,10 @@ builder.registerPostLoadHook(function() {
       /* root window */ window.bridge.getRecordingWindow(),
       /* window */ window.bridge.getRecordingWindow(),
       /* load */ function(url) {
-        dump("!!!PL");
         builder.storage.set('currenturl', url);
         builder.storage.set('pageloading', false);
       },
       /* unload */ function() {
-        dump("!!!PU");
         builder.storage.set('pageloading', true);
       }
   );

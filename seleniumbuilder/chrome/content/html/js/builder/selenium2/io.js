@@ -6,7 +6,7 @@ builder.selenium2.loadScript = function(path) {
   var scriptJSON = builder.selenium2.loadScriptJSON(path);
   var script = new builder.Script(builder.selenium2);
   script.path = scriptJSON.path;
-  script.path.format = builder.sel2Formats[0];
+  script.path.format = builder.selenium2.formats[0];
   
   for (var i = 0; i < scriptJSON.steps.length; i++) {
     var step = new builder.Step(builder.selenium2.stepTypes[scriptJSON.steps[i].type]);
@@ -75,9 +75,9 @@ builder.selenium2.saveScript = function(script, format, path) {
   }
 };
 
-builder.sel2Formats = [];
+builder.selenium2.formats = [];
 
-builder.createLangSel2Formatter = function(lang_info) {
+builder.selenium2.createLangFormatter = function(lang_info) {
   return {
     name: lang_info.name,
     extension: lang_info.extension,
@@ -98,8 +98,8 @@ builder.createLangSel2Formatter = function(lang_info) {
         var pNames = script.steps[i].getParamNames();
         for (var j = 0; j < pNames.length; j++) {
           if (step.type.getParamType(pNames[j]) == "locator") {
-            line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]].value, pNames[j]));
-            line = line.replace(new RegExp("\{" + pNames[j] + "By\}", "g"), lang_info.locatorByForType(step.type, step[pNames[j]].type, j + 1));
+            line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]].getValue(), pNames[j]));
+            line = line.replace(new RegExp("\{" + pNames[j] + "By\}", "g"), lang_info.locatorByForType(step.type, step[pNames[j]].getName(builder.selenium2), j + 1));
           } else {
             line = line.replace(new RegExp("\{" + pNames[j] + "\}", "g"), lang_info.escapeValue(step.type, step[pNames[j]], pNames[j]));
           }
@@ -165,7 +165,7 @@ builder.createLangSel2Formatter = function(lang_info) {
   };
 };
 
-builder.sel2Formats.push({
+builder.selenium2.formats.push({
   name: "Se Builder",
   extension: ".json",
   format: function(script, name) {
@@ -192,7 +192,7 @@ builder.sel2Formats.push({
   }
 });
 
-builder.sel2Formats.push(builder.createLangSel2Formatter({
+builder.selenium2.formats.push(builder.selenium2.createLangFormatter({
   name: "Java",
   extension: ".java",
   not: "!",
@@ -513,7 +513,7 @@ builder.sel2Formats.push(builder.createLangSel2Formatter({
   unusedVar: function(varName, varType) { return varType + " " + varName; }
 }));
 
-builder.sel2Formats.push(builder.createLangSel2Formatter({
+builder.selenium2.formats.push(builder.selenium2.createLangFormatter({
   name: "Python",
   extension: ".py",
   not: "not ",

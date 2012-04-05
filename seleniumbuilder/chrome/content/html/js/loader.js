@@ -41,8 +41,6 @@ builder.loader.loadScripts(
   "selenium-ide/testCase.js",
   "selenium-ide/testSuite.js",
   "selenium-ide/format.js",
-  // Load SB/Selenium IDE format adapter
-  "builder/seleniumadapter.js",
   // Load Selenium
   "selenium/htmlutils.js",
   "selenium/selenium-logging.js",
@@ -76,8 +74,10 @@ builder.loader.loadScripts(
   "builder/selenium1/playback.js",
   "builder/selenium1/rcPlayback.js",
   "builder/selenium1/docs.js",
+  // Load SB/Selenium IDE format adapter
+  "builder/selenium1/adapter.js",
   "builder/selenium2/selenium2.js",
-  "builder/selenium2/versionconverter.js",
+  "builder/versionconverter.js",
   "builder/selenium2/io.js",
   "builder/locator2.js",
   "builder/suite2.js",
