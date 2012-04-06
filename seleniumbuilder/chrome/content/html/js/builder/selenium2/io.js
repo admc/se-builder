@@ -1,7 +1,6 @@
 /**
  * Code for exporting/importing Selenium 2 scripts in a variety of formats.
 */
-
 builder.selenium2.loadScript = function(path) {
   var scriptJSON = builder.selenium2.loadScriptJSON(path);
   var script = new builder.Script(builder.selenium2);
@@ -14,11 +13,15 @@ builder.selenium2.loadScript = function(path) {
     var pNames = step.getParamNames();
     for (var j = 0; j < pNames.length; j++) {
       if (scriptJSON.steps[i][pNames[j]]) {
-        step[pNames[j]] = scriptJSON.steps[i][pNames[j]];
+        if (step.type.getParamType(pNames[j]) == "locator") {
+          step[pNames[j]] = builder.selenium2.jsonToLoc(scriptJSON.steps[i][pNames[j]]);
+        } else {
+          step[pNames[j]] = scriptJSON.steps[i][pNames[j]];
+        }
       }
     }
   }
-    
+      
   return script;
 };
 
@@ -165,6 +168,20 @@ builder.selenium2.createLangFormatter = function(lang_info) {
   };
 };
 
+builder.selenium2.locToJSON = function(loc) {
+  return {
+    type: loc.getName(builder.selenium2),
+    value: loc.getValue()
+  };
+};
+
+builder.selenium2.jsonToLoc = function(jsonO) {
+  var method = builder.locator.methodForName(builder.selenium2, jsonO.type);
+  var values = {};
+  values[method] = jsonO.value;
+  return new builder.locator.Locator(method, values);
+};
+
 builder.selenium2.formats.push({
   name: "Se Builder",
   extension: ".json",
@@ -181,7 +198,11 @@ builder.selenium2.formats.push({
       }
       var pNames = script.steps[i].getParamNames();
       for (var j = 0; j < pNames.length; j++) {
-        cleanStep[pNames[j]] = script.steps[i][pNames[j]];
+        if (script.steps[i].type.getParamType(pNames[j]) == "locator") {
+          cleanStep[pNames[j]] = builder.selenium2.locToJSON(script.steps[i][pNames[j]]);
+        } else {
+          cleanStep[pNames[j]] = script.steps[i][pNames[j]];
+        }
       }
       cleanScript.steps.push(cleanStep);
     }
