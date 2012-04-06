@@ -85,14 +85,14 @@ builder.selenium1.adapter.exportSuite = function(scripts) {
  * @return A script, or null on failure.
  */
 builder.selenium1.adapter.importScript = function() {
-  try {
+  //try {
     var format = builder.selenium1.adapter.formatCollection().findFormat('default');
     return builder.selenium1.adapter.convertTestCaseToScript(format.load(), format);
-  } catch (e) {
+  /*} catch (e) {
     //alert("Could not open script:\n" + e);
     alert("Could not open script.");
     return null;
-  }
+  }*/
 };
   
 /**
@@ -173,7 +173,6 @@ builder.selenium1.adapter.convertScriptToTestCase = function(script) {
     for (var j = 0; j < 2; j++) {
       if (pNames.length > j) {
         if (step.type.getParamType(pNames[j]) == "locator") {
-          //params.push({ method: step[pNames[j]].getName(builder.selenium1), value: step[pNames[j]].getValue() });
           params.push(step[pNames[j]].getName(builder.selenium1) + "=" + step[pNames[j]].getValue());
         } else {
           params.push(step[pNames[j]] + "");
@@ -197,10 +196,29 @@ builder.selenium1.adapter.convertTestCaseToScript = function(testCase, originalF
   };
   // qqDPS baseurl treatment?
   for (var i = 0; i < testCase.commands.length; i++) {
+    var stepType = builder.selenium1.stepTypes[testCase.commands[i].command];
+    var params = [];
+    var pNames = stepType.getParamNames();
+    for (var j = 0; j < 2; j++) {
+      if (j >= pNames.length) {
+        params.push("");
+      } else {
+        var p = testCase.commands[i][["target", "value"][j]];
+        if (stepType.getParamType(pNames[j]) == "locator") {
+          var parts = p.split("=", 2);
+          var locMethod = builder.locator.methodForName(builder.selenium1, parts[0]);
+          var locValues = {};
+          locValues[locMethod] = parts[1];
+          params.push(new builder.locator.Locator(locMethod, locValues));
+        } else {
+          params.push(p);
+        }
+      }
+    }
     script.steps.push(new builder.Step(
-      builder.selenium1.stepTypes(testCase.commands[i].command),
-      testCase.commands[i].target,
-      testCase.commands[i].value
+      stepType,
+      params[0],
+      params[1]
     ));
   }
   return script;
