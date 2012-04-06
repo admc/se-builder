@@ -49,8 +49,6 @@ function decodeText(text) {
 }
 
 function encodeText(text) {
-    alert("ET");
-    alert(text);
     if (text == null) return "";
     // & -> &amp;
     // &amp; -> &amp;amp;
@@ -85,7 +83,6 @@ function convertText(command, converter) {
   var props = ['command', 'target', 'value'];
   for (var i = 0; i < props.length; i++) {
     var prop = props[i];
-    alert(prop);
     command[prop] = converter(command[prop]);
   }
 }

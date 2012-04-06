@@ -97,7 +97,6 @@ builder.selenium1.Recorder.prototype = {
     this.recordStep(new builder.Step(builder.selenium1.stepTypes.click, locator));
   },
   isTypeOrClickInSamePlace: function(step, locator) {
-    dump("tocisp ");
     if (step.type != builder.selenium1.stepTypes.type &&
         step.type != builder.selenium1.stepTypes.click &&
         step.type != builder.selenium1.stepTypes.doubleClick &&
