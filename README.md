@@ -6,10 +6,10 @@ Simply click on the latest XPI in the downloads section.
 
 ## Open Source
 
-Splash Site - http://sebuilder.com
-Github - http://github.com/admc/se-builder
-Mailing list - https://groups.google.com/d/forum/se-builder
-Issues - https://github.com/admc/se-builder/issues
-License - Apache 2: http://www.apache.org/licenses/LICENSE-2.0
+  * Splash Site - http://sebuilder.com
+  * Github - http://github.com/admc/se-builder
+  * Mailing list - https://groups.google.com/d/forum/se-builder
+  * Issues - https://github.com/admc/se-builder/issues
+  * License - Apache 2: http://www.apache.org/licenses/LICENSE-2.0
 
 ## Thanks!
