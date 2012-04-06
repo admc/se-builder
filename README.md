@@ -1,4 +1,6 @@
-# Se Builder -- A test development environment for Selenium 1 and 2
+# Se Builder
+
+A test development environment for Selenium 1 and 2
 
 ## Install
 
