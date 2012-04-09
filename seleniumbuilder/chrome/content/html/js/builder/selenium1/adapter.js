@@ -35,7 +35,7 @@ builder.selenium1.adapter.importSuite = function() {
   try {
     var format = builder.selenium1.adapter.formatCollection().findFormat('default');
     var ts = TestSuite.load();
-    var si = { scripts: [], suitePath: ts.file.path };
+    var si = { scripts: [], path: ts.file.path };
     for (var i = 0; i < ts.tests.length; i++) {
       var script = builder.selenium1.adapter.convertTestCaseToScript(
         format.loadFile(ts.tests[i].getFile()),
@@ -55,29 +55,33 @@ builder.selenium1.adapter.importSuite = function() {
   }
 };
 
+builder.selenium1.loadSuite = builder.selenium1.adapter.importSuite;
+
 /**
  * Allows user to export a suite.
  * @return The path saved to, or null.
  */
-builder.selenium1.adapter.exportSuite = function(scripts) {
-  try {
+builder.selenium1.adapter.exportSuite = function(scripts, path) {
+  //try {
     var ts = new TestSuite();
     for (var i = 0; i < scripts.length; i++) {
       var script = scripts[i];
       var tc = builder.selenium1.adapter.convertScriptToTestCase(script);
-      tc.file = FileUtils.getFile(scripts.path.path);
       ts.addTestCaseFromContent(tc);
+    }
+    if (path) {
+      ts.file = FileUtils.getFile(path);
     }
     if (ts.save(false)) {
       return ts.file.path;
     } else {
       return null;
     }
-  } catch (e) {
+  /*} catch (e) {
     //alert("Could not save suite:\n" + e);
     alert("Could not save suite.");
     return null;
-  }
+  }*/
 };
 
 /**
@@ -85,15 +89,17 @@ builder.selenium1.adapter.exportSuite = function(scripts) {
  * @return A script, or null on failure.
  */
 builder.selenium1.adapter.importScript = function() {
-  //try {
+  try {
     var format = builder.selenium1.adapter.formatCollection().findFormat('default');
     return builder.selenium1.adapter.convertTestCaseToScript(format.load(), format);
-  /*} catch (e) {
+  } catch (e) {
     //alert("Could not open script:\n" + e);
     alert("Could not open script.");
     return null;
-  }*/
+  }
 };
+
+builder.selenium1.loadScript = builder.selenium1.adapter.importScript;
   
 /**
  * Exports the given script using the default format.
@@ -182,6 +188,9 @@ builder.selenium1.adapter.convertScriptToTestCase = function(script) {
       }
     }
     testCase.commands.push(new Command(step.type.getName(), params[0], params[1]));
+  }
+  if (script.path && script.path.where == "local") {
+    testCase.file = FileUtils.getFile(script.path.path);
   }
   return testCase;
 };

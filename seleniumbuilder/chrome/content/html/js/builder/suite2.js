@@ -60,6 +60,14 @@ builder.suite.getSelectedScriptIndex = function() {
   return builder.suite.currentScriptIndex;
 };
 
+builder.suite.setSuite = function(scripts, path) {
+  builder.suite.scripts = scripts;
+  builder.suite.currentScriptIndex = scripts.length == 0 ? -1 : 0;
+  builder.suite.suiteSaveRequired = false;
+  builder.suite.path = path;
+  builder.suite.broadcastScriptChange();
+};
+
 builder.suite.clearSuite = function() {
   builder.suite.scripts = [];
   builder.suite.currentScriptIndex = -1;

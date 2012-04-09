@@ -89,6 +89,9 @@
 
           <li><span id="multiscript-0"><a href="#suite-save" name="suite-save" id=
           "suite-save">Save suite</a></span></li>
+          
+          <li><span id="multiscript-0"><a href="#suite-save-as" name="suite-save-as" id=
+          "suite-save-as">Save suite as...</a></span></li>
 
           <li><span id="multiscript-0"><a href="#suite-discard" name="suite-discard" id=
           "suite-discard">Discard and start over</a></span></li>
@@ -130,35 +133,42 @@
       <li id="startup-open-sel1">
         <h3><a name="startup-open-sel1" href="#startup-open-sel1">Open</a> a Selenium 1 test file</h3>
       </li>
-
-      <li id="startup-import-sel2">
-        <h3><a name="import" href="#import">Import</a> a Selenium 2 test file as a
-        Selenium 1 script</h3>
-      </li>
-
+      
       <li id="startup-open-sel2">
-        <h3><a name="open" href="#open">Open</a> a Selenium 2 test file</h3>
+        <h3><a name="startup-open-sel2" href="#startup-open-sel2">Open</a> a Selenium 2 test file</h3>
       </li>
 
-      <li id="startup-suite-import">
-        <h3><a name="suite-import" href="#suite-import">Open</a> a test suite</h3>
+      <li id="startup-convert-sel2-1">
+        <h3><a name="startup-convert-sel2-1" href="#startup-convert-sel2-1">Import</a> a Selenium 2 test file as Selenium 1</h3>
+      </li>
+      
+      <li id="startup-convert-sel1-2">
+        <h3><a name="startup-convert-sel1-2" href="#startup-convert-sel1-2">Import</a> a Selenium 1 test file as Selenium 2</h3>
+      </li>
+
+      <li id="startup-open-suite-sel1">
+        <h3><a name="startup-open-suite-sel1" href="#startup-open-suite-sel1">Open</a> a Selenium 1 test suite</h3>
       </li>
 
       <li id="startup-record">
-        <h3><a name="record" href="#record">Start recording</a> a new script at</h3>
+        <h3>Start recording a new script at</h3>
 
-        <form method="get" action="#record" id="startup-start-recording">
-          <p><input id="startup-url" type="text" class="texta" size="35" /> <input type=
-          "submit" value="Go!" class="button" /></p>
-        </form>
+        <p>
+          <form method="get" action="#record" id="startup-start-recording-field">
+            <input id="startup-url" type="text" class="texta" size="35" />
+          </form>
+        </p>
 
-        <form method="get" action="#record-sel2" id="startup-start-recording-sel2">
-          <p>or <input type="submit" value="Record Selenium 2 Script" class=
-          "button" /></p>
-        </form>
+        <p>
+          <form method="get" action="#record" id="startup-start-recording-sel1">
+            <input type="submit" value="Record Selenium 1 Script" class="button" />
+          </form>
+          <form method="get" action="#record-sel2" id="startup-start-recording-sel2">
+            <input type="submit" value="Record Selenium 2 Script" class="button" />
+          </form>
+        </p>
 
-        <p class="cookie-warning">This will delete all cookies for the domain you're
-        recording for.</p>
+        <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
       </li>
     </ul>
   </div><!-- Panels of buttons and informational displays. -->
@@ -169,8 +179,12 @@
         Suite has unsaved changes.
       </div>
 
-      <div id="suite-cannotsave" style="display: none">
+      <div id="suite-cannotsave-unsavedscripts" style="display: none">
         Can't save suite: Save all scripts to disk as HTML first.
+      </div>
+      
+      <div id="suite-cannotsave-notallsel1" style="display: none">
+        Can't save suite: All scripts must be Selenium 1 scripts.
       </div>
 
       <div id="edit-suite-playing" style="display: none;">

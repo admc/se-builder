@@ -18,26 +18,27 @@ builder.dialogs.record = new(function () {
       node.append(newNode('form', {method:'get', action:'#record'},
           newNode('p',
               newNode('input', {id:'startup-url-2', type:'text', class:'texta', size:'24'}),
-              newNode('input', {type:'submit', value:'Go!', class:'button',
-                click:function(e) {
-                  builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium1);
-                  node.html('');
-                  builder.gui.menu.updateRunSuiteOnRC();
-                }}),
-              newNode('br'),
-              newNode('input', {type:'submit', value:'Record new Selenium 2 script', class:'button',
-                click:function(e) {
-                  builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium2);
-                  node.html('');
-                  builder.gui.menu.updateRunSuiteOnRC();
-                }}),
-              newNode('a', 'Cancel', {
-                  class: 'button',
-                  click: function () {
+              newNode('p', {},
+                newNode('input', {type:'submit', value:'Record new Selenium 1 Script', class:'button',
+                  click:function(e) {
+                    builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium1);
                     node.html('');
-                  },
-                  href: '#cancel'
-              }),
+                    builder.gui.menu.updateRunSuiteOnRC();
+                  }}),
+                newNode('input', {type:'submit', value:'Record new Selenium 2 script', class:'button',
+                  click:function(e) {
+                    builder.record.startRecording(jQuery("#startup-url-2").val(), builder.selenium2);
+                    node.html('');
+                    builder.gui.menu.updateRunSuiteOnRC();
+                  }}),
+                newNode('a', 'Cancel', {
+                    class: 'button',
+                    click: function () {
+                      node.html('');
+                    },
+                    href: '#cancel'
+                })
+              ),
               newNode('p', {class:'cookie-warning'},
                 "This will delete all cookies for the domain you're recording for."
               )

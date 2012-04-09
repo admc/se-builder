@@ -38,6 +38,12 @@ builder.gui.suite.update = function() {
       jQuery('#scriptlist').append(builder.gui.suite.create_script_li(scriptNames[i], i,
           i == selectedScriptIndex));
     }
+    
+    if (builder.suite.path) {
+      jQuery('#suite-save-as').show();
+    } else {
+      jQuery('#suite-save-as').hide();
+    }
   } else {
     jQuery('#suite-panel, #multiscript-0, #multiscript-1, #multiscript-2').hide();
     jQuery('#script-discard-li').show();
@@ -45,10 +51,20 @@ builder.gui.suite.update = function() {
 };
 
 builder.gui.suite.canExport = function() {
+  return builder.gui.suite.allSelenium1() && builder.gui.suite.allSavedAsHTML();
+};
+
+builder.gui.suite.allSavedAsHTML = function() {
   for (var i = 0; i < builder.suite.scripts.length; i++) {
-    if (builder.suite.scripts[i].seleniumVersion != builder.selenium1) { return false; }
     if (!builder.suite.scripts[i].path) { return false; }
     if (builder.suite.scripts[i].path.format.name != "HTML") { return false; }
+  }
+  return true;
+};
+
+builder.gui.suite.allSelenium1 = function() {
+  for (var i = 0; i < builder.suite.scripts.length; i++) {
+    if (builder.suite.scripts[i].seleniumVersion != builder.selenium1) { return false; }
   }
   return true;
 };
@@ -128,7 +144,7 @@ builder.registerPostLoadHook(function() {
   jQuery('#suite-save').click(
     function() {
       if (builder.gui.suite.canExport()) {
-        var path = builder.selenium1.adapter.exportSuite(builder.suite.scripts);
+        var path = builder.selenium1.adapter.exportSuite(builder.suite.scripts, builder.suite.path);
         if (path) {
           builder.suite.path = path;
           builder.suite.setSuiteSaveRequired(false);
@@ -140,18 +156,48 @@ builder.registerPostLoadHook(function() {
     }
   );
   
+  jQuery('#suite-save-as').click(
+    function() {
+      if (builder.gui.suite.canExport()) {
+        var path = builder.selenium1.adapter.exportSuite(builder.suite.scripts);
+        if (path) {
+          builder.suite.path = path;
+          builder.suite.setSuiteSaveRequired(false);
+          builder.gui.suite.update();
+        }
+      } else {
+        if (!builder.gui.suite.allSelenium1()) {
+          alert("Can't save suite: All scripts in the suite must be Selenium 1 scripts.");
+        } else {
+          alert("Can't save suite. Please save all test scripts to disk as HTML first.");
+        }
+      }
+    }
+  );
+  
   builder.suite.addScriptChangeListener(function() {
     jQuery('#edit-suite-path').html("Suite: " + (builder.suite.path ? builder.suite.path : '[Untitled Suite]'));
     if (builder.suite.getSuiteSaveRequired()) {
       if (builder.gui.suite.canExport()) {
-        jQuery('#suite-cannotsave').hide();
         jQuery('#suite-saverequired').show();
+        jQuery('#suite-cannotsave-unsavedscripts').hide();
+        jQuery('#suite-cannotsave-notallsel1').hide();
       } else {
-        jQuery('#suite-cannotsave').show();
+        if (builder.gui.suite.allSelenium1()) {
+          jQuery('#suite-cannotsave-notallsel1').hide();
+          if (builder.gui.suite.allSavedAsHTML()) {
+            jQuery('#suite-cannotsave-unsavedscripts').hide();
+          } else {
+            jQuery('#suite-cannotsave-unsavedscripts').show();
+          }
+        } else {
+          jQuery('#suite-cannotsave-notallsel1').show();
+        }
         jQuery('#suite-saverequired').hide();
       }
     } else {
-      jQuery('#suite-cannotsave').hide();
+      jQuery('#suite-cannotsave-unsavedscripts').hide();
+      jQuery('#suite-cannotsave-notallsel1').hide();
       jQuery('#suite-saverequired').hide();
     }
   });
