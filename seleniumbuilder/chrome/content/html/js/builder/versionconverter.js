@@ -7,15 +7,39 @@ builder.versionconverter.addHook = function(srcType, srcVersion, targetVersion, 
   builder.versionconverter.conversionHooks[key] = f;
 };
 
-builder.versionconverter.addHook(builder.selenium1.stepTypes.waitForPageToLoad, builder.selenium1, builder.selenium2, function(step) {
+builder.versionconverter.addHook(builder.selenium1.stepTypes.waitForPageToLoad, builder.selenium1, builder.selenium2, function(step, src, tar) {
   return [];
 });
+
+// Need to combine the selectLocator and optionLocator into a single locator for Selenium 2.
+builder.versionconverter.convertSelectStep1To2 = function(step, sourceVersion, targetVersion) {
+  var newStep = builder.versionconverter.defaultConvertStep(step, sourceVersion, targetVersion)[0];
+  var locVals = {};
+  if (step.selectLocator.supportsMethod(builder.locator.methods.xpath)) {
+    locVals[builder.locator.methods.xpath] = step.selectLocator.getValue(builder.locator.methods.xpath) +
+      "/*[. = '" + step.optionLocator + "']";
+  } else if (step.selectLocator.supportsMethod(builder.locator.methods.id)) {
+    locVals[builder.locator.methods.xpath] = "//*[@id='" + step.selectLocator.getValue(builder.locator.methods.id) +
+      "']/*[. = '" + step.optionLocator + "']";
+  }
+  var newLoc = new builder.locator.Locator(builder.locator.methods.xpath, locVals);
+  newStep.locator = newLoc;
+  return [newStep];
+};
+
+builder.versionconverter.addHook(builder.selenium1.stepTypes.select, builder.selenium1, builder.selenium2, builder.versionconverter.convertSelectStep1To2);
+builder.versionconverter.addHook(builder.selenium1.stepTypes.removeSelection, builder.selenium1, builder.selenium2, builder.versionconverter.convertSelectStep1To2);
+builder.versionconverter.addHook(builder.selenium1.stepTypes.addSelection, builder.selenium1, builder.selenium2, builder.versionconverter.convertSelectStep1To2);
 
 builder.versionconverter.convertStep = function(step, sourceVersion, targetVersion) {
   var key = step.type.getName() + "-" + sourceVersion + "-" + targetVersion;
   if (builder.versionconverter.conversionHooks[key]) {
-    return builder.versionconverter.conversionHooks[key](step);
+    return builder.versionconverter.conversionHooks[key](step, sourceVersion, targetVersion);
   }
+  return builder.versionconverter.defaultConvertStep(step, sourceVersion, targetVersion);
+}
+
+builder.versionconverter.defaultConvertStep = function(step, sourceVersion, targetVersion) {
   var newStep = null;
   if (sourceVersion == builder.selenium1 && targetVersion == builder.selenium2) {
     newStep = new builder.Step(builder.selenium2.stepTypes[builder.versionconverter.sel1ToSel2Steps[step.type.getName()]]);

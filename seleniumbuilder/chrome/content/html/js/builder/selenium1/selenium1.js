@@ -23,6 +23,7 @@ builder.selenium1.StepType.prototype = {
   getParamNames: function() { return this.params; },
   /** @return Whether the given parameter is a "locator" or "string". */
   getParamType: function(paramName) {
+    if (paramName == "optionLocator") { return "string"; }
     return paramName.toLowerCase().indexOf("locator") == -1 ? "string" : "locator";
   },
   /** @return Whether setting negated to true on a step of this type is valid. */
