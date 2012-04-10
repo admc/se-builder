@@ -11,6 +11,12 @@ builder.versionconverter.addHook(builder.selenium1.stepTypes.waitForPageToLoad, 
   return [];
 });
 
+builder.versionconverter.addHook(builder.selenium2.stepTypes.get, builder.selenium2, builder.selenium1, function(step, src, tar) {
+  var newSteps = builder.versionconverter.defaultConvertStep(step, src, tar);
+  newSteps.push(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
+  return newSteps;
+});
+
 // Need to combine the selectLocator and optionLocator into a single locator for Selenium 2.
 builder.versionconverter.convertSelectStep1To2 = function(step, sourceVersion, targetVersion) {
   var newStep = builder.versionconverter.defaultConvertStep(step, sourceVersion, targetVersion)[0];
