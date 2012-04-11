@@ -94,5 +94,6 @@ builder.loader.loadScripts(
   "builder/dialogs/rc.js",
   "builder/dialogs/record.js",
   "builder/dialogs/runall.js",
+  "builder/gui/stepstable.js",
   "builder/ignition.js"
 );

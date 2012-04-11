@@ -53,6 +53,7 @@ builder.registerPostLoadHook(function () {
   jQuery('#startup-convert-sel2-1 a').click(function() { builder.views.startup.convertFile(builder.selenium2, builder.selenium1); });
   jQuery('#startup-convert-sel1-2 a').click(function() { builder.views.startup.convertFile(builder.selenium1, builder.selenium2); });
   jQuery('#startup-open-suite-sel1 a').click(builder.views.startup.openSel1Suite);
+  jQuery('#startup-show-steps-table a').click(builder.gui.stepstable.show);
   
   jQuery('#startup-start-recording-sel1').submit(function() {
     builder.record.startRecording(jQuery('#startup-url').val(), builder.selenium1);

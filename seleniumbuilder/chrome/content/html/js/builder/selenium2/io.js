@@ -154,6 +154,9 @@ builder.selenium2.createLangFormatter = function(lang_info) {
       t += lang_info.end;
       return t;
     },
+    canExport: function(stepType) {
+      return !!lang_info.lineForType[stepType.name];
+    },
     nonExportables: function(script) {
       var nes = [];
       for (var i = 0; i < script.steps.length; i++) {
