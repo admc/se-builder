@@ -802,8 +802,8 @@ builder.selenium2.playback.print = function(text) {
 
 builder.selenium2.playback.recordResult = function(result) {
   if (builder.selenium2.playback.currentStep.negated) {
+    result.message = builder.selenium2.playback.currentStep.type.getName() + " is " + result.success;
     result.success = !result.success;
-    result.message = builder.selenium2.playback.currentStep.type + " is true";
   }
   if (result.success) {
     jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ccffcc');

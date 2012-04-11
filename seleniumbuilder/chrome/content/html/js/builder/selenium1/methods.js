@@ -200,6 +200,9 @@ builder.selenium1.__methodRegistry = [
   },
   {
     name: 'wait for condition',
+    variants: [
+      function(n) { return n.replace(/^(is|get)/, 'waitFor'); },
+    ],
     negator: function(n) {
       return (/Present/.test(n) ? n.replace("Present", "NotPresent").replace(/^(is|get)/, "waitFor") : n.replace(/^(is|get)/, 'waitForNot'));
     },
