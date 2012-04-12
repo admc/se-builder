@@ -128,7 +128,9 @@ function create_sel2_format_li(myFormat) {
     newNode('a', myFormat.name, {
       click: function(event) {
         if (builder.selenium2.saveScript(script, myFormat)) {
+          builder.getScript().path = script.path; // If the 
           builder.suite.setCurrentScriptSaveRequired(false);
+          builder.gui.suite.update();
         }
         builder.dialogs.exportscript.hide();
       },
@@ -140,16 +142,29 @@ function create_sel2_format_li(myFormat) {
 
 /** Creates a li node for overwriting the existing file. */
 function create_overwrite_li() {
-  var path = builder.getScript().path;
+  var script = builder.getScript();
+  var path = script.path;
   return newNode('li', newNode('a', "Save as " + path.format.name + " to " + path.path, {
     click: function(event) {
-      var file = builder.selenium1.adapter.exportScriptWithFormatToPath(
-        builder.getScript(),
-        path.format,
-        path.path);
-      if (file) {
-        builder.suite.setCurrentScriptSaveRequired(false);
-        builder.gui.suite.update();
+      if (builder.getScript().seleniumVersion == builder.selenium1) {
+        if (builder.selenium2.formats.indexOf(path.format) != -1) {
+          script = builder.versionconverter.convertScript(script, builder.selenium2);
+        } else {
+          var file = builder.selenium1.adapter.exportScriptWithFormatToPath(
+            script,
+            path.format,
+            path.path);
+          if (file) {
+            builder.suite.setCurrentScriptSaveRequired(false);
+            builder.gui.suite.update();
+          }
+        }
+      }
+      if (script.seleniumVersion == builder.selenium2) {
+        if (builder.selenium2.saveScript(script, path.format, path.path)) {
+          builder.suite.setCurrentScriptSaveRequired(false);
+          builder.gui.suite.update();
+        }
       }
       builder.dialogs.exportscript.hide();
     },

@@ -69,6 +69,11 @@ builder.selenium2.saveScript = function(script, format, path) {
         outputStream.write(fin, fin.length);
       }
       outputStream.close();
+      script.path = {
+        where: "local",
+        path: file.path,
+        format: format
+      };
       return true;
     } else {
       return false;
