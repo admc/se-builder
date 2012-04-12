@@ -515,38 +515,6 @@ builder.selenium2.playback.playbackFunctions = {
     });
   },
   
-  "verifyElementNotSelected": function() {
-    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
-        if (!result.value) {
-          builder.selenium2.playback.recordResult({success: true});
-        } else {
-          builder.selenium2.playback.recordResult({success: false, message: "Element is selected."});
-        }
-      });
-    });
-  },
-  "assertElementNotSelected": function() {
-    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
-        if (!result.value) {
-          builder.selenium2.playback.recordResult({success: true});
-        } else {
-          builder.selenium2.playback.recordError("Element is selected.");
-        }
-      });
-    });
-  },
-  "waitForElementNotSelected": function() {
-    builder.selenium2.playback.wait(function(callback) {
-      builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-        builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
-          callback(!result.value);
-        }, /*error*/ function() { callback(false); });
-      }, /*error*/ function() { callback(false); });
-    });
-  },
-  
   "verifyElementValue": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
