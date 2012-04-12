@@ -20,6 +20,8 @@ builder.record.verifyExplore = function() {
     function(step) {
       builder.getScript().addStep(step);
       builder.stepdisplay.update();
+      // Don't immediately stop: this would cause the listener that prevents the click from
+      // actually activating the selected element to be detached prematurely.
       setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
       window.bridge.focusRecorderWindow();
     }

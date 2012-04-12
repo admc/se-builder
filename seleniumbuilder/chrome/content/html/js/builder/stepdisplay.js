@@ -190,7 +190,9 @@ function attachSearchers(stepID, pIndex, force) {
           function(locator) {
             var originalStep = builder.getScript().getStepWithID(stepID);
             originalStep[originalStep.getParamNames()[pIndex]] = locator;
-            stopSearchers();
+            // Don't immediately stop searchers: this would cause the listener that prevents the
+            // click from actually activating the selected element to be detached prematurely.
+            setTimeout(stopSearchers, 1);
             window.bridge.focusRecorderWindow();
             builder.stepdisplay.updateStep(stepID);
             builder.suite.setCurrentScriptSaveRequired(true);
