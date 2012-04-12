@@ -358,7 +358,7 @@ function editType(stepID) {
         var type = jQuery('#' + stepID + '-edit-cat-list')[0].__sb_stepType;
         if (type) {
           step.changeType(type);
-          step.negated = step.type.getNegatable() && jQuery('#' + stepID + '-edit-negate').attr('checked');
+          step.negated = step.type.getNegatable() && !!(jQuery('#' + stepID + '-edit-negate').attr('checked'));
         }
         jQuery('#' + stepID + '-edit-div').remove();
         jQuery('#' + stepID + '-type').show();

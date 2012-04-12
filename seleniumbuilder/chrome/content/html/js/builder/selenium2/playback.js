@@ -69,17 +69,20 @@ builder.selenium2.playback.startSession = function() {
   // In order to communicate to webdriver which window we want, we need to uniquely identify the
   // window. The best way to do this I've found is to look for it by title. qqDPS
   window.bridge.getRecordingWindow().document.title += "--" + new Date().getTime();
-  var newSessionCommand = {
-    'name': 'newSession',
-    'context': '',
-    'parameters': {
-      'window_title':window.bridge.getRecordingWindow().document.title
-    }
-  };
-  builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
-    builder.selenium2.playback.sessionId = JSON.parse(result).value;
-    builder.selenium2.playback.playStep();
-  });
+  
+  setTimeout(function() {
+    var newSessionCommand = {
+      'name': 'newSession',
+      'context': '',
+      'parameters': {
+        'window_title':window.bridge.getRecordingWindow().document.title
+      }
+    };
+    builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+      builder.selenium2.playback.sessionId = JSON.parse(result).value;
+      builder.selenium2.playback.playStep();
+    });
+  }, 100);
 };
 
 builder.selenium2.playback.findElement = function(locator, callback, errorCallback) {
@@ -735,10 +738,10 @@ builder.selenium2.playback.wait = function(testFunction) {
   builder.selenium2.playback.waitCycle = 0;
   builder.selenium2.playback.waitInterval = window.setInterval(function() {
     testFunction(function(success) {
-      if (success) {
+      if (success != builder.selenium2.playback.currentStep.negated) {
         window.clearInterval(builder.selenium2.playback.waitInterval);
         builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
-        builder.selenium2.playback.recordResult({success: true});
+        builder.selenium2.playback.recordResult({'success': success});
         return;
       }
       if (builder.selenium2.playback.waitCycle++ >= builder.selenium2.playback.maxWaitCycles) {
