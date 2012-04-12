@@ -4,8 +4,8 @@ builder.views.script.clearResults = function() {
   var script = builder.getScript();
   for (var i = 0; i < script.steps.length; i++) {
     jQuery('#' + script.steps[i].id + '-content').css('background-color', '#dddddd');
-    jQuery('#' + script.steps[i].id + 'error').hide();
-    jQuery('#' + script.steps[i].id + 'message').hide();  
+    jQuery('#' + script.steps[i].id + '-error').hide();
+    jQuery('#' + script.steps[i].id + '-message').hide();  
   }
   jQuery('#edit-clearresults').hide();
 };

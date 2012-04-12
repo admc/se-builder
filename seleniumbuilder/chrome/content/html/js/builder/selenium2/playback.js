@@ -833,7 +833,7 @@ builder.selenium2.playback.shutdown = function() {
 };
 
 builder.selenium2.playback.recordError = function(message) {
-  if (builder.selenium2.playback.currentStep.negated && builder.selenium2.playback.currentStep.type.startsWith("assert")) {
+  if (builder.selenium2.playback.currentStep.negated && builder.selenium2.playback.currentStep.type.getName().startsWith("assert")) {
     // Record this as a failed result instead - this way it will be turned into a successful result
     // by recordResult.
     builder.selenium2.playback.recordResult({success: false});
