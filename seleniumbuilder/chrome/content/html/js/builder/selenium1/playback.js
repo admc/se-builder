@@ -52,11 +52,11 @@ builder.storage.addChangeListener('pageloading', function (val) {
 builder.selenium1.playback.record_result = function(result) {
   // Color the step according to whether the playback succeeded.
   if (result && result.failed) {
-    jQuery('#' + script[builder.selenium1.playback.step_index].id + '-content').css('background-color', '#ffcccc');
+    jQuery('#' + builder.selenium1.playback.script[builder.selenium1.playback.step_index].id + '-content').css('background-color', '#ffcccc');
     builder.selenium1.playback.playResult.success = false;
     if (result.failureMessage) {
       builder.selenium1.playback.playResult.errormessage = result.failureMessage;
-      jQuery('#' + script[builder.selenium1.playback.step_index].id + "-error").html(
+      jQuery('#' + builder.selenium1.playback.script[builder.selenium1.playback.step_index].id + "-error").html(
           "Failed: " + result.failureMessage).show();
     } else {
       builder.selenium1.playback.playResult.errormessage = " (Unknown Failure Reason)";
@@ -129,8 +129,12 @@ builder.selenium1.playback.play_step = function(step) {
     target: builder.selenium1.playback.preprocessParameter(p0),
     value: builder.selenium1.playback.preprocessParameter(p1)
   };
+  var adjustedStepName = step.type.name;
+  if (step.type.getNegatable() && step.negated) {
+    adjustedStepName = step.type.negator(adjustedStepName);
+  }
   // Run command
-  var result = builder.selenium1.playback.handler.getCommandHandler(step.type.name).execute(builder.selenium1.playback.selenium, command);
+  var result = builder.selenium1.playback.handler.getCommandHandler(adjustedStepName).execute(builder.selenium1.playback.selenium, command);
   var interval;
   
   // Highlight the step being executed.
@@ -228,7 +232,7 @@ builder.selenium1.playback.runtestbetween = function(start_step_id, end_step_id,
   builder.selenium1.playback.handler.registerAll(builder.selenium1.playback.selenium);
   
   builder.selenium1.playback.script = builder.getScript();
-  builder.selenium1.playback.browserbot.baseUrl = ""; //builder.selenium1.playback.script.baseUrl; qqDPS
+  builder.selenium1.playback.browserbot.baseUrl = builder.selenium1.adapter.findBaseUrl(builder.selenium1.playback.script);
   if (builder.selenium1.playback.script.steps) { builder.selenium1.playback.script = builder.selenium1.playback.script.steps; }
   
   builder.selenium1.playback.step_index = 0;
