@@ -1,7 +1,7 @@
 builder.selenium1.StepType = function(name, baseFunction, negator, baseName) {
   /*dump(name);
-  dump("      =      ");
-  dump(baseFunction);*/
+  dump("=    ");*/
+  /*dump(baseFunction); dump("     ");*/
   this.name = name;
   this.baseFunction = baseFunction;
   this.negatable = !!negator;
@@ -10,9 +10,17 @@ builder.selenium1.StepType = function(name, baseFunction, negator, baseName) {
   this.params = [];
   try {
     this.params = get_parameters(baseFunction);
+    if (this.baseName.startsWith("get") && (this.name.startsWith("assert") || this.name.startsWith("verify") || this.name.startsWith("waitFor")))
+    {
+      this.params.push("pattern");
+    }
+    if (this.baseName.startsWith("get") && this.name.startsWith("store")) {
+      this.params.push("variableName");
+    }
+    //dump(JSON.stringify(this.params)); dump("    ");
   } catch (e) {
-    /*dump(e);
-    dump(name);*/
+    /*dump(e);dump("     ");
+    dump(name);dump("     ");*/
   }
 };
 

@@ -111,7 +111,7 @@ builder.selenium1.rcPlayback.playNextStep = function(returnVal) {
   }
 };
 
-builder.selenium1.rcPlayback.stoptest = function() {
+builder.selenium1.rcPlayback.stopTest = function() {
   builder.selenium1.rcPlayback.requestStop = true;
   jQuery('#edit-rc-playing').hide();
   jQuery('#edit-rc-stopping').show();

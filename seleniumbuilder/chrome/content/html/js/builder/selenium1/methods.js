@@ -270,6 +270,9 @@ builder.selenium1.__methodRegistry = [
   },
   {
     name: 'store',
+    variants: [
+      function(n) { return n.replace(/^(is|get)/, 'store'); },
+    ],
     categories: [
       // All added in the code below by deriving from assert's categories.
     ]
@@ -286,7 +289,7 @@ for (var i = 0; i < builder.selenium1.__methodRegistry[1].categories.length; i++
   var cat = builder.selenium1.__methodRegistry[1].categories[i];
   var newCat = { name: cat.name, contents: [] };
   for (var j = 0; j < cat.contents.length; j++) {
-    newCat.contents.push(cat.contents[j].replace(/^(is|get)/, "store"));
+    newCat.contents.push(cat.contents[j]);
   }
   builder.selenium1.__methodRegistry[4].categories.push(newCat); // Meow
 }

@@ -54,6 +54,7 @@ builder.versionconverter.defaultConvertStep = function(step, sourceVersion, targ
     newStep = new builder.Step(builder.selenium1.stepTypes[builder.versionconverter.sel2ToSel1Steps[step.type.getName()]]);
   }
   if (newStep != null) {
+    newStep.negated = step.negated;
     var srcParamNames = step.getParamNames();
     var targetParamNames = newStep.getParamNames();
     for (var i = 0; i < srcParamNames.length && i < targetParamNames.length; i++) {

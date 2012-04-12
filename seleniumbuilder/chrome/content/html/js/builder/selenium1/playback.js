@@ -193,7 +193,7 @@ builder.selenium1.playback.play_step = function(step) {
   interval = window.setInterval(wait, 10);
 };
 
-builder.selenium1.playback.stoptest = function() {
+builder.selenium1.playback.stopTest = function() {
   builder.selenium1.playback.stopRequest = true;
 };
 
