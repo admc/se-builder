@@ -68,6 +68,25 @@ builder.selenium2.docs = {
     },
     "description": "Clears the selections in a multi-select element."
   },
+  "dragToAndDropElement": {
+    "params": {
+      "locator": "How to find the element to drag and drop.",
+      "targetLocator": "The element to drop the first one into",
+    },
+    "description": "Drags and drops an element onto another element."
+  },
+  "clickAndHoldElement": {
+    "params": {
+      "locator": "How to find the element to click on.",
+    },
+    "description": "Starts clicking on an element but does not release the virtual mouse button."
+  },
+  "releaseElement": {
+    "params": {
+      "locator": "How to find the element to stop clicking on.",
+    },
+    "description": "Stops holding down the virtual mouse button."
+  },
   "submitElement": {
     "params": {
       "locator": "How to find the element whose form to submit.",

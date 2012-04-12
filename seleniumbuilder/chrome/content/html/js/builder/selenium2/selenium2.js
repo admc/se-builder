@@ -18,7 +18,7 @@ builder.selenium2.StepType.prototype = {
   /** @return List of parameter names. */
   getParamNames: function() { return builder.selenium2.__stepData[this.name] },
   /** @return Whether the given parameter is a "locator" or "string". */
-  getParamType: function(paramName) { return paramName == "locator" ? "locator" : "string" },
+  getParamType: function(paramName) { return paramName.toLowerCase().indexOf("locator") != -1 ? "locator" : "string" },
   /** @return Whether setting negated to true on a step of this type is valid. */
   getNegatable: function() { return this.name.startsWith("assert") || this.name.startsWith("verify"); }
 };
@@ -32,9 +32,9 @@ builder.selenium2.__stepData = {
   "sendKeysToElement":               ["locator", "text"], 
   "clickElementWithOffset":          ["locator", "offset"], 
   "doubleClickElement":              ["locator"], 
-  "element.dragToAndDrop":           ["locator", "locator2"], 
-  "element.clickAndHold":            ["locator"], 
-  "element.release":                 ["locator"], 
+  "dragToAndDropElement":            ["locator", "targetLocator"], 
+  "clickAndHoldElement":             ["locator"], 
+  "releaseElement":                  ["locator"], 
   "sendKeysToElement":               ["locator", "text"], 
   "setElementSelected":              ["locator"], 
   "clearSelections":                 ["locator"], 
@@ -120,7 +120,10 @@ builder.selenium2.categories = [
     builder.selenium2.stepTypes.setElementSelected,
     builder.selenium2.stepTypes.setElementNotSelected,
     builder.selenium2.stepTypes.clearSelections,
-    builder.selenium2.stepTypes.submitElement
+    builder.selenium2.stepTypes.submitElement,
+    builder.selenium2.stepTypes.dragToAndDropElement,
+    builder.selenium2.stepTypes.clickAndHoldElement,
+    builder.selenium2.stepTypes.releaseElement
   ]],
   ["Misc",[
     builder.selenium2.stepTypes.addCookie,

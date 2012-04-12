@@ -264,11 +264,11 @@ builder.selenium2.formats.push(builder.selenium2.createLangFormatter({
       "        }\n",
     "doubleClickElement":
       "        new Actions(wd).doubleClick(wd.findElement(By.{locatorBy}({locator}))).build().perform();\n",
-    "element.dragToAndDrop":
+    "dragToAndDropElement":
       "        new Actions(wd).dragAndDrop(wd.findElement(By.{locatorBy}({locator})), wd.findElement(By.{locator2By}({locator2}))).build().perform();\n",
-    "element.clickAndHold":
+    "clickAndHoldElement":
       "        new Actions(wd).clickAndHold(wd.findElement(By.{locatorBy}({locator}))).build.perform();\n",
-    "element.release":
+    "releaseElement":
       "        new Actions(wd).release(wd.findElement(By.{locatorBy}({locator}))).build.perform();\n",
     "clearSelections":
       "        new Select(wd.findElement(By.{locatorBy}({locator}))).deselectAll();\n",
@@ -276,7 +276,7 @@ builder.selenium2.formats.push(builder.selenium2.createLangFormatter({
       "        wd.findElement(By.{locatorBy}({locator})).submit();\n",
     "close":
       "        wd.close();\n",
-    "navigate.refresh":
+    "refresh":
       "        wd.navigate().refresh();\n",
     "addCookie":
       function(step, escapeValue) {
