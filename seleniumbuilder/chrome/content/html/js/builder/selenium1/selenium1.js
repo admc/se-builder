@@ -66,6 +66,7 @@ function get_parameters(function_object) {
 }
 
 builder.selenium1.stepTypes = {};
+builder.selenium1.negatedStepTypes = {};
 builder.selenium1.categories = [];
 
 // Now mangle this into the stepTypes and categories structures.
@@ -93,6 +94,9 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
         }
         var step = new builder.selenium1.StepType(variant(baseName), baseFunc, negator, adjustedBaseName);
         builder.selenium1.stepTypes[variant(baseName)] = step;
+        if (step.getNegatable()) {
+          builder.selenium1.negatedStepTypes[step.negator(variant(baseName))] = step;
+        }
         catcat[1].push(step);
       }
     }

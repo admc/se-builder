@@ -62,7 +62,7 @@ builder.selenium1.loadSuite = builder.selenium1.adapter.importSuite;
  * @return The path saved to, or null.
  */
 builder.selenium1.adapter.exportSuite = function(scripts, path) {
-  //try {
+  try {
     var ts = new TestSuite();
     for (var i = 0; i < scripts.length; i++) {
       var script = scripts[i];
@@ -77,11 +77,11 @@ builder.selenium1.adapter.exportSuite = function(scripts, path) {
     } else {
       return null;
     }
-  /*} catch (e) {
+  } catch (e) {
     //alert("Could not save suite:\n" + e);
     alert("Could not save suite.");
     return null;
-  }*/
+  }
 };
 
 /**
@@ -187,7 +187,11 @@ builder.selenium1.adapter.convertScriptToTestCase = function(script) {
         params.push("");
       }
     }
-    testCase.commands.push(new Command(step.type.getName(), params[0], params[1]));
+    var name = step.type.getName();
+    if (step.type.getNegatable() && step.negated) {
+      name = step.type.negator(name);
+    }
+    testCase.commands.push(new Command(name, params[0], params[1]));
   }
   if (script.path && script.path.where == "local") {
     testCase.file = FileUtils.getFile(script.path.path);
@@ -205,7 +209,12 @@ builder.selenium1.adapter.convertTestCaseToScript = function(testCase, originalF
   };
   // qqDPS baseurl treatment?
   for (var i = 0; i < testCase.commands.length; i++) {
+    var negated = false;
     var stepType = builder.selenium1.stepTypes[testCase.commands[i].command];
+    if (!stepType) {
+      stepType = builder.selenium1.negatedStepTypes[testCase.commands[i].command];
+      negated = true;
+    }
     var params = [];
     var pNames = stepType.getParamNames();
     for (var j = 0; j < 2; j++) {
@@ -224,11 +233,13 @@ builder.selenium1.adapter.convertTestCaseToScript = function(testCase, originalF
         }
       }
     }
-    script.steps.push(new builder.Step(
+    var step = new builder.Step(
       stepType,
       params[0],
       params[1]
-    ));
+    );
+    step.negated = negated;
+    script.steps.push(step);
   }
   return script;
 };
