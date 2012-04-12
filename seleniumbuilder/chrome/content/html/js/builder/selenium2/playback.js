@@ -66,6 +66,9 @@ builder.selenium2.playback.startSession = function() {
   var driver = server.newDriver(window.bridge.getRecordingWindow());
   var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
   builder.selenium2.playback.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
+  // In order to communicate to webdriver which window we want, we need to uniquely identify the
+  // window. The best way to do this I've found is to look for it by title. qqDPS
+  window.bridge.getRecordingWindow().document.title += "--" + new Date().getTime();
   var newSessionCommand = {
     'name': 'newSession',
     'context': '',
