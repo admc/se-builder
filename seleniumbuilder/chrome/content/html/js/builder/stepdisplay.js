@@ -355,7 +355,6 @@ function editType(stepID) {
       class: 'button',
       href: '#',
       click: function (e) {
-        //var type = jQuery('#' + stepID + '-edit-cat-list').attr('__sb-stepType');
         var type = jQuery('#' + stepID + '-edit-cat-list')[0].__sb_stepType;
         if (type) {
           step.changeType(type);
@@ -370,6 +369,9 @@ function editType(stepID) {
   );
   
   jQuery('#' + stepID + '-type').after(editDiv);
+  if (step.negated) {
+    jQuery('#' + stepID + '-edit-negate').attr('checked', 'checked');
+  }
   jQuery('#' + stepID + '-type').hide();
   updateTypeDivs(stepID, step.type);
 }

@@ -25,6 +25,7 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       var head = newNode('tr', {class: 'labels'},
         newNode('td', "Name"),
         newNode('td', "Sel 1 Translation"),
+        newNode('td', "Negatable"),
         newNode('td', "Local Playback"),
         newNode('td', "Java Export"),
         newNode('td', "Python Export")
@@ -39,6 +40,8 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       newNode('td', {}, sel2Name),
       // Selenium 1 step name, if available
       newNode('td', {}, sel1Name),
+      // Negatable
+      newNode('td', {}, sel2Name ? (sel2Type.getNegatable() ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can play back locally
       newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Java
@@ -53,11 +56,12 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
     
     if (i++ % 20 == 0) {
       var head = newNode('tr', {class: 'labels'},
-        newNode('td', "Selenium 2"),
-        newNode('td', "Selenium 1"),
-        newNode('td', "Selenium Local Playback"),
-        newNode('td', "Selenium S2 Java Export"),
-        newNode('td', "Selenium S2 Python Export")
+        newNode('td', "Name"),
+        newNode('td', "Sel 1 Translation"),
+        newNode('td', "Negatable"),
+        newNode('td', "Local Playback"),
+        newNode('td', "Java Export"),
+        newNode('td', "Python Export")
       );
       jQuery(table).append(head);
     }
@@ -68,6 +72,8 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       newNode('td', {}, sel2Name),
       // No Selenium 1 step name
       newNode('td', {}, ""),
+      // Negatable
+      newNode('td', {}, sel2Name ? (sel2Type.getNegatable() ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can play back locally
       newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Java

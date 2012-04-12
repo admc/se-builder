@@ -9,6 +9,7 @@ builder.selenium2.loadScript = function(path) {
   
   for (var i = 0; i < scriptJSON.steps.length; i++) {
     var step = new builder.Step(builder.selenium2.stepTypes[scriptJSON.steps[i].type]);
+    step.negated = scriptJSON.steps[i].negated || false;
     script.steps.push(step);
     var pNames = step.getParamNames();
     for (var j = 0; j < pNames.length; j++) {
