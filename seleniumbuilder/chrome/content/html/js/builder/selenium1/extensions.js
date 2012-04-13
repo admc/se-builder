@@ -18,7 +18,7 @@ for (m in Selenium.prototype) {
     if (m.startsWith("is") || m.startsWith("get")) {
       addToCategory(ASSERTION, "extensions", m);
       addToCategory(WAIT, "extensions", m);
-      addToCategory(STORE, "extensions", m.replace(/^(is|get)/, "store"));
+      addToCategory(STORE, "extensions", m);
     }
     /*if (m.startsWith("locateElementBy")) {
       builder.locator_types.push(decapitate(m, "locateElementBy"));
