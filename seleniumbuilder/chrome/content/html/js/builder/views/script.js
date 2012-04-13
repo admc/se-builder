@@ -47,7 +47,7 @@ builder.registerPostLoadHook(function() {
     builder.getScript().seleniumVersion.playback.stopTest();
   });
   jQuery('#edit-stop-rc-playback').click(function() {
-    builder.rc.stopTest();
+    builder.getScript().seleniumVersion.rcPlayback.stopTest();
   });
 
   // Clear play results:

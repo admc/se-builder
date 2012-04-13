@@ -211,22 +211,23 @@
     </div>
 
     <div id="edit-panel" style="display: none;" class="panel">
-      <span id="edit-local-playing" style="display: none;"><a href=
-      "#edit-stop-local-playback" name="edit-stop-local-playback" id=
-      "edit-stop-local-playback" class="button">Stop Playback</a></span> <span id=
-      "edit-ondemand-playing" style="display: none;"><a href="#stop-ondemand-playback"
-      name="stop-ondemand-playback" id="edit-stop-ondemand-playback" class="button">Stop
-      Playback</a></span> <span id="edit-ondemand-stopping" style=
-      "display: none;">Stopping...</span> <a href="#edit-clearresults" style=
-      "display: none;" name="edit-clearresults" id="edit-clearresults" class=
-      "button">Clear results</a>
+      <span id="edit-local-playing" style="display: none;">
+        <a href="#edit-stop-local-playback" name="edit-stop-local-playback" id="edit-stop-local-playback" class="button">Stop Playback</a>
+      </span>
+      <span id="edit-rc-playing" style="display: none;">
+        <a href="#stop-rc-playback" name="stop-rc-playback" id="edit-stop-rc-playback" class="button">Stop Playback</a>
+      </span>
+      <span id="edit-rc-stopping" style="display: none;">Stopping...</span>
+      <a href="#edit-clearresults" style="display: none;" name="edit-clearresults" id="edit-clearresults" class="button">Clear results</a>
     </div>
 
     <div id="record-panel" style="display: none;" class="panel">
-      <a href="#assert" name="assert" id="record-verify" class="button"><span class=
-      "when-off">Record a verification</span><span class="when-on">Record further
-      steps</span></a> <a href="#stop" name="stop" id="record-stop-button" class=
-      "button">Stop recording</a> <img id="record-spinner" src="img/loading.gif" />
+      <a href="#assert" name="assert" id="record-verify" class="button">
+        <span class="when-off">Record a verification</span>
+        <span class="when-on">Record further steps</span>
+      </a>
+      <a href="#stop" name="stop" id="record-stop-button" class="button">Stop recording</a>
+      <img id="record-spinner" src="img/loading.gif" />
 
       <div>
         <span id="record-help"><br />
