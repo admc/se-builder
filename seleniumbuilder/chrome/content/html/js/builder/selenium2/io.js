@@ -381,6 +381,8 @@ builder.selenium2.formats.push(builder.selenium2.createLangFormatter({
       "        if ({posNot}wd.getCurrentUrl().equals({url})) {\n" +
       "            System.err.println(\"{negNot}verifyCurrentUrl failed\");\n" +
       "        }\n",
+    "storeCurrentUrl":
+      "        ${{variable}:String} = wd.getCurrentUrl();\n",
     "waitForCurrentUrl":
       "",
     "assertTitle":
