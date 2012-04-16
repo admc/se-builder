@@ -1833,7 +1833,7 @@ element, focus on the element first before running this command.</comment>
 
 <function name="setCompatibility">
 
-<param name="mode">either "seleniumbuilder" or "selenium", to run in <i>Selenium Builder</i> or <i>Selenium</i> modes</param>
+<param name="mode">either "seleniumbuilder" or "selenium", to run in <i>Se Builder</i> or <i>Selenium</i> modes</param>
 
 <comment>If the first argument is <code>selenium</code> then the test will be played against a normal
 instance of Selenium. If the first argument is <code>seleniumbuilder</code> then the test will be played against

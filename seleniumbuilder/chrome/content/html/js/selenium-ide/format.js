@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// NB This has been modified to load code from inside selenium builder instead. All modified lines have
+// NB This has been modified to load code from inside se builder instead. All modified lines have
 // commented-out originals and are marked as // mod.
  
 /*

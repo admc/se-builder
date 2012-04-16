@@ -4,7 +4,7 @@
 
     <Description about="urn:mozilla:install-manifest">
         <em:id>seleniumbuilder@saucelabs.com</em:id>
-        <em:name>Selenium Builder</em:name>
+        <em:name>Se Builder</em:name>
         <em:version>2.0</em:version>
         <em:type>2</em:type>
         <em:creator>Sauce Labs</em:creator>

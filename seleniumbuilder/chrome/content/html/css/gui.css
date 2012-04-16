@@ -1,69 +1,107 @@
-body, html
-{  
-  font-size: 11px;
+body, html, ul {  
+  font-size: 8pt;
   margin: 0px;
   padding: 0px;
   text-align: left;
-  font-family:Verdana, Helvetica, Arial, sans-serif;
+  font-family: "Lucida Grande" ,"SegoeUI", sans-serif;
   padding: 0 0 0 0;
   margin: 0 0 0 0; 
-  width:100%;
-  height:100%;
-  position:absolute;
-  color: #111111;
+	box-model:border-box;
 }
 
-a               {text-decoration:none; color:#66AA66;}
-a:hover         {color:#88bb88; text-decoration:underline;}
+html {   
+	background-color: rgb(164,164,164) ;
+	background-image: url(../img/background-gradient.png);
+	background-attachment:fixed;
+	background-position: bottom right;
+	background-repeat: repeat-x;
+}
+
+a {
+	text-decoration: none;
+	color: rgb(96, 120, 67);
+}
+
+a:hover {
+	color: rgb(191, 238, 133);
+	text-decoration: underline;
+}
 
 img {
-  border:none;
+  border: none;
 }
 
-#loading {
-    background-color: #FF3333;
-    color: white;
-    font-weight: bold;
-    position: absolute;
-    right: 0px;
-    font-size: 1.2em;
-    padding: 3px;
-    z-index: 10000;
+/**
+ * Buttons:
+ * The buttons use css to give a rounded border, and a background image for the gradient.
+ * In the case of older browsers, they ignore the rounded corners, but do pick up the gradient, so
+ * all is still well in the world.
+ */
+input.button,
+input:hover.button,
+input:active.button,
+a:hover.button,
+a:active.button,
+a.button
+{
+	display:inline-block !important ;
+	box-model:border-box;
+	border: 1px solid rgb(168,168,168);
+	border-bottom: 1px solid rgb(96,96,96);
+	border-right: 1px solid rgb(128,128,128);
+	font: 500 1.3rem/1.6rem lucida grande, segoeUI ;
+	display:inline-block;
+	padding:0.2rem 0.5rem;
+	color:rgb(64,64,64) !important;
+	margin: 0.5rex 0.5rex 0.5rex 0;
+	min-width:  5rem;
+	min-height:1rem;
+	text-align:center;
+	background-image: url(../img/button-gradient.png);
+	background-repeat:repeat-x;
+	background-position:right top;
+	text-decoration: none;
+	border-radius:0.2rem;
+}
+input:hover.button,
+a:hover.button
+{ 
+	border: 1px solid rgb(128,128,196);
+	border-bottom: 1px solid rgb(64,64,64);
+	border-right: 1px solid rgb(64,64,64);
+	background-color: rgb(230,230,240);
+	color:rgb(0,0,64) !important; 
+}
+input:active.button,
+a:active.button
+{ 
+	border: 1px solid rgb(128,128,128);
+	border-bottom: 1px solid rgb(96,96,96);
+	box-shadow: inset   2px 2px 7px rgba(50, 50, 50, 0.75);
+	background-color: rgb(215,215,215);
+	color:rgb(0,0,0) !important;
 }
 
-.button {
-  margin-left: 5px;
-  margin-right: 5px;
-  padding: 3px;
-  background-color: #cccccc;
-  border: 1px solid #333333;
-  -moz-border-radius: 5px;
-  cursor: hand;
-  color: #333333;
-  text-decoration: none;
+span a:first-child.button,
+div a:first-child.button
+{ 
+	border-top-left-radius:0.4ex;
+	border-bottom-left-radius:0.4ex;
 }
-.button:hover {
-  color: #555555;
-  text-decoration: none;
-  background-color: #eeeeee;
+
+span a:last-child,
+div a:last-child
+{ 
+	border-top-right-radius:0.4ex;
+	border-bottom-right-radius:0.4ex;
+	border-right-width:1px;
 }
 
 .tab {
   height:100%;
 }
 
-#loading {
-  background-color: #333333;
-  color: white;
-  font-weight: bold;
-  position: absolute;
-  right: 0px;
-  padding: 3px;
-  z-index: 10000;
-}
-
 /** toggles **/
-
 .when-on {
     display: none;
 }
@@ -85,7 +123,6 @@ img {
 .method-dialog .tab-bar {
     border-bottom: 1px dashed #CCCCCC;
     vertical-align: middle;
-    width: 100%;
     margin-bottom: 2px;
 }
 .method-dialog .select-helper + .select-helper {
@@ -175,10 +212,6 @@ img {
     color: red;
 }
 
-#startup {
-  padding: 5px;
-}
-
 /** suite **/
 div.scriptselector {
   padding: 3px;
@@ -189,14 +222,9 @@ div.scriptselector {
   margin-bottom: 5px;
 }
 
-div.scriptselector select {
-  width: 100%;
-}
-
 /**
-New step styling.
-**/
-
+ * New step styling.
+*/
 .b-suite-playback-script {
   background: #dddddd;
   -moz-border-radius: 5px;
