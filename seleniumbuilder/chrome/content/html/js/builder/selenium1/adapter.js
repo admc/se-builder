@@ -99,7 +99,8 @@ builder.selenium1.adapter.importScript = function() {
   }
 };
 
-builder.selenium1.loadScript = builder.selenium1.adapter.importScript;
+builder.selenium1.io = {};
+builder.selenium1.io.loadScript = builder.selenium1.adapter.importScript;
   
 /**
  * Exports the given script using the default format.

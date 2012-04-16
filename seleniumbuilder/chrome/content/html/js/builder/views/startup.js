@@ -11,14 +11,14 @@ builder.views.startup.openFile = function(script) {
 }
 
 builder.views.startup.loadFile = function(version) {
-  var script = version.loadScript();
+  var script = version.io.loadScript();
   if (script) {
     builder.views.startup.openFile(script);
   }
 };
 
 builder.views.startup.convertFile = function(srcVersion, targetVersion) {
-  var script = srcVersion.loadScript();
+  var script = srcVersion.io.loadScript();
   if (script) {
     if (!builder.versionconverter.canConvert(script, targetVersion)) {
       var iList = builder.versionconverter.nonConvertibleStepNames(script, targetVersion);

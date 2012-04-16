@@ -92,7 +92,7 @@ builder.registerPostLoadHook(function() {
   });
   
   jQuery('#suite-importscript-sel2').click(function() {
-    var script = builder.selenium2.loadScriptJSON();
+    var script = builder.selenium2.io.loadScriptJSON();
     if (script) {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in
@@ -103,7 +103,7 @@ builder.registerPostLoadHook(function() {
   });
   
   jQuery('#suite-addscript-sel2').click(function() {
-    var script = builder.selenium2.loadScript();
+    var script = builder.selenium2.io.loadScript();
     if (script) {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in

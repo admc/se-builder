@@ -33,14 +33,14 @@ builder.dialogs.exportscript.show = function(node) {
   }
   
   if (builder.getScript().seleniumVersion == builder.selenium2) {
-    for (var i = 0; i < builder.selenium2.formats.length; i++) {
-      jQuery(format_list).append(create_sel2_format_li(builder.selenium2.formats[i]));
+    for (var i = 0; i < builder.selenium2.io.formats.length; i++) {
+      jQuery(format_list).append(create_sel2_format_li(builder.selenium2.io.formats[i]));
     }
   } else {
     if (builder.versionconverter.canConvert(builder.getScript(), builder.selenium2)) {
       jQuery(format_list).append(newNode("span", "Selenium 2:"));
-      for (var i = 0; i < builder.selenium2.formats.length; i++) {
-        jQuery(format_list).append(create_sel2_format_li(builder.selenium2.formats[i]));
+      for (var i = 0; i < builder.selenium2.io.formats.length; i++) {
+        jQuery(format_list).append(create_sel2_format_li(builder.selenium2.io.formats[i]));
       }
       jQuery(format_list).append(newNode("span", "Selenium 1:"));
     } else {
@@ -127,7 +127,7 @@ function create_sel2_format_li(myFormat) {
   var li_node = newNode('li',
     newNode('a', myFormat.name, {
       click: function(event) {
-        if (builder.selenium2.saveScript(script, myFormat)) {
+        if (builder.selenium2.io.saveScript(script, myFormat)) {
           builder.getScript().path = script.path; // If the 
           builder.suite.setCurrentScriptSaveRequired(false);
           builder.gui.suite.update();
@@ -147,7 +147,7 @@ function create_overwrite_li() {
   return newNode('li', newNode('a', "Save as " + path.format.name + " to " + path.path, {
     click: function(event) {
       if (builder.getScript().seleniumVersion == builder.selenium1) {
-        if (builder.selenium2.formats.indexOf(path.format) != -1) {
+        if (builder.selenium2.io.formats.indexOf(path.format) != -1) {
           script = builder.versionconverter.convertScript(script, builder.selenium2);
         } else {
           var file = builder.selenium1.adapter.exportScriptWithFormatToPath(
@@ -161,7 +161,7 @@ function create_overwrite_li() {
         }
       }
       if (script.seleniumVersion == builder.selenium2) {
-        if (builder.selenium2.saveScript(script, path.format, path.path)) {
+        if (builder.selenium2.io.saveScript(script, path.format, path.path)) {
           builder.suite.setCurrentScriptSaveRequired(false);
           builder.gui.suite.update();
         }

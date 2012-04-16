@@ -45,9 +45,9 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       // Can play back locally
       newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Java
-      newNode('td', {}, sel2Name ? (builder.selenium2.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
+      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Python
-      newNode('td', {}, sel2Name ? (builder.selenium2.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
+      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
     );
     jQuery(table).append(row);
   }
@@ -77,9 +77,9 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       // Can play back locally
       newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Java
-      newNode('td', {}, sel2Name ? (builder.selenium2.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
+      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can export to Python
-      newNode('td', {}, sel2Name ? (builder.selenium2.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
+      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
     );
     jQuery(table).append(row);
   }
