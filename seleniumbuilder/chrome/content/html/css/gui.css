@@ -10,13 +10,14 @@ body, html, ul {
 }
 
 html {   
-	background-color: rgb(164,164,164) ;
-	background-image: url(../img/background-gradient.png);
-	background-attachment:fixed;
-	background-position: bottom right;
-	background-repeat: repeat-x;
+	background-color:      rgb(102, 102, 102);
+	background-image:      url(../img/background-gradient.png);
+	background-attachment: fixed;
+	background-position:   bottom right;
+	background-repeat:     repeat-x;
 }
 
+/** Links */
 a {
 	text-decoration: none;
 	color: rgb(96, 120, 67);
@@ -29,6 +30,14 @@ a:hover {
 
 img {
   border: none;
+}
+
+/** Logo */
+#header-logo {
+	position: fixed;
+	bottom:   1ex;
+	left:     1ex;
+	display:  block;
 }
 
 /**
@@ -66,10 +75,10 @@ a.button
 input:hover.button,
 a:hover.button
 { 
-	border: 1px solid rgb(128,128,196);
+	border: 1px solid rgb(96,120,67);
 	border-bottom: 1px solid rgb(64,64,64);
 	border-right: 1px solid rgb(64,64,64);
-	background-color: rgb(230,230,240);
+	background-color: rgb(242,255,226);
 	color:rgb(0,0,64) !important; 
 }
 input:active.button,
@@ -97,169 +106,193 @@ div a:last-child
 	border-right-width:1px;
 }
 
-.tab {
-  height:100%;
-}
-
-/** toggles **/
-.when-on {
-    display: none;
-}
-.is-on > .when-on {
-    display: inline;
-}
-.is-on > .when-off {
-    display: none;
-}
-
-/** Method editor **/
-.method-dialog {
-    display: block;
-    vertical-align: text-top;
-    width: auto;
-    overflow: hidden;
-    margin: 5px;
-}
-.method-dialog .tab-bar {
-    border-bottom: 1px dashed #CCCCCC;
-    vertical-align: middle;
-    margin-bottom: 2px;
-}
-.method-dialog .select-helper + .select-helper {
-    margin-left: 10px;
-}
-.method-dialog .tab-container {
-    margin-bottom: 2px;
-}
-.method-dialog .tab-bar input {
-    position: relative;
-    top: 2px;
-    margin-left: 10px;
-}
-.method-dialog .help {
-    margin-top: 5px;
-}
-.method-dialog .tab-container div {
-    float: left;
-}
-.method-dialog .tab-container .method-select {
-    margin-left: 10px;
-}
-.method-dialog #after-filter, .method-dialog #before-filter {
-    clear: both;
-    margin-bottom: 2px;
-}
-#after-filter input, #before-filter input {
-    position: relative;
-    top: 3px;
-}
-#before-filter.disabled {
-    opacity: 1;
-}
-
-#new-method {
-    width: 26em; /* enough room for "waitForNotWhetherThisWindowMatchWindowExpression" */
-}
-
-#method-dialog-help {
-    clear: both;
-    line-height: normal;
-    margin: 5px;
-    background-color: white;
-    padding: 10px;
-}
-
-.url-warning {
-  color: #aa0000;
-}
-
+/** Startup */
 .cookie-warning {
   color: #aa0000;
 }
 
-/** locator dialog **/
-.find-new {
-    float: right;
-    margin-right: 3em;
+/** Menu */
+
+#menu *, #menu{
+  box-sizing: border-box; 
 }
 
-.locator-dialog .warning, .locator-dialog ul {
-    line-height: normal;
+#menu {
+	font:           1rem/1.2rem "Lucida Grande" ,"SegoeUI", sans-serif;
+	background:     rgb(240,240,240) url(../img/button-gradient.png) repeat-x;
+	color:          rgb(96,96,96);
+	position:       fixed;
+	top:            4px; 
+	left:           4px;
+	right:          4px;
+	z-index:        30;
+	border:         1px solid rgb(96,96,96);
+	border-bottom:  1px solid rgb(32,32,32);
+	box-shadow:     0px 1px 2px rgba(50, 50, 50, 0.6);
+	border-radius:  0.2rem;
+	margin:         0;
+	padding:        0;
 }
 
-
-/** Remove scroll-bar from selects **/
-.select-helper {
-    overflow: hidden;
-    border: 1px solid #cccccc;
-    /* width: set by javascript to the same as the width of an option at display time */
-}
-.select-helper select {
-    overflow: hidden;
-    border: none;
-    padding: 0px;
+#menu li
+{
+	float:         left;
+	display:       block;
+	position:      relative;  
+	cursor:        pointer;         
 }
 
-.method-dialog .select-helper {
-    float: left;
+#menu  li ul
+{
+	top:               100%;
+	left:              0px;
+	padding:           5px 0px;
+	position:          absolute;
+	background-color:  rgb(240,240,240);
+	border:            1px solid rgb(200,200,200);
+	width:             auto;
+	height:            auto;
+	display:           none;
+	box-shadow:        2px 2px 7px rgba(50, 50, 50, 0.75);
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px
+	border-bottom-left-radius: 5px;
 }
 
-.method-dialog .category-select option {
-    width: 120px;
+#menu li:hover ul {            
+	display:            block;
+	z-index:            5;
 }
 
-#booting.error {
-    color: red;
+#menu li ul li {
+	display:           block;
+	position:          static;
+	min-width:         15em;
+	float:             none;
 }
 
-/** suite **/
-div.scriptselector {
-  padding: 3px;
-  padding-left: 10px;
-  padding-right: 10px;
-  color: #ffffff;
-  background: transparent url(../img/builder-header.png) repeat-x scroll 0 0;
-  margin-bottom: 5px;
+#menu ul {
+	height:            2.2em;
+	background-color:  rgb(255,255,255);
+	border-bottom:     1px solid rgb(0,0,0);
+	padding-left:      6em;
+}
+ 
+#menu li a {
+	color:           rgb(64,64,64);
+	text-decoration: none;
+	padding:         1ex 2ex;
+	display:         block;
 }
 
-/**
- * New step styling.
-*/
-.b-suite-playback-script {
-  background: #dddddd;
-  -moz-border-radius: 5px;
-  margin: 2px;
-  margin-left: 102px;
-  padding: 1px;
+#menu li:hover a, #menu li:hover ul li a:hover {
+	color:  rgb(0,0,96);
+	border: 0;
+}
+ 
+#menu li:hover {
+	background-color: rgba(255,255,255,0.5);
+	z-index: 200;
 }
 
-#steplist {
+/** Windows and dialogs */
+#steplist, #startup {
   counter-reset: line-number;
-  position: absolute;
-  top: 85px; /* adjusted as needed - should be 85 or so*/
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow: auto;
+  top: 40px; /* adjusted as needed - should be 85 or so*/
+  margin-left: 80px;
+  margin-right:1em;
+  display:block;
+  min-height:100%;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 1em;
+  padding-bottom:1em;
   background: white;
+  border-left:1px solid rgb(32,32,32);
+  border-bottom:1px solid rgb(32,32,32);
+  box-model:border-box;
+  box-shadow: -.1em 0em 1em rgba(0,0,0,0.5), inset 0 0 2rem rgba(0,0,0,0.1);  
+}
+
+#dialog-attachment-point form, #steplist form  {
+	background-color: rgba(255,255,255,0.9);
+	border:           1px solid rgb(210,210,210);
+	border-radius:    0.5rem;
+	box-shadow:       0 0 0.5rem rgba(0,0,0,0.3);
+	padding:          1rem;      
+}
+
+/** Startup */
+#startup * {
+	box-model:border-box;
+}
+#startup h1 {
+	/* TODO */
+}
+
+#startup ul {
+	border-top:1px solid  rgba(0,0,0,0.3);
+	padding:0;
+	margin:0;
+	list-style:none;
+	padding: 0;
+}
+
+#startup li, .startrecording {
+	font: 500 1.3rem/1.6rem lucida grande, segoeUI ;
+  margin:0;
+  padding:0.5rem 3rem;
+}
+#startup li {
+  border-bottom:1px dotted rgb(128, 128, 128);
+}
+#startup li:hover {
+	background-color:rgb(242, 255, 226);
+}
+#startup li a {
+	display: block;
+	color: black;
+}
+#startup li:hover a {
+	text-decoration: none;
+}
+#startup form {
+	display: inline;
+}
+
+
+/** Steps */
+#dialog-attachment-point form ul {
+	min-width: 20em;
+	padding:   1rem;
+	margin:    1rem;
+	width:     100%;
+}
+
+texta {
+	width:100%;
+}
+
+#steps-top {
+	position:relative;  
+}
+
+#steps-footer {
+	height: 1rem;
+	background-color:rgb(250, 250, 250);
 }
 
 .b-step {
   position: relative;
-  padding: 2px;
 }
 
 .b-step-content, .b-baseurl {
-  background: #dddddd;
-  -moz-border-radius: 5px;
-  margin-left: 100px;
-  padding: 1px;
+  border-top: 1px dotted rgb(128,128,128);
+  padding: 0.3rem 0.1rem;
 }
 
 .b-step-container {
-  padding-left: 1.5em;
+  padding-left: 2.2rem;
 }
 
 /* Compensate for b-baseurl not being wrapped in b-step and its label being wider. */
@@ -270,16 +303,20 @@ div.scriptselector {
 
 .b-step-number:before {
   position: absolute;
-  left: 104px;
+  left: 0;
+  width:2.2 rem;
+  text-align:right;
+  padding-right:0.5rem;
   content: counter(line-number) ". ";
   counter-increment: line-number;
-  color: #555555;
+  color: rgb(200,200,200);
 }
 
 .b-method {
   color: black;
   margin-right: 0.5em;
   font-weight: bold;
+  position:relative;
 }
 
 .b-param-row {
@@ -293,7 +330,7 @@ div.scriptselector {
 }
 
 .b-param {
-  color: black;
+  color: rgba(0,0,0,0.6);
 }
 
 .b-param-input {
@@ -307,6 +344,7 @@ div.scriptselector {
 
 .b-method:hover, .b-param:hover, .b-param-type:hover {
   text-decoration: none;
+	color: rgb(96, 120, 67);
 }
 
 .b-step-error, .b-step-warning, .b-step-message {
@@ -324,200 +362,44 @@ div.scriptselector {
   display: none;
 }
 
+.b-step:hover .b-method:before {
+  position: absolute;
+  left: -12px;
+  width:15px;
+  height:30px;
+  top:50%;
+  margin-top: -15px;
+  text-align:right;
+  padding-right:0.5rem;
+  content: " ";
+  background:url(../img/menuarrow.png) no-repeat center left;
+  z-index:1001;
+}
+
 .b-step:hover .b-tasks {
-  background-color: #cccccc;
+  background-color:white;
   padding: 3px;
-  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border:1px solid black;
+  box-shadow: 0.2rem 0.2rem 1rem rgba(0,0,0,0.5);
   display: block;
   position: absolute;
-  top: 2px;
-  left: 0px;
+  top: 0rem;
+  margin:0rem;
+  margin-top:-0.5rem;
+  padding-bottom:1rem;
+  left:-86px;/* into the grey space*/
   z-index: 1000;
+  width:91px; 
+  box-model:border-box;
 }
 
 .b-step:hover {
-  background-color: #cccccc;
-  -moz-border-radius: 5px;
+  background-color: rgb(242, 255, 226);
+  border-radius: .2rem;
 }
 
 .b-tasks .b-task {
   display: block;
   padding: 2px;
-}
-
-/**
- * Header
- */
-.header {
-  height: 60px;
-  margin-bottom: 5px;
-  color: #333333;
-  background: transparent url(../img/selenium-header.png) repeat-x scroll 0 0;
-}
-
-#header-logo {
-  position: absolute;
-  left: 5px;
-  top: 5px;
-}
-
-#header-status {
-  position: absolute;
-  left: 86px;
-  top: 5px;
-}
-
-#menu {
-  position: absolute;
-  left: 86px;
-  top: 40px;
-  width: 400px;
-}
-
-/**
- * Informational displays
- */
-#panels .panel {
-  padding: 5px;
-}
-
-#record-spinner {
-  float: right;
-}
-
-#dialog-attachment-point {
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-/**
- * Menu
-*/
-
-#menu {
-  margin: 0px;
-  padding: 0px;
-  font-size: 13px;
-}
-
-#menu li {
-  list-style: none;
-  float: left;
-  margin-left: 15px;
-  margin-right: 15px;
-}
-
-#menu li a {
-  display: block;
-  color: #333333;
-  text-decoration: none;
-}
-
-#menu li:hover a {
-  color: #111111;
-}
-
-#menu li {
-  padding: 3px;
-  padding-bottom: 8px;
-}
-
-#menu li:hover {
-  background-color: #cccccc;
-  -moz-border-radius: 5px;
-  cursor: hand;
-}
-
-#menu li ul {
-  display: none;
-}
-
-#menu li:hover ul {
-  z-index: 100;
-  display: block;
-  position: absolute;
-  margin: 0px;
-  margin-left: -3px;
-  background-color: #cccccc;
-  padding: 3px;
-  -moz-border-radius: 5px;
-}
-
-#menu li:hover li {
-  float: none;
-  padding: 4px;
-  margin: 0px;
-  color: #333333;
-}
-
-#menu li:hover li a {
-  text-decoration:none;
-  color:#66AA66;
-}
-
-#menu li:hover li a:hover {
-  color:#88bb88;
-  text-decoration: underline;
-}
-
-.currentScript, .suite-path {
-  font-style: italic;
-}
-
-/* For some reason, tables have massive text if this isn't added in. */
-table {
-	font-size: 100%;
-}
-
-/* Selenium type chooser */
-table.cat-table {
-  background-color: #eeeeee;
-  padding: 5px;
-  margin: 2px;
-  -moz-border-radius: 5px;
-	font-size: 100%;
-}
-
-table.cat-table td {
-  vertical-align: top;
-}
-
-table.cat-table li {
-  list-style: none;
-}
-
-.selected-cat {
-  font-weight: bold;
-}
-
-.selected-type {
-  font-weight: bold;
-}
-
-.cat-list {
-  margin: 0px;
-  padding: 0px;
-  margin-right: 20px;
-}
-
-.type-list {
-  margin: 0px;
-  padding: 0px;
-  margin-right: 20px;
-}
-
-.type-info {
-  background-color: white;
-  border: 1px solid #aaaaaa;
-  margin: 0px;
-  padding: 3px;
-}
-
-.type-info-head {
-  font-weight: bold;
-}
-
-.type-info-longparam {
-  margin-left: 5px;
-  padding-left: 0px;
 }

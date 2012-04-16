@@ -30,11 +30,9 @@
 
 <body>
   <span id="loading" style="display: none">Loading...</span> <!-- Header and menu -->
+  <img id="header-logo" src="img/builder-logo-small.png" alt="Welcome to Se Builder!" />
 
   <div class="header">
-    <img id="header-logo" src="img/builder-logo-small.png" alt=
-    "Welcome to Se Builder!" />
-
     <div id="header-status">
       <span id="heading-startup" style="display: none"></span> <span id="heading-record"
       style="display: none"><span class="when-off">Currently recording at: <a id=
@@ -135,55 +133,51 @@
 
   <div id="startup" style="display: none">
     <h1>Se Builder</h1>
-
-    <p>Would you like to:</p>
-
+    
     <ul>
       <li id="startup-open-sel1">
-        <h3><a name="startup-open-sel1" href="#startup-open-sel1">Open</a> a Selenium 1 test file</h3>
+      <a name="startup-open-sel1" href="#startup-open-sel1">&raquo; Open a Selenium 1 test file</a>
       </li>
-      
+
       <li id="startup-open-sel2">
-        <h3><a name="startup-open-sel2" href="#startup-open-sel2">Open</a> a Selenium 2 test file</h3>
+      <a name="startup-open-sel2" href="#startup-open-sel2">&raquo; Open a Selenium 2 test file</a>
       </li>
 
       <li id="startup-convert-sel2-1">
-        <h3><a name="startup-convert-sel2-1" href="#startup-convert-sel2-1">Import</a> a Selenium 2 test file as Selenium 1</h3>
+      <a name="startup-convert-sel2-1" href="#startup-convert-sel2-1">&raquo; Import a Selenium 2 test file as Selenium 1</a>
       </li>
-      
+
       <li id="startup-convert-sel1-2">
-        <h3><a name="startup-convert-sel1-2" href="#startup-convert-sel1-2">Import</a> a Selenium 1 test file as Selenium 2</h3>
+      <a name="startup-convert-sel1-2" href="#startup-convert-sel1-2">&raquo; Import a Selenium 1 test file as Selenium 2</a>
       </li>
 
       <li id="startup-open-suite-sel1">
-        <h3><a name="startup-open-suite-sel1" href="#startup-open-suite-sel1">Open</a> a Selenium 1 test suite</h3>
+      <a name="startup-open-suite-sel1" href="#startup-open-suite-sel1">&raquo; Open a Selenium 1 test suite</a>
       </li>
-      
+
       <li id="startup-show-steps-table">
-        <h3><a name="startup-show-steps-table" href="#startup-show-steps-table">View</a> Selenium 2 step support table</h3>
-      </li>
-
-      <li id="startup-record">
-        <h3>Start recording a new script at</h3>
-
-        <p>
-          <form method="get" action="#record" id="startup-start-recording-field">
-            <input id="startup-url" type="text" class="texta" size="35" />
-          </form>
-        </p>
-
-        <p>
-          <form method="get" action="#record" id="startup-start-recording-sel1">
-            <input type="submit" value="Record Selenium 1 Script" class="button" />
-          </form>
-          <form method="get" action="#record-sel2" id="startup-start-recording-sel2">
-            <input type="submit" value="Record Selenium 2 Script" class="button" />
-          </form>
-        </p>
-
-        <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
+      <a name="startup-show-steps-table" href="#startup-show-steps-table">&raquo; View Selenium 2 step support table</a>
       </li>
     </ul>
+    <div class="startrecording">
+      Start recording at
+      <p>
+        <form method="get" action="#record" id="startup-start-recording-field">
+          <input id="startup-url" type="text" class="texta" size="35" />
+        </form>
+      </p>
+
+      <p>
+        <form method="get" action="#record" id="startup-start-recording-sel1">
+          <input type="submit" value="Selenium 1" class="button" />
+        </form>
+        <form method="get" action="#record-sel2" id="startup-start-recording-sel2">
+          <input type="submit" value="Selenium 2" class="button" />
+        </form>
+      </p>
+
+      <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
+    </div>
   </div><!-- Panels of buttons and informational displays. -->
 
   <div id="panels">
