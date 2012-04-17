@@ -438,6 +438,62 @@ texta {
   padding: 2px;
 }
 
+/** Type chooser */
+table.cat-table {
+  background-color: #eeeeee;
+  padding: 5px;
+  margin: 2px;
+	font-size: 100%;
+}
+
+table.cat-table td {
+  vertical-align: top;
+}
+
+table.cat-table li {
+  list-style: none;
+}
+
+.selected-cat {
+  font-weight: bold;
+}
+
+.selected-type {
+  font-weight: bold;
+}
+
+.cat-list {
+  margin: 0px;
+  padding: 0px;
+  margin-right: 10px;
+}
+
+.cat-list li {
+	border-bottom:1px dotted rgb(128, 128, 128);
+}
+
+.type-list {
+  margin: 0px;
+  padding: 0px;
+  margin-right: 10px;
+}
+
+.type-info {
+  background-color: white;
+  border: 1px solid #aaaaaa;
+  margin: 0px;
+  padding: 3px;
+}
+
+.type-info-head {
+  font-weight: bold;
+}
+
+.type-info-longparam {
+  margin-left: 5px;
+  padding-left: 0px;
+}
+
 #record-spinner {
 	float: right;
 }
