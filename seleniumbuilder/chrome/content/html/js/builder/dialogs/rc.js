@@ -2,8 +2,10 @@
  * Dialog that can be inserted to allow the user to run a test on Selenium RC.
  */
 builder.dialogs.rc = new(function () {
-  /** The DOM node into which to insert the dialog, replacing its contents. */
+  /** The DOM node into which to insert the dialog. */
   var node;
+  /** The dialog. */
+  var dialog;
   /** Whether the dialog is for playing all scripts in the suite */
   var playall;
   
@@ -18,6 +20,8 @@ builder.dialogs.rc = new(function () {
     show: function (anode, doplayall, altCallback, altOKText) {
       node = anode;
       playall = doplayall;
+      
+      dialog = newNode('div', {class: 'dialog'});
       
       var run_b = newNode('a', altOKText || 'Run', {
       class: 'button',
@@ -64,13 +68,15 @@ builder.dialogs.rc = new(function () {
         )
       );
       
-      jQuery(node).html('').
+      jQuery(dialog).
           append(chooseHeader).
           append(optDiv).
           append(bDiv);
+          
+      jQuery(node).append(dialog);
     },
     hide: function () {
-      node.html('');
+      jQuery(dialog).remove();
     }
   };
 })();

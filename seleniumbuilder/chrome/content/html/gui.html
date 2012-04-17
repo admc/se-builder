@@ -39,9 +39,9 @@
       "record-url-display">http://www.example.com/</a></span> <span class=
       "when-on">Waiting for page to load</span></span> <span id="heading-edit" style=
       "display: none"><span id="edit-test-script-nopath">Current test has not been
-      <a style="text-decoration:underline;" href="#" id=
-      "edit-test-script-nopath-save">saved</a>.</span> <span id=
-      "edit-test-script-path"></span></span>
+      <a style="text-decoration:underline;" href="#" id="edit-test-script-nopath-save">saved</a>.</span>
+      <span id="edit-test-script-path"></span>
+      </span>
     </div>
 
     <ul id="menu" style="display: none;">
@@ -49,14 +49,11 @@
         <a href="#">File</a>
 
         <ul>
-          <li id="script-save-li" style="display: none;"><a href="#script-save" name=
-          "script-save" id="script-save">Save to server</a></li>
+          <li id="script-save-li" style="display: none;"><a href="#script-save" name="script-save" id="script-save">Save to server</a></li>
 
-          <li><a href="#script-export" name="script-export" id="script-export">Save to
-          disk</a></li>
+          <li><a href="#script-export" name="script-export" id="script-export">Save to disk</a></li>
 
-          <li id="script-discard-li"><a href="#script-discard" name="script-discard" id=
-          "script-discard">Discard and start over</a></li>
+          <li id="script-discard-li"><a href="#script-discard" name="script-discard" id="script-discard">Discard and start over</a></li>
         </ul>
       </li>
 
@@ -122,7 +119,7 @@
           "suite-removescript" id="suite-removescript">Remove current
           script</a></span></li>
 
-          <li><span id="multiscript-1">Scripts</span></li>
+          <div class="divider"></div>
 
           <li style="list-style: none"><span id="multiscript-1"><span id=
           "scriptlist"></span></span></li>
@@ -178,91 +175,84 @@
 
       <p class="cookie-warning">This will delete all cookies for the domain you're recording for.</p>
     </div>
-  </div><!-- Panels of buttons and informational displays. -->
-
-  <div id="panels">
-    <div id="suite-panel" style="display: none;" class="panel">
-      <div id="suite-saverequired" style="display: none">
-        Suite has unsaved changes.
-      </div>
-
-      <div id="suite-cannotsave-unsavedscripts" style="display: none">
-        Can't save suite: Save all scripts to disk as HTML first.
-      </div>
-      
-      <div id="suite-cannotsave-notallsel1" style="display: none">
-        Can't save suite: All scripts must be Selenium 1 scripts.
-      </div>
-
-      <div id="edit-suite-playing" style="display: none;">
-        <a href="#stop-suite-playback" name="stop-suite-playback" id=
-        "edit-suite-stop-playback" class="button">Stop Playback</a>
-      </div>
-
-      <div id="edit-suite-stopping" style="display: none;">
-        Stopping...
-      </div>
-    </div>
-
-    <div id="edit-panel" style="display: none;" class="panel">
-      <span id="edit-local-playing" style="display: none;">
-        <a href="#edit-stop-local-playback" name="edit-stop-local-playback" id="edit-stop-local-playback" class="button">Stop Playback</a>
-      </span>
-      <span id="edit-rc-playing" style="display: none;">
-        <a href="#stop-rc-playback" name="stop-rc-playback" id="edit-stop-rc-playback" class="button">Stop Playback</a>
-      </span>
-      <span id="edit-rc-stopping" style="display: none;">Stopping...</span>
-      <a href="#edit-clearresults" style="display: none;" name="edit-clearresults" id="edit-clearresults" class="button">Clear results</a>
-    </div>
-
-    <div id="record-panel" style="display: none;" class="panel">
-      <a href="#assert" name="assert" id="record-verify" class="button">
-        <span class="when-off">Record a verification</span>
-        <span class="when-on">Record further steps</span>
-      </a>
-      <a href="#stop" name="stop" id="record-stop-button" class="button">Stop recording</a>
-      <img id="record-spinner" src="img/loading.gif" />
-
-      <div>
-        <span id="record-help"><br />
-        Listening for events, click or type in the page to capture another action.</span>
-        <span id="record-verify-help" style="display:none"><br />
-        Select some text or click on an element in order to register an assertion.</span>
-        <span id="record-waitfor-help" style="display:none"><br />
-        Select some text or click on an element in order to instruct the test to wait for
-        its presence.</span>
-      </div>
-    </div>
-
-    <div id="error-panel" style=
-    "display: none; font-size: 130%; color: #ffffff; background-color: #880000; padding: 10px; margin: 4px;">
-    Some error has occurred!
-    </div>
-
-    <div id="dialog-attachment-point">
-      <!-- Incidential dialogs put themselves into this div. -->
-    </div>
-  </div><!-- The steps -->
-
+  </div>
+  
+  <div id="dialog-attachment-point">
+    <!-- Incidential dialogs put themselves into this div. -->
+  </div>
+  
+  <!-- The steps -->
   <div id="steplist" style="display:none;">
+    <div id="panels">
+      <div id="suite-panel" style="display: none;" class="panel">
+        <div id="suite-saverequired" style="display: none">
+          Suite has unsaved changes.
+        </div>
+
+        <div id="suite-cannotsave-unsavedscripts" style="display: none">
+          Can't save suite: Save all scripts to disk as HTML first.
+        </div>
+
+        <div id="suite-cannotsave-notallsel1" style="display: none">
+          Can't save suite: All scripts must be Selenium 1 scripts.
+        </div>
+
+        <div id="edit-suite-playing" style="display: none;">
+          <a href="#stop-suite-playback" name="stop-suite-playback" id="edit-suite-stop-playback" class="button">Stop Playback</a>
+        </div>
+
+        <div id="edit-suite-stopping" style="display: none;">
+          Stopping...
+        </div>
+      </div>
+
+      <div id="edit-panel" style="display: none;" class="panel">
+        <span id="edit-local-playing" style="display: none;">
+          <a href="#edit-stop-local-playback" name="edit-stop-local-playback" id="edit-stop-local-playback" class="button">Stop Playback</a>
+        </span>
+        <span id="edit-rc-playing" style="display: none;">
+          <a href="#stop-rc-playback" name="stop-rc-playback" id="edit-stop-rc-playback" class="button">Stop Playback</a>
+        </span>
+        <span id="edit-rc-stopping" style="display: none;">Stopping...</span>
+        <span id="edit-clearresults-span" style="display: none;">
+          <a href="#edit-clearresults" class="button" name="edit-clearresults" id="edit-clearresults">Clear results</a>
+        </span>
+      </div>
+
+      <div id="record-panel" style="display: none;" class="panel">
+        <a href="#assert" name="assert" id="record-verify" class="button">
+          Record a verification
+        </a>
+        <a href="#stop" name="stop" id="record-stop-button" class="button">Stop recording</a>
+        <img id="record-spinner" src="img/loading.gif" />
+
+        <div>
+          <span id="record-help">
+          Listening for events, click or type in the page to capture another action.</span>
+          <span id="record-verify-help" style="display:none"><br />
+          Select some text or click on an element in order to register an assertion.</span>
+          <span id="record-waitfor-help" style="display:none"><br />
+          Select some text or click on an element in order to instruct the test to wait for
+          its presence.</span>
+        </div>
+      </div>
+
+      <div id="error-panel" style="display: none; font-size: 130%; color: #ffffff; background-color: #880000; padding: 10px; margin: 4px;">
+        Some error has occurred!
+      </div>
+    </div>
+    
     <div id="steps-top"></div>
 
     <div id="steps"></div>
 
     <div id="bottom"></div>
-  </div><!-- Splash screen -->
-
+  </div>
+  
+  <!-- Splash screen -->
   <div id="booting">
-    <div id="statusMessage">
-      <center>
-        <div style="font-weight:bold;font-size:14px;" id="loadMessage">
-          Starting Up...
-        </div>
-      </center><br />
-
-      <center>
-        <img src="img/loading.gif" />
-      </center>
+    <div id="loadMessage">
+      Starting Up...
     </div>
   </div>
 </body>

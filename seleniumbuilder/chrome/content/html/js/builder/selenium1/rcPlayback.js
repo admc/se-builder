@@ -28,7 +28,7 @@ builder.selenium1.rcPlayback.run = function(hostport, browserstring, postRunCall
   builder.selenium1.rcPlayback.script = builder.getScript();
   builder.views.script.clearResults();
   var baseURL = builder.selenium1.rcPlayback.script.steps[0].url; // qqDPS BRITTLE!
-  jQuery('#edit-clearresults').show();
+  jQuery('#edit-clearresults-span').show();
   var msg = 'cmd=getNewBrowserSession&1=' + browserstring + '&2=' + builder.selenium1.rcPlayback.enc(baseURL) + '&3=null';
   builder.selenium1.rcPlayback.post(msg, builder.selenium1.rcPlayback.startJob, builder.selenium1.rcPlayback.xhrfailed);
   dump(msg);
@@ -69,7 +69,7 @@ builder.selenium1.rcPlayback.playNextStep = function(returnVal) {
         jQuery("#" + builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].id + '-content').css('background-color', '#ffcccc');
         builder.selenium1.rcPlayback.result.success = false;
       } else {
-        jQuery("#" + builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].id + '-content').css('background-color', '#ccffcc');
+        jQuery("#" + builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].id + '-content').css('background-color', '#bfee85');
       }
     } else {
       builder.selenium1.rcPlayback.error = true;
@@ -90,7 +90,7 @@ builder.selenium1.rcPlayback.playNextStep = function(returnVal) {
       builder.selenium1.rcPlayback.currentStep++;
       // Echo is not supported server-side, so ignore it.
       while (builder.selenium1.rcPlayback.currentStep < builder.selenium1.rcPlayback.script.steps.length && builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].type == builder.selenium1.stepTypes.echo) {
-        jQuery("#" + builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].id + '-content').css('background-color', '#ccffcc');
+        jQuery("#" + builder.selenium1.rcPlayback.script.steps[builder.selenium1.rcPlayback.currentStep].id + '-content').css('background-color', '#bfee85');
         builder.selenium1.rcPlayback.currentStep++;
       }
       if (builder.selenium1.rcPlayback.currentStep < builder.selenium1.rcPlayback.script.steps.length) {

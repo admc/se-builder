@@ -6,9 +6,12 @@ builder.dialogs.exportscript = {};
 
 /** The DOM node into which to insert the dialog, replacing its contents. */
 builder.dialogs.exportscript.node = null;
+builder.dialogs.exportscript.dialog = null;
 
 builder.dialogs.exportscript.show = function(node) {
   builder.dialogs.exportscript.node = node;
+  builder.dialogs.exportscript.dialog = newNode('div', {class: 'dialog'});
+  jQuery(node).append(builder.dialogs.exportscript.dialog);
   
   var format_list = newNode('ul');
   
@@ -20,10 +23,10 @@ builder.dialogs.exportscript.show = function(node) {
     href: '#cancel'
   });
   
-  jQuery(node).html('').
+  jQuery(builder.dialogs.exportscript.dialog).
       append(newNode('h3', 'Choose export format')).
       append(format_list).
-      append(cancel_b);
+      append(newNode('p', cancel_b));
   
   // Option to overwrite the already-saved file.
   if (builder.getScript().path &&
@@ -59,7 +62,8 @@ builder.dialogs.exportscript.show = function(node) {
 };
 
 builder.dialogs.exportscript.hide = function () {
-  builder.dialogs.exportscript.node.html('');
+  //builder.dialogs.exportscript.node.html('');
+  jQuery(builder.dialogs.exportscript.dialog).remove();
 };
 
 builder.dialogs.exportscript.do_export_sel1 = function(myFormat, hostPort, browserString) {

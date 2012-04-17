@@ -17,6 +17,15 @@ html {
 	background-repeat:     repeat-x;
 }
 
+table {
+	font-size: 100%;
+}
+
+/** Lists */
+ul {
+	list-style: none;
+}
+
 /** Links */
 a {
 	text-decoration: none;
@@ -51,8 +60,7 @@ input:hover.button,
 input:active.button,
 a:hover.button,
 a:active.button,
-a.button
-{
+a.button {
 	display:inline-block !important ;
 	box-model:border-box;
 	border: 1px solid rgb(168,168,168);
@@ -62,7 +70,8 @@ a.button
 	display:inline-block;
 	padding:0.2rem 0.5rem;
 	color:rgb(64,64,64) !important;
-	margin: 0.5rex 0.5rex 0.5rex 0;
+	/*margin: 0.5rex 0.5rex 0.5rex 0.5rex;*/
+	margin: 0px 3px 6px 0px;
 	min-width:  5rem;
 	min-height:1rem;
 	text-align:center;
@@ -106,13 +115,14 @@ div a:last-child
 	border-right-width:1px;
 }
 
-/** Startup */
-.cookie-warning {
-  color: #aa0000;
+/** Boot */
+#loadMessage {
+	color: white;
+	text-align: center;
+	margin-top: 100px;
 }
 
 /** Menu */
-
 #menu *, #menu{
   box-sizing: border-box; 
 }
@@ -195,10 +205,16 @@ div a:last-child
 	z-index: 200;
 }
 
+#menu div.divider {
+	width: 100%;
+	height: 1px;
+	background: rgb(128,128,128);
+}
+
 /** Windows and dialogs */
 #steplist, #startup {
   counter-reset: line-number;
-  top: 40px; /* adjusted as needed - should be 85 or so*/
+  margin-top: 40px;
   margin-left: 80px;
   margin-right:1em;
   display:block;
@@ -214,20 +230,18 @@ div a:last-child
   box-shadow: -.1em 0em 1em rgba(0,0,0,0.5), inset 0 0 2rem rgba(0,0,0,0.1);  
 }
 
-#dialog-attachment-point form, #steplist form  {
-	background-color: rgba(255,255,255,0.9);
-	border:           1px solid rgb(210,210,210);
-	border-radius:    0.5rem;
-	box-shadow:       0 0 0.5rem rgba(0,0,0,0.3);
-	padding:          1rem;      
+/** Startup */
+.cookie-warning {
+  color: #aa0000;
 }
 
-/** Startup */
 #startup * {
 	box-model:border-box;
 }
 #startup h1 {
-	/* TODO */
+	color: rgb(64, 64, 64);
+	margin: 0px;
+	margin-bottom: 3px;
 }
 
 #startup ul {
@@ -241,10 +255,13 @@ div a:last-child
 #startup li, .startrecording {
 	font: 500 1.3rem/1.6rem lucida grande, segoeUI ;
   margin:0;
-  padding:0.5rem 3rem;
 }
 #startup li {
+	padding:0.5rem 3rem;
   border-bottom:1px dotted rgb(128, 128, 128);
+}
+.startrecording {
+	padding:0.5rem 4.15rem;
 }
 #startup li:hover {
 	background-color:rgb(242, 255, 226);
@@ -261,14 +278,31 @@ div a:last-child
 }
 
 
-/** Steps */
-#dialog-attachment-point form ul {
-	min-width: 20em;
-	padding:   1rem;
-	margin:    1rem;
-	width:     100%;
+/** Dialogs */
+#dialog-attachment-point {
+	position: fixed;
+	z-index:5;
+	top:1em;
+	right:2em;
 }
 
+.dialog {
+	background-color: rgba(255,255,255,0.9);
+	border: 1px solid rgb(210,210,210);
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem rgba(0,0,0,0.3) ;
+	padding: 1rem;  
+}
+
+.dialog form ul {
+	min-width: 20em;
+	padding: 1rem;
+	margin:1rem;
+	width:100%;
+}
+
+
+/** Steps */
 texta {
 	width:100%;
 }
@@ -309,7 +343,7 @@ texta {
   padding-right:0.5rem;
   content: counter(line-number) ". ";
   counter-increment: line-number;
-  color: rgb(200,200,200);
+  color: rgb(150,150,150);
 }
 
 .b-method {
@@ -325,12 +359,12 @@ texta {
 
 .b-param-type {
   margin-right: 0.5em;
-  color: #555555;
+  color: rgb(50, 50, 50);
   text-decoration:underline;
 }
 
 .b-param {
-  color: rgba(0,0,0,0.6);
+  color: rgb(50, 50, 50);
 }
 
 .b-param-input {
@@ -395,11 +429,15 @@ texta {
 }
 
 .b-step:hover {
-  background-color: rgb(242, 255, 226);
+  /*background-color: rgb(242, 255, 226);*/ /* qqDPS Can't get this to work with recoloring the steps. */
   border-radius: .2rem;
 }
 
 .b-tasks .b-task {
   display: block;
   padding: 2px;
+}
+
+#record-spinner {
+	float: right;
 }

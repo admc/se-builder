@@ -62,7 +62,7 @@ builder.selenium1.playback.record_result = function(result) {
       builder.selenium1.playback.playResult.errormessage = " (Unknown Failure Reason)";
     }
   } else {
-    jQuery('#' + builder.selenium1.playback.script[builder.selenium1.playback.step_index].id + '-content').css('background-color', '#ccffcc');
+    jQuery('#' + builder.selenium1.playback.script[builder.selenium1.playback.step_index].id + '-content').css('background-color', '#bfee85');
   }
   if (builder.selenium1.playback.step_index != builder.selenium1.playback.end_step_index &&
       ++builder.selenium1.playback.step_index < builder.selenium1.playback.script.length &&
@@ -222,7 +222,7 @@ builder.selenium1.playback.runtestbetween = function(start_step_id, end_step_id,
   builder.selenium1.playback.playResult = {success: true};
   
   builder.views.script.clearResults();
-  jQuery('#edit-clearresults').show();
+  jQuery('#edit-clearresults-span').show();
   
   // Need to recreate the playback system, as it may be bound to the wrong tab. This happens
   // when the recorder tab is closed and subsequently reopened.

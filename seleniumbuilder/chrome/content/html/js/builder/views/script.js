@@ -3,11 +3,11 @@ builder.views.script = {};
 builder.views.script.clearResults = function() {
   var script = builder.getScript();
   for (var i = 0; i < script.steps.length; i++) {
-    jQuery('#' + script.steps[i].id + '-content').css('background-color', '#dddddd');
+    jQuery('#' + script.steps[i].id + '-content').css('background-color', 'white');
     jQuery('#' + script.steps[i].id + '-error').hide();
     jQuery('#' + script.steps[i].id + '-message').hide();  
   }
-  jQuery('#edit-clearresults').hide();
+  jQuery('#edit-clearresults-span').hide();
 };
 
 builder.views.script.show = function() {
@@ -53,7 +53,7 @@ builder.registerPostLoadHook(function() {
   // Clear play results:
   jQuery('#edit-clearresults').click(function() {
     builder.views.script.clearResults();
-    jQuery('#edit-clearresults').hide();
+    jQuery('#edit-clearresults-span').hide();
   });
   
   // Display the path of the script 

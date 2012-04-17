@@ -14,11 +14,6 @@ builder.gui.switchView = function(newView) {
 };
 
 builder.registerPostLoadHook(function() {
-  // Auto-resize the steps area.
-  window.setInterval(function() {
-    jQuery('#steplist').css('top', 70 + jQuery('#panels').height());
-  }, 150);
-  
   // Set the initial value of currenturl - this is necessary so that the startup-url field is
   // populated.
   builder.storage.set('currenturl', window.bridge.getRecordingWindow().document.location.toString());

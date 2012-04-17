@@ -2,7 +2,14 @@ builder.gui.suite = {};
 
 builder.gui.suite.create_script_li = function(name, index, isSelected) {
   if (isSelected) {
-    return newNode('li', { class: 'currentScript' }, name);
+    return newNode('li', { class: 'currentScript' },
+      newNode('a', {
+          id: 'suite-script-' + index,
+          href: '#suite-script-' + index,
+          click: function() {}
+        },
+        name)
+    );
   } else {
     return newNode('li',
       newNode('a', {

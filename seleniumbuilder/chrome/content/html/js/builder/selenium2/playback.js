@@ -56,7 +56,7 @@ builder.selenium2.playback.runTestBetween = function(postPlayCallback, startStep
 builder.selenium2.playback.startSession = function() {
   builder.views.script.clearResults();
   builder.selenium2.playback.stopRequest = false;
-  jQuery('#edit-clearresults').show();
+  jQuery('#edit-clearresults-span').show();
   jQuery('#edit-local-playing').show();
   jQuery('#edit-stop-local-playback').show();
   
@@ -780,7 +780,7 @@ builder.selenium2.playback.recordResult = function(result) {
     result.success = !result.success;
   }
   if (result.success) {
-    jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ccffcc');
+    jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#bfee85');
   } else {
     jQuery('#' + builder.selenium2.playback.currentStep.id + '-content').css('background-color', '#ffcccc');
     builder.selenium2.playback.playResult.success = false;

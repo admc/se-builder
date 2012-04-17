@@ -88,7 +88,7 @@ bridge.boot = function() {
   bridge.recordingTab = getBrowser().mCurrentTab;
 
   // Make it obvious which tab is recording by turning it green!
-  bridge.recordingTab.style.setProperty("background-color", "#ccffcc", "important");
+  bridge.recordingTab.style.setProperty("background-color", "#bfee85", "important");
   
   bridge.recorderWindow = window.open("chrome://seleniumbuilder/content/html/gui.html", "seleniumbuilder", "width=550,height=600,toolbar=no,location=no,directories=no,status=yes,menubar=no,scrollbars=yes,copyhistory=no,resizable=yes");
     

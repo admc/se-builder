@@ -3,6 +3,7 @@
  */
 builder.dialogs.runall = {};
 builder.dialogs.runall.node = null;
+builder.dialogs.runall.dialog = null;
 builder.dialogs.runall.hostPort = null;
 builder.dialogs.runall.browserString = null;
 
@@ -36,7 +37,6 @@ builder.dialogs.runall.run = function() {
   jQuery('#edit-suite-stopping').hide();
   jQuery('#edit-suite-playing').show();
   builder.dialogs.runall.requestStop = false;
-  builder.dialogs.runall.node.html('');
   
   builder.dialogs.runall.scriptNames = builder.suite.getScriptNames();
   
@@ -68,15 +68,18 @@ builder.dialogs.runall.run = function() {
     class: 'button',
     style: 'display: none',
     click: function () {
-      builder.dialogs.runall.hide();
+      jQuery(builder.dialogs.runall.dialog).remove();
     },
     href: '#close'
   });
   
-  builder.dialogs.runall.node
+  builder.dialogs.runall.dialog = newNode('div', {class: 'dialog'});
+  jQuery(builder.dialogs.runall.dialog)
     .append(builder.dialogs.runall.info_p)
     .append(builder.dialogs.runall.scriptlist)
     .append(newNode('p', builder.dialogs.runall.close_b));
+    
+  jQuery(builder.dialogs.runall.node).append(builder.dialogs.runall.dialog);
   
   builder.dialogs.runall.currentScriptIndex = -1; // Will get incremented to 0 in runNextRC/Local.
   if (builder.dialogs.runall.rc) {
@@ -103,7 +106,7 @@ builder.dialogs.runall.processResult = function(result) {
     jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex + "-view").attr('href', result.url).show();
   }
   if (result.success) {
-    jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex).css('background-color', '#ccffcc');
+    jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex).css('background-color', '#bfee85');
   } else {
     if (result.errormessage) {
       jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex).css('background-color', '#ff3333');
@@ -115,7 +118,7 @@ builder.dialogs.runall.processResult = function(result) {
 };
 
 builder.dialogs.runall.hide = function () {
-  builder.dialogs.runall.node.html('');
+  jQuery(builder.dialogs.runall.dialog).remove();
 };
 
 // RC
