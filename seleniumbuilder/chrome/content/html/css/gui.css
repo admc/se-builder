@@ -33,7 +33,7 @@ a {
 }
 
 a:hover {
-	color: rgb(191, 238, 133);
+	color: rgb(143, 179, 100);
 	text-decoration: underline;
 }
 
@@ -85,8 +85,8 @@ input:hover.button,
 a:hover.button
 { 
 	border: 1px solid rgb(96,120,67);
-	border-bottom: 1px solid rgb(64,64,64);
-	border-right: 1px solid rgb(64,64,64);
+	/*border-bottom: 1px solid rgb(64,64,64);
+	border-right: 1px solid rgb(64,64,64);*/
 	background-color: rgb(242,255,226);
 	color:rgb(0,0,64) !important; 
 }
