@@ -603,7 +603,9 @@ nsCommandProcessor.prototype.newSession = function(response, parameters) {
     while (en.hasMoreElements()) {
       var w = en.getNext();
       if (w.title == parameters['window_title'] ||
-          w.document.title == parameters['window_title'])
+          w.document.title == parameters['window_title'] ||
+		  w.title == parameters['window_title'] + ' - Mozilla Firefox' ||
+          w.document.title == parameters['window_title']  + ' - Mozilla Firefox')
       {
         win = w;
       }
