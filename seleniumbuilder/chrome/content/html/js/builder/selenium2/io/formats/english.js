@@ -33,11 +33,11 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "releaseElement":
       "- Stop clicking \"{locator}\". Would YOU want to be clicked forever? Geez.\n",
     "addCookie":
-      "- You're supposed to add a cookie called {name} with the value of {value}, but that's hard since you're not a computer. I suggest baking a batch of real cookies instead.\n",
+      "- You're supposed to add a cookie called \"{name}\" with the value of \"{value}\", but that's hard since you're not a computer. I suggest baking a batch of real cookies instead.\n",
     "deleteCookie":
-      "- You're supposed to delete a cookie called {name}, but that's hard since you're not a computer. I suggest making a real cookie disappear instead.\n",
+      "- You're supposed to delete a cookie called \"{name}\", but that's hard since you're not a computer. I suggest making a real cookie disappear instead.\n",
     "saveScreenshot":
-      "- Take a screenshot of the page and make sure the file is called {file}\n",
+      "- Take a screenshot of the page and make sure the file is called \"{file}\"\n",
     "print":
       "- Print this on a printer: \"{text}\". Then take the paper to your boss and say \"Here's that thing you wanted.\". Boom!\n",
     "close":
@@ -75,15 +75,15 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "waitForText":
       "- Wait until the text of {locatorBy} \"{locator}\" is {negNot}\"{text}\"\n",
     "verifyCurrentUrl":
-      "- Make sure the url in the address bar is {negNot}{url}\n",
+      "- Make sure the url in the address bar is {negNot}\"{url}\"\n",
     "assertCurrentUrl":
-      "- If the url in the address bar is {posNot}{url}, scream at the coders\n",
+      "- If the url in the address bar is {posNot}\"{url}\", scream at the coders\n",
     "waitForCurrentUrl":
       "- Wait until the current url is {negNot}\"{url}\"\n",
     "verifyTitle":
-      "- Make sure the title of the website is {negNot}{title}\n",
+      "- Make sure the title of the website is {negNot}\"{title}\"\n",
     "assertTitle":
-      "- If the title of the website is {posNot}{title}, scream at the coders\n",
+      "- If the title of the website is {posNot}\"{title}\", scream at the coders\n",
     "waitForTitle":
       "- Wait until the page title is {negNot}\"{title}\"\n",
     "verifyElementSelected":
@@ -93,29 +93,29 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "waitForElementSelected":
       "- Wait until {locatorBy} \"{locator}\" is {negNot}selected\n",
     "verifyElementValue":
-      "- Make sure {locatorBy} \"{locator}\" has a value which is {negNot}{value}\n",
+      "- Make sure {locatorBy} \"{locator}\" has a value which is {negNot}\"{value}\"\n",
     "assertElementValue":
-      "- If {locatorBy} \"{locator}\" has a value which is {posNot}{value}, scream at the coders\n",
+      "- If {locatorBy} \"{locator}\" has a value which is {posNot}\"{value}\", scream at the coders\n",
     "waitForElementValue":
       "- Wait until the value of {locatorBy} \"{locator}\" is {negNot}\"{value}\"\n",
     "verifyElementAttribute":
-      "- Make sure {locatorBy} \"{locator}\" has a {attributeName} attribute which is {negNot}{value}\n",
+      "- Make sure {locatorBy} \"{locator}\" has a \"{attributeName}\" attribute which is {negNot}\"{value}\"\n",
     "assertElementAttribute":
-      "- If {locatorBy} \"{locator}\" has a {attributeName} attribute which is {posNot}{value}, scream at the coders\n",
+      "- If {locatorBy} \"{locator}\" has a \"{attributeName}\" attribute which is {posNot}{value}, scream at the coders\n",
     "waitForElementAttribute":
-      "- Wait until the {attributeName} attribute of {locatorBy} \"{locator}\" is {negNot}\"{value}\"\n",
+      "- Wait until the \"{attributeName}\" attribute of {locatorBy} \"{locator}\" is {negNot}\"{value}\"\n",
     "verifyCookieByName":
-      "- Check the cookie whose name is {name}. Make sure its value is {negNot}{value}\n",
+      "- Check the cookie whose name is \"{name}\". Make sure its value is {negNot}\"{value}\"\n",
     "assertCookieByName":
-      "- Check the cookie whose name is {name}. If its value is {posNot}{value}, scream at the coders\n",
+      "- Check the cookie whose name is \"{name}\". If its value is {posNot}\"{value}\", scream at the coders\n",
     "waitForCookieByName":
-      "- Wait until the cookie called {name}'s value is {negNot}\"{value}\"\n",
+      "- Wait until the value of the cookie called \"{name}\" is {negNot}\"{value}\"\n",
     "verifyCookiePresent":
-      "- Make sure there is {negNot}a cookie whose name is {name}\n",
+      "- Make sure there is {negNot}a cookie whose name is \"{name}\"\n",
     "assertCookiePresent":
-      "- If there is {posNot}a cookie whose name is {name}, scream at the coders\n",
+      "- If there is {posNot}a cookie whose name is \"{name\"}, scream at the coders\n",
     "waitForCookiePresent":
-      "- Wait until the cookie called {name} is {negNot}present\n",
+      "- Wait until the cookie called \"{name}\" is {negNot}present\n",
     "store":
       "- ${{variable}} \"{text}\"\n",
     "storeCurrentUrl":
