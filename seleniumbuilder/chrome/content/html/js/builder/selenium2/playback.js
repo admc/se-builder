@@ -59,7 +59,7 @@ builder.selenium2.playback.startSession = function() {
   jQuery('#edit-clearresults-span').show();
   jQuery('#edit-local-playing').show();
   jQuery('#edit-stop-local-playback').show();
-  
+
   // Set up Webdriver
   var handle = Components.classes["@googlecode.com/webdriver/fxdriver;1"].createInstance(Components.interfaces.nsISupports);
   var server = handle.wrappedJSObject;
@@ -69,7 +69,7 @@ builder.selenium2.playback.startSession = function() {
   // In order to communicate to webdriver which window we want, we need to uniquely identify the
   // window. The best way to do this I've found is to look for it by title. qqDPS
   window.bridge.getRecordingWindow().document.title += "--" + new Date().getTime();
-  
+
   setTimeout(function() {
     var newSessionCommand = {
       'name': 'newSession',
@@ -154,7 +154,7 @@ builder.selenium2.playback.param = function(pName) {
       }
     }
   }
-  
+
   //return pName.startsWith("locator") ? {"type": builder.selenium2.playback.currentStep[pName].type, "value": output} : output;
   return builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
     ? {"type": builder.selenium2.playback.currentStep[pName].getName(builder.selenium2), "value": output} : output;
@@ -272,7 +272,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-  
+
   "verifyBodyText": function() {
     builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
       builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
@@ -312,7 +312,7 @@ builder.selenium2.playback.playbackFunctions = {
       });
     });
   },
-  
+
   "verifyElementPresent": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), null, function(result) {
       builder.selenium2.playback.recordResult({success: false, message: "Element not found."});
@@ -344,7 +344,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-  
+
   "verifyPageSource": function() {
     builder.selenium2.playback.execute('getPageSource', {}, function(result) {
       if (result.value == builder.selenium2.playback.param("source")) {
@@ -376,7 +376,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-  
+
   "verifyText": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
@@ -416,7 +416,7 @@ builder.selenium2.playback.playbackFunctions = {
       });
     });
   },
-  
+
   "verifyCurrentUrl": function() {
     builder.selenium2.playback.execute('getCurrentUrl', {}, function(result) {
       if (result.value == builder.selenium2.playback.param("url")) {
@@ -448,7 +448,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-  
+
   "verifyTitle": function() {
     builder.selenium2.playback.execute('getTitle', {}, function(result) {
       if (result.value == builder.selenium2.playback.param("title")) {
@@ -480,7 +480,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-  
+
   "verifyElementSelected": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       builder.selenium2.playback.execute('isElementSelected', {id: result.value.ELEMENT}, function(result) {
@@ -520,7 +520,7 @@ builder.selenium2.playback.playbackFunctions = {
       });
     });
   },
-  
+
   "verifyElementValue": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
@@ -560,7 +560,7 @@ builder.selenium2.playback.playbackFunctions = {
       });
     });
   },
-  
+
   "verifyElementAttribute": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
       builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: builder.selenium2.playback.param("attributeName") }, function(result) {
@@ -600,11 +600,11 @@ builder.selenium2.playback.playbackFunctions = {
       });
     });
   },
-  
+
   "deleteCookie": function() {
     builder.selenium2.playback.execute('deleteCookie', {"name": builder.selenium2.playback.param("name")});
   },
-  
+
   "addCookie": function() {
     var params = {"cookie": {"name": builder.selenium2.playback.param("name"), "value": builder.selenium2.playback.param("value")}};
     var opts = builder.selenium2.playback.param("options").split(",");
@@ -620,7 +620,7 @@ builder.selenium2.playback.playbackFunctions = {
     }
     builder.selenium2.playback.execute('addCookie', params);
   },
-  
+
   "verifyCookieByName": function() {
     builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
@@ -669,7 +669,7 @@ builder.selenium2.playback.playbackFunctions = {
     builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
         if (result.value[i].name == builder.selenium2.playback.param("name")) {
-          builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
+          builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value[i].value;
           builder.selenium2.playback.recordResult({success: true});
           return;
         }
@@ -677,7 +677,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordError("No cookie found with this name.");
     });
   },
-  
+
   "verifyCookiePresent": function() {
     builder.selenium2.playback.execute('getCookies', {}, function(result) {
       for (var i = 0; i < result.value.length; i++) {
@@ -727,7 +727,7 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.recordResult({success: true});
     });
   },
-    
+
   "saveScreenshot": function() {
     builder.selenium2.playback.execute("saveScreenshot", builder.selenium2.playback.param("file"));
   }
@@ -789,7 +789,7 @@ builder.selenium2.playback.recordResult = function(result) {
       builder.selenium2.playback.playResult.errormessage = result.message;
     }
   }
-  
+
   if (builder.selenium2.playback.stopRequest || builder.selenium2.playback.currentStep == builder.selenium2.playback.finalStep) {
     builder.selenium2.playback.shutdown();
   } else {

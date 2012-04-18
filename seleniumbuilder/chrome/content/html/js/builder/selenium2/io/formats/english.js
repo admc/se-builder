@@ -49,67 +49,73 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "assertTextPresent":
       "- If \"{text}\" is {posNot}on the page, scream at the coders\n",
     "waitForTextPresent":
-      "- Take a look at the text on the page\n",
+      "- Wait until \"{text}\" is {negNot}on the page\n",
     "verifyBodyText":
       "- Make sure the whole content of the page is {negNot}\"{text}\"\n",
     "assertBodyText":
       "- If the whole content of the page is {posNot}\"{text}\", scream at the coders\n",
     "waitForBodyText":
-      "- Read the entire website\n",
+      "- Wait until the text of the site is {negNot}\"{text}\"\n",
     "verifyElementPresent":
       "- Make sure {locatorBy} \"{locator}\" is {negNot}present\n",
     "assertElementPresent":
       "- If {locatorBy} \"{locator}\" is {posNot}present, scream at the coders\n",
     "waitForElementPresent":
-      "- Look for {locatorBy} \"{locator}\"\n",
+      "- Wait until {locatorBy} \"{locator}\" is {negNot}present\n",
     "verifyPageSource":
       "- Make sure the page source is {negNot}\"{source}\"\n",
     "assertPageSource":
       "- If the page source is {posNot}\"{source}\", scream at the coders\n",
     "waitForPageSource":
-      "- Take a look at the page source (you know, the codez of this website)\n",
+      "- Wait until the page source is {negNot}\"{source}\"\n",
     "verifyText":
       "- Make sure the text in {locatorBy} \"{locator}\" is {negNot}\"{text}\"\n",
     "assertText":
       "- If the text in {locatorBy} \"{locator}\" is {posNot}\"{text}\", scream at the coders\n",
     "waitForText":
-      "",
+      "- Wait until the text of {locatorBy} \"{locator}\" is {negNot}\"{text}\"\n",
     "verifyCurrentUrl":
       "- Make sure the url in the address bar is {negNot}{url}\n",
     "assertCurrentUrl":
       "- If the url in the address bar is {posNot}{url}, scream at the coders\n",
     "waitForCurrentUrl":
-      "- Take a look at the url",
+      "- Wait until the current url is {negNot}\"{url}\"\n",
     "verifyTitle":
       "- Make sure the title of the website is {negNot}{title}\n",
     "assertTitle":
       "- If the title of the website is {posNot}{title}, scream at the coders\n",
     "waitForTitle":
-      "- Take a look at the title",
+      "- Wait until the page title is {negNot}\"{title}\"\n",
     "verifyElementSelected":
       "- Make sure {locatorBy} \"{locator}\" is {negNot}selected\n",
     "assertElementSelected":
       "- If {locatorBy} \"{locator}\" is {posNot}selected, scream at the coders\n",
     "waitForElementSelected":
-      "",
+      "- Wait until {locatorBy} \"{locator}\" is {negNot}selected\n",
     "verifyElementValue":
       "- Make sure {locatorBy} \"{locator}\" has a value which is {negNot}{value}\n",
     "assertElementValue":
       "- If {locatorBy} \"{locator}\" has a value which is {posNot}{value}, scream at the coders\n",
-    "element.waitForValue":
-      "",
+    "waitForElementValue":
+      "- Wait until the value of {locatorBy} \"{locator}\" is {negNot}\"{value}\"\n",
+    "verifyElementAttribute":
+      "- Make sure {locatorBy} \"{locator}\" has a {attributeName} attribute which is {negNot}{value}\n",
+    "assertElementAttribute":
+      "- If {locatorBy} \"{locator}\" has a {attributeName} attribute which is {posNot}{value}, scream at the coders\n",
+    "waitForElementAttribute":
+      "- Wait until the {attributeName} attribute of {locatorBy} \"{locator}\" is {negNot}\"{value}\"\n",
     "verifyCookieByName":
       "- Check the cookie whose name is {name}. Make sure its value is {negNot}{value}\n",
     "assertCookieByName":
       "- Check the cookie whose name is {name}. If its value is {posNot}{value}, scream at the coders\n",
     "waitForCookieByName":
-      "",
+      "- Wait until the cookie called {name}'s value is {negNot}\"{value}\"\n",
     "verifyCookiePresent":
-      "- Make sure there is {posNot}a cookie whose name is {negNot}{name}\n",
+      "- Make sure there is {negNot}a cookie whose name is {name}\n",
     "assertCookiePresent":
-      "- If there is {posNot}a cookie whose name is {posNot}{name}, scream at the coders\n",
+      "- If there is {posNot}a cookie whose name is {name}, scream at the coders\n",
     "waitForCookiePresent":
-      "",
+      "- Wait until the cookie called {name} is {negNot}present\n",
     "store":
       "- ${{variable}} \"{text}\"\n",
     "storeCurrentUrl":
