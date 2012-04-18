@@ -1,5 +1,5 @@
 builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
-  name: "Node",
+  name: "Node.JS - WD",
   extension: ".js",
   not: "! ",
   start:
