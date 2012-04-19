@@ -54,6 +54,9 @@ builder.registerPostLoadHook(function() {
   });
   // Play button: Play back the script in this browser
   jQuery('#run-locally').click(function () {
+    if(builder.record.recording == true)
+		builder.record.stop();
+		
     builder.getScript().seleniumVersion.playback.runTest();
   });
 });

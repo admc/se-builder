@@ -145,7 +145,7 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
   }
   var url = new builder.Url(urlText);
 
-  if (!url.hostname()) {
+  if (!url.hostname() || urlText.substring(0, 6) == 'about:') {
     alert("The URL is not valid and cannot be loaded.");
     jQuery("#startup-url").focus();
     return;
