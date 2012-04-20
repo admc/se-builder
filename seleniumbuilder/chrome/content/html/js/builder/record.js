@@ -84,6 +84,9 @@ builder.record.continueRecording = function() {
   } else {
     builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
   }
+  
+  builder.record.recording = true;
+  
   var isLoading = false;
   builder.record.pageLoadListener = function(pageloading) {
     if (pageloading) {
