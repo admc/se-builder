@@ -94,7 +94,11 @@ public class TestRun {
 	public Script.Step currentStep() { return script.steps.get(stepIndex); }
 	/** @return The driver instance being used. */
 	public FirefoxDriver driver() { return driver; }
-	
+	/** @return The logger being used. */
+	public Log log() { return log; }
+	/** @return The HashMap of vars. */
+	public HashMap<String, String> vars() { return vars; }
+		
 	/**
 	 * Fetches a String parameter from the current step.
 	 * @param paramName The parameter's name.

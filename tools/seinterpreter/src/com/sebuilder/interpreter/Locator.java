@@ -16,6 +16,8 @@
 
 package com.sebuilder.interpreter;
 
+import org.openqa.selenium.WebElement;
+
 /**
  * A Selenium locator.
  * @author zarkonnen
@@ -39,12 +41,43 @@ public class Locator {
 		value = l.value;
 	}
 	
+	public WebElement find(TestRun ctx) {
+		return type.find(value, ctx);
+	}
+	
 	public enum Type {
-		ID,
-		NAME,
-		LINK_TEXT,
-		CSS_SELECTOR,
-		XPATH;
+		ID {
+			@Override
+			public WebElement find(String value, TestRun ctx) {
+				return ctx.driver.findElementById(value);
+			}
+		},
+		NAME {
+			@Override
+			public WebElement find(String value, TestRun ctx) {
+				return ctx.driver.findElementByName(value);
+			}
+		},
+		LINK_TEXT {
+			@Override
+			public WebElement find(String value, TestRun ctx) {
+				return ctx.driver.findElementByLinkText(value);
+			}
+		},
+		CSS_SELECTOR {
+			@Override
+			public WebElement find(String value, TestRun ctx) {
+				return ctx.driver.findElementByCssSelector(value);
+			}
+		},
+		XPATH {
+			@Override
+			public WebElement find(String value, TestRun ctx) {
+				return ctx.driver.findElementByXPath(value);
+			}
+		};
+				
+		public abstract WebElement find(String value, TestRun ctx);
 		
 		public static Type ofName(String name) {
 			return Type.valueOf(name.toUpperCase().replace(" ", "_"));
