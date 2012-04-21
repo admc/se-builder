@@ -58,7 +58,7 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "waitForElementPresent":
       "",
     "verifyPageSource":
-      "if {posNot}wd.get_page_source() == \"{source}\":\n" +
+      "if {posNot}(wd.get_page_source() == \"{source}\"):\n" +
       "    print(\"{negNot}verifyPageSource failed\")\n",
     "assertPageSource":
       "if {posNot}wd.get_page_source() == \"{source}\":\n" +
@@ -128,7 +128,9 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "    wd.close()\n" +
       "    raise Exception(\"{negNot}assertCookiePresent failed\")\n",
     "waitForCookiePresent":
-      ""
+      "",
+    "storeTitle":
+      "${{variable}} = wd.title\n"
   },
   locatorByForType: function(stepType, locatorType, locatorIndex) {
     if ({
