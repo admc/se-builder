@@ -68,14 +68,15 @@ builder.selenium2.playback.startSession = function() {
   builder.selenium2.playback.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
   // In order to communicate to webdriver which window we want, we need to uniquely identify the
   // window. The best way to do this I've found is to look for it by title. qqDPS
-  window.bridge.getRecordingWindow().document.title += "--" + new Date().getTime();
+  var title_identifier = "--" + new Date().getTime();
+  window.bridge.getRecordingWindow().document.title += title_identifier;
 
   setTimeout(function() {
     var newSessionCommand = {
       'name': 'newSession',
       'context': '',
       'parameters': {
-        'window_title':window.bridge.getRecordingWindow().document.title
+        'title_identifier': title_identifier
       }
     };
     builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {

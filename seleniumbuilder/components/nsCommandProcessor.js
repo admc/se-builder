@@ -602,10 +602,8 @@ nsCommandProcessor.prototype.newSession = function(response, parameters) {
     var en = this.wm.getZOrderDOMWindowEnumerator("navigator:browser", false);
     while (en.hasMoreElements()) {
       var w = en.getNext();
-      if (w.title == parameters['window_title'] ||
-          w.document.title == parameters['window_title'] ||
-		  w.title == parameters['window_title'] + ' - Mozilla Firefox' ||
-          w.document.title == parameters['window_title']  + ' - Mozilla Firefox')
+      if ((w.title && w.title.indexOf(parameters['title_identifier']) != -1) ||
+          (w.document && w.document.title.indexOf(parameters['title_identifier']) != -1))
       {
         win = w;
       }
