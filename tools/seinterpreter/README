@@ -1,0 +1,4 @@
+Experimental Selenium JSON interpreter by David Stark.
+Licensed under Apache 2.
+Dependencies:
+- Selenium for Java (http://seleniumhq.org/download/)
