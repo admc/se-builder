@@ -128,6 +128,7 @@ function deleteStep(stepID) {
 var searchers = [];
 var hasSearchers = false;
 var searcherInterval = null;
+var wasRecording = false;
 
 function toggleSearchers(stepID, pIndex) {
   if (hasSearchers) { stopSearchers(stepID, pIndex); } else { startSearchers(stepID, pIndex); }
@@ -142,10 +143,16 @@ function stopSearchers(stepID, pIndex) {
   }
   searchers = [];
   hasSearchers = false;
+  if (wasRecording) {
+    builder.record.continueRecording();
+  }
 }
 
 function startSearchers(stepID, pIndex) {
-  //builder.interface.record.pause(); qqDPS
+  wasRecording = builder.record.recording;
+  if (builder.record.recording) {
+    builder.record.stop();
+  }
   hasSearchers = true;
   attachSearchers(stepID, pIndex, true);
   // Keep on looking for new frames with no attached searchers.
