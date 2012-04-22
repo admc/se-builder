@@ -128,7 +128,7 @@ builder.selenium2.Recorder.prototype = {
   writeJsonChange: function(e) {
     var locator = builder.locator.fromElement(e.target);
     var lastStep = builder.getScript().getLastStep();
-    
+        
     // Under some circumstances, for example when the user presses an arrow key, an event can
     // be triggered in Firefox with no e.target.type. Ignore these. 
     if (!e.target.type) {
@@ -138,7 +138,7 @@ builder.selenium2.Recorder.prototype = {
     // Typing
     if ({ textarea: 1, text: 1, password: 1 }[e.target.type.toLowerCase()]) {
       // Continue typing or replace a click with a type.
-      if (this.isTypeOrClickInSamePlace(lastStep, locator)) {
+      if (lastStep && this.isTypeOrClickInSamePlace(lastStep, locator)) {
         lastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
         lastStep.text = e.target.value;
         builder.stepdisplay.update();
@@ -147,13 +147,13 @@ builder.selenium2.Recorder.prototype = {
       // Also need to check for previous step in case of using enter to submit forms -
       // otherwise we get a spurious extra "type" step after the submit click step.
       var nextToLastStep = builder.getScript().getStepBefore(lastStep);
-      if (this.isTypeOrClickInSamePlace(nextToLastStep, locator)) {
+      if (nextToLastStep && this.isTypeOrClickInSamePlace(nextToLastStep, locator)) {
         nextToLastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
         nextToLastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
       }
-      
+    
       // Start typing
       this.recordStep(new builder.Step(builder.selenium2.stepTypes.sendKeysToElement, locator, e.target.value));
       return;
