@@ -39,7 +39,6 @@ builder.selenium2.__stepData = {
   "dragToAndDropElement":            ["locator", "targetLocator"], 
   "clickAndHoldElement":             ["locator"], 
   "releaseElement":                  ["locator"], 
-  "sendKeysToElement":               ["locator", "text"], 
   "setElementSelected":              ["locator"], 
   "clearSelections":                 ["locator"], 
   "setElementNotSelected":           ["locator"], 
