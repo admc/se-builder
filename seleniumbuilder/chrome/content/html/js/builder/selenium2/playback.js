@@ -30,6 +30,14 @@ builder.selenium2.playback.waitCycle = 0;
 builder.selenium2.playback.waitInterval = null;
 /** Stored variables. */
 builder.selenium2.playback.vars = {};
+/** What interval to check implicit waits for. */
+builder.selenium2.playback.implicitWaitTimeoutAmount = 300;
+/** How many implicit wait cycles are run before waits time out. */
+builder.selenium2.playback.maxImplicitWaitCycles = 60000 / builder.selenium2.playback.implicitWaitTimeoutAmount;
+/** How many implicit wait cycles have been run. */
+builder.selenium2.playback.implicitWaitCycle = 0;
+/** The implicit wait timeout. */
+builder.selenium2.playback.implicitWaitTimeout = null;
 
 builder.selenium2.playback.stopTest = function() {
   builder.selenium2.playback.stopRequest = true;
@@ -86,8 +94,55 @@ builder.selenium2.playback.startSession = function() {
   }, 100);
 };
 
+builder.selenium2.playback.wait = function(testFunction) {
+  builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, 0);
+  builder.selenium2.playback.waitCycle = 0;
+  builder.selenium2.playback.waitInterval = window.setInterval(function() {
+    testFunction(function(success) {
+      if (success != builder.selenium2.playback.currentStep.negated) {
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.recordResult({'success': success});
+        return;
+      }
+      if (builder.selenium2.playback.waitCycle++ >= builder.selenium2.playback.maxWaitCycles) {
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.recordError("Wait timed out.");
+        return;
+      }
+      if (builder.selenium2.playback.stopRequest) {
+        window.clearInterval(builder.selenium2.playback.waitInterval);
+        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
+        builder.selenium2.playback.shutdown();
+        return;
+      }
+      builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, builder.selenium2.playback.waitCycle * 100 / builder.selenium2.playback.maxWaitCycles);
+    });
+  }, builder.selenium2.playback.waitIntervalAmount);
+};
+
 builder.selenium2.playback.findElement = function(locator, callback, errorCallback) {
-  builder.selenium2.playback.execute('findElement', {using: locator.type, value: locator.value}, callback, errorCallback);
+  builder.selenium2.playback.implicitWaitCycle = 0;
+  builder.selenium2.playback.continueFindingElement(locator, callback, errorCallback);
+};
+
+builder.selenium2.playback.continueFindingElement = function(locator, callback, errorCallback) {
+  builder.selenium2.playback.implicitWaitTimeout = window.setInterval(function() {
+    builder.selenium2.playback.execute('findElement', {using: locator.type, value: locator.value},
+      /* callback */
+      callback
+      ,
+      /* errorCallback */
+      function(e) {
+        if (builder.selenium2.playback.implicitWaitCycle++ >= builder.selenium2.playback.maxImplicitWaitCycles) {
+          errorCallback(e);
+        } else {
+          builder.selenium2.playback.continueFindingElement(locator, callback, errorCallback);
+        }
+      }
+    );
+  }, builder.selenium2.playback.implicitWaitCycle == 0 ? 1 : builder.selenium2.playback.implicitWaitIntervalAmount);
 };
 
 builder.selenium2.playback.execute = function(name, parameters, callback, errorCallback) {
@@ -732,34 +787,6 @@ builder.selenium2.playback.playbackFunctions = {
   "saveScreenshot": function() {
     builder.selenium2.playback.execute("saveScreenshot", builder.selenium2.playback.param("file"));
   }
-};
-
-builder.selenium2.playback.wait = function(testFunction) {
-  builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, 0);
-  builder.selenium2.playback.waitCycle = 0;
-  builder.selenium2.playback.waitInterval = window.setInterval(function() {
-    testFunction(function(success) {
-      if (success != builder.selenium2.playback.currentStep.negated) {
-        window.clearInterval(builder.selenium2.playback.waitInterval);
-        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
-        builder.selenium2.playback.recordResult({'success': success});
-        return;
-      }
-      if (builder.selenium2.playback.waitCycle++ >= builder.selenium2.playback.maxWaitCycles) {
-        window.clearInterval(builder.selenium2.playback.waitInterval);
-        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
-        builder.selenium2.playback.recordError("Wait timed out.");
-        return;
-      }
-      if (builder.selenium2.playback.stopRequest) {
-        window.clearInterval(builder.selenium2.playback.waitInterval);
-        builder.stepdisplay.hideProgressBar(builder.selenium2.playback.currentStep.id);
-        builder.selenium2.playback.shutdown();
-        return;
-      }
-      builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, builder.selenium2.playback.waitCycle * 100 / builder.selenium2.playback.maxWaitCycles);
-    });
-  }, builder.selenium2.playback.waitIntervalAmount);
 };
 
 builder.selenium2.playback.playStep = function() {
