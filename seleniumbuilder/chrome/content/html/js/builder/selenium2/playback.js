@@ -129,7 +129,7 @@ builder.selenium2.playback.findElement = function(locator, callback, errorCallba
 
 // This implements implicit waits by repeatedly calling itself to set a new timeout.
 builder.selenium2.playback.continueFindingElement = function(locator, callback, errorCallback) {
-  builder.selenium2.playback.implicitWaitTimeout = window.setInterval(function() {
+  builder.selenium2.playback.implicitWaitTimeout = window.setTimeout(function() {
     builder.selenium2.playback.execute('findElement', {using: locator.type, value: locator.value},
       /* callback */
       callback
@@ -298,35 +298,44 @@ builder.selenium2.playback.playbackFunctions = {
   "refresh": function() {
     builder.selenium2.playback.execute('refresh', {});
   },
+  
   "verifyTextPresent": function() {
-    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
-        builder.selenium2.playback.recordResult({success: true});
-      } else {
-        builder.selenium2.playback.recordResult({success: false, message: "Text not present."});
-      }
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
+          builder.selenium2.playback.recordResult({success: true});
+        } else {
+          builder.selenium2.playback.recordResult({success: false, message: "Text not present."});
+        }
+      });
     });
   },
   "assertTextPresent": function() {
-    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
-      if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
-        builder.selenium2.playback.recordResult({success: true});
-      } else {
-        builder.selenium2.playback.recordError("Text not present.");
-      }
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        if (result.value.indexOf(builder.selenium2.playback.param("text")) != -1) {
+          builder.selenium2.playback.recordResult({success: true});
+        } else {
+          builder.selenium2.playback.recordError("Text not present.");
+        }
+      });
     });
   },
   "waitForTextPresent": function() {
     builder.selenium2.playback.wait(function(callback) {
-      builder.selenium2.playback.execute('getPageSource', {}, function(result) {
-        callback(result.value.indexOf(builder.selenium2.playback.param("text")) != -1);
+      builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+        builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+          callback(result.value.indexOf(builder.selenium2.playback.param("text")) != -1);
+        }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
     });
   },
   "storeTextPresent": function() {
-    builder.selenium2.playback.execute('getPageSource', {}, function(result) {
-      builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value.indexOf(builder.selenium2.playback.param("text")) != -1;
-      builder.selenium2.playback.recordResult({success: true});
+    builder.selenium2.playback.findElement({type: 'tag name', value: 'body'}, function(result) {
+      builder.selenium2.playback.execute('getElementText', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value.indexOf(builder.selenium2.playback.param("text")) != -1;
+        builder.selenium2.playback.recordResult({success: true});
+      });
     });
   },
 
