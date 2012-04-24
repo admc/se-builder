@@ -26,10 +26,11 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
         newNode('td', "Name"),
         newNode('td', "Sel 1 Translation"),
         newNode('td', "Negatable"),
-        newNode('td', "Local Playback"),
-        newNode('td', "Java Export"),
-        newNode('td', "Python Export")
+        newNode('td', "Local Playback")
       );
+      for (var j = 0; j < builder.selenium2.io.formats.length; j++) {
+        jQuery(head).append(newNode('td', builder.selenium2.io.formats[j].name));
+      }
       jQuery(table).append(head);
     }
     
@@ -43,12 +44,11 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       // Negatable
       newNode('td', {}, sel2Name ? (sel2Type.getNegatable() ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can play back locally
-      newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
-      // Can export to Java
-      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
-      // Can export to Python
-      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
+      newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
     );
+    for (var j = 0; j < builder.selenium2.io.formats.length; j++) {
+      jQuery(row).append(newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[j].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""));   
+    }
     jQuery(table).append(row);
   }
   for (var sel2Name in builder.selenium2.stepTypes) {
@@ -59,10 +59,11 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
         newNode('td', "Name"),
         newNode('td', "Sel 1 Translation"),
         newNode('td', "Negatable"),
-        newNode('td', "Local Playback"),
-        newNode('td', "Java Export"),
-        newNode('td', "Python Export")
+        newNode('td', "Local Playback")
       );
+      for (var j = 0; j < builder.selenium2.io.formats.length; j++) {
+        jQuery(head).append(newNode('td', builder.selenium2.io.formats[j].name));
+      }
       jQuery(table).append(head);
     }
     
@@ -75,12 +76,11 @@ builder.gui.stepstable.makeTable = function(showOrphanedSel1Steps) {
       // Negatable
       newNode('td', {}, sel2Name ? (sel2Type.getNegatable() ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
       // Can play back locally
-      newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
-      // Can export to Java
-      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[1].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""),
-      // Can export to Python
-      newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[2].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
+      newNode('td', {}, sel2Name ? (builder.selenium2.playback.canPlayback(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : "")
     );
+    for (var j = 0; j < builder.selenium2.io.formats.length; j++) {
+      jQuery(row).append(newNode('td', {}, sel2Name ? (builder.selenium2.io.formats[j].canExport(sel2Type) ? newNode('span', {class:'yes'}, "yes") : newNode('span', {class:'no'}, "no")) : ""));
+    }
     jQuery(table).append(row);
   }
   return table;

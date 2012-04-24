@@ -31,6 +31,9 @@ builder.selenium2.io.formats.push({
     }
     return JSON.stringify(cleanScript, null, /* indent */ 2);
   },
+  canExport: function(stepType) {
+    return true;
+  },
   nonExportables: function(script) {
     return [];
   }
