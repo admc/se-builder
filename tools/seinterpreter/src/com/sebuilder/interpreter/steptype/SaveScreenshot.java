@@ -18,11 +18,12 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import java.io.File;
+import org.openqa.selenium.OutputType;
 
-public class GoBack implements StepType {
+public class SaveScreenshot implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
-		return true;
+		return ctx.driver().getScreenshotAs(OutputType.FILE).renameTo(new File(ctx.string("file")));
 	}
 }

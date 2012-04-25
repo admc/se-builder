@@ -19,10 +19,10 @@ package com.sebuilder.interpreter.steptype;
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
 
-public class GoBack implements StepType {
+public class Refresh implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		ctx.driver().navigate().refresh();
 		return true;
 	}
 }

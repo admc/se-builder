@@ -18,11 +18,25 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import java.util.Date;
+import org.openqa.selenium.Cookie;
 
-public class GoBack implements StepType {
+public class AddCookie implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		Cookie.Builder cb = new Cookie.Builder(ctx.string("name"), ctx.string("value"));
+		for (String opt : ctx.string("options").split(",")) {
+			String[] kv = opt.split("=", 2);
+			if (kv.length == 1) { continue; }
+			if (kv[0].trim().equals("path")) {
+				cb.path(kv[1].trim());
+			}
+			if (kv[0].trim().equals("max_age")) {
+				cb.expiresOn(new Date(new Date().getTime() + Long.parseLong(kv[1].trim()) * 1000l));
+			}
+			ctx.driver().manage().addCookie(cb.build());
+		}
+		ctx.driver().navigate().refresh();
 		return true;
 	}
 }

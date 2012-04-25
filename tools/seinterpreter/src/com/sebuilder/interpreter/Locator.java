@@ -16,6 +16,9 @@
 
 package com.sebuilder.interpreter;
 
+import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -45,11 +48,31 @@ public class Locator {
 		return type.find(value, ctx);
 	}
 	
+	public List<WebElement> findElements(TestRun ctx) {
+		return type.findElements(value, ctx);
+	}
+	
+	public JSONObject toJSON() throws JSONException {
+		JSONObject o = new JSONObject();
+		o.put("type", type.toString());
+		o.put("value", value);
+		return o;
+	}
+	
+	@Override
+	public String toString() {
+		try { return toJSON().toString(); } catch (JSONException e) { throw new RuntimeException(e); }
+	}
+	
 	public enum Type {
 		ID {
 			@Override
 			public WebElement find(String value, TestRun ctx) {
 				return ctx.driver.findElementById(value);
+			}
+			@Override
+			public List<WebElement> findElements(String value, TestRun ctx) {
+				return ctx.driver.findElementsById(value);
 			}
 		},
 		NAME {
@@ -57,11 +80,19 @@ public class Locator {
 			public WebElement find(String value, TestRun ctx) {
 				return ctx.driver.findElementByName(value);
 			}
+			@Override
+			public List<WebElement> findElements(String value, TestRun ctx) {
+				return ctx.driver.findElementsByName(value);
+			}
 		},
 		LINK_TEXT {
 			@Override
 			public WebElement find(String value, TestRun ctx) {
 				return ctx.driver.findElementByLinkText(value);
+			}
+			@Override
+			public List<WebElement> findElements(String value, TestRun ctx) {
+				return ctx.driver.findElementsByLinkText(value);
 			}
 		},
 		CSS_SELECTOR {
@@ -69,15 +100,29 @@ public class Locator {
 			public WebElement find(String value, TestRun ctx) {
 				return ctx.driver.findElementByCssSelector(value);
 			}
+			@Override
+			public List<WebElement> findElements(String value, TestRun ctx) {
+				return ctx.driver.findElementsByCssSelector(value);
+			}
 		},
 		XPATH {
 			@Override
 			public WebElement find(String value, TestRun ctx) {
 				return ctx.driver.findElementByXPath(value);
 			}
+			@Override
+			public List<WebElement> findElements(String value, TestRun ctx) {
+				return ctx.driver.findElementsByXPath(value);
+			}
 		};
 				
 		public abstract WebElement find(String value, TestRun ctx);
+		public abstract List<WebElement> findElements(String value, TestRun ctx);
+		
+		@Override
+		public String toString() {
+			return name().toLowerCase().replace("_", " ");
+		}
 		
 		public static Type ofName(String name) {
 			return Type.valueOf(name.toUpperCase().replace(" ", "_"));

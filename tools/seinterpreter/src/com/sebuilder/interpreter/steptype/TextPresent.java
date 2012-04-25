@@ -16,13 +16,15 @@
 
 package com.sebuilder.interpreter.steptype;
 
-import com.sebuilder.interpreter.StepType;
+import com.sebuilder.interpreter.Getter;
 import com.sebuilder.interpreter.TestRun;
 
-public class GoBack implements StepType {
+public class TextPresent implements Getter {
 	@Override
-	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
-		return true;
+	public String get(TestRun ctx) {
+		return "" + ctx.driver().findElementByTagName("html").getText().contains(ctx.string("text"));
 	}
+
+	@Override
+	public String cmpParamName() { return null; }
 }

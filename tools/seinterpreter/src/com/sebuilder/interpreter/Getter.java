@@ -14,15 +14,23 @@
 * limitations under the License.
 */
 
-package com.sebuilder.interpreter.steptype;
+package com.sebuilder.interpreter;
 
-import com.sebuilder.interpreter.StepType;
-import com.sebuilder.interpreter.TestRun;
-
-public class GoBack implements StepType {
-	@Override
-	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
-		return true;
-	}
+/**
+ * Interface to plug into the generic Assert/Verify/Store steps that does the work of actually
+ * getting the relevant variable.
+ * @author zarkonnen
+ */
+public interface Getter {
+	/**
+	 * @param ctx Current test run.
+	 * @return The value this getter gets, eg the page title.
+	 */
+	public String get(TestRun ctx);
+	
+	/**
+	 * @return The name of the parameter to compare the result of the get to, or null if the get
+	 *         returns a boolean "true"/"false".
+	 */
+	public String cmpParamName();
 }

@@ -18,11 +18,13 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import org.openqa.selenium.WebElement;
 
-public class GoBack implements StepType {
+public class SetElementSelected implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		WebElement e = ctx.locator("locator").find(ctx);
+		if (!e.isSelected()) { e.click(); }
 		return true;
 	}
 }

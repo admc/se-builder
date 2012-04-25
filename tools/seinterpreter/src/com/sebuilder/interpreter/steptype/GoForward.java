@@ -19,7 +19,7 @@ package com.sebuilder.interpreter.steptype;
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
 
-public class GoForward extends StepType {
+public class GoForward implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
 		ctx.driver().navigate().forward();

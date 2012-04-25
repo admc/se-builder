@@ -24,8 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * An interpreter for Builder JSON tests. Given a JSON script file, it plays it back using the Java
- * WebDriver bindings.
+ * An interpreter for Builder JSON tests. Given one or more JSON script files, it plays them back
+ * using the Java WebDriver bindings.
  * @author zarkonnen
  */
 public class SeInterpreter {
@@ -45,9 +45,13 @@ public class SeInterpreter {
 				BufferedReader br = null;
 				try {
 					Script script = IO.read(br = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8")));
-					if (script.run()) {
-						log.info(s + " succeeded");
-					} else {
+					try {
+						if (script.run()) {
+							log.info(s + " succeeded");
+						} else {
+							log.info(s + " failed");
+						}
+					} catch (Exception e) {
 						log.info(s + " failed");
 					}
 				} finally {

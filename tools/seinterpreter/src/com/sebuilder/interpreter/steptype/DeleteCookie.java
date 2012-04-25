@@ -18,11 +18,15 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import org.openqa.selenium.Cookie;
 
-public class GoBack implements StepType {
+public class DeleteCookie implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		Cookie c = ctx.driver().manage().getCookieNamed(ctx.string("name"));
+		if (c != null) {
+			ctx.driver().manage().deleteCookie(c);
+		}
 		return true;
 	}
 }

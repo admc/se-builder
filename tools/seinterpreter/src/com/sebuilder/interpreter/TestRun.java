@@ -67,7 +67,27 @@ public class TestRun {
 		}
 		log.debug("Running step " + (stepIndex + 2) + ":" +
 				script.steps.get(stepIndex + 1).getClass().getSimpleName() + " step.");
-		return script.steps.get(++stepIndex).type.run(this);
+		boolean result = false;
+		try {
+			result = script.steps.get(++stepIndex).type.run(this);
+		} catch (Exception e) {
+			throw new RuntimeException(currentStep() + " failed.", e);
+		}
+		
+		if (!result) {
+			// If a verify failed, we just note this but continue.
+			if (currentStep().type instanceof Verify) {
+				log.error(currentStep() + " failed.");
+				return false;
+			}
+			// In all other cases, we throw an exception to stop the run.
+			RuntimeException e = new RuntimeException(currentStep() + " failed.");
+			e.fillInStackTrace();
+			log.fatal(e);
+			throw e;
+		} else {
+			return true;
+		}
 	}
 	
 	/**
@@ -82,11 +102,21 @@ public class TestRun {
 	
 	/**
 	 * Runs the entire (rest of the) script.
-	 * @return Whether all steps succeeded.
+	 * @return True if the script ran successfully, false if a verification failed.
+	 *         Any other failure throws an exception.
+	 * @throws RuntimeException if the script failed.
 	 */
 	public boolean finish() {
 		boolean success = true;
-		while (hasNext()) { success = next() && success; }
+		try {
+			while (hasNext()) {
+				success = next() && success;
+			}
+		} catch (RuntimeException e) {
+			// If the script terminates, the driver will be closed automatically.
+			try { driver.close(); } catch (Exception e2) {}
+			throw e;
+		}
 		return success;
 	}
 	

@@ -14,15 +14,25 @@
 * limitations under the License.
 */
 
-package com.sebuilder.interpreter.steptype;
+package com.sebuilder.interpreter;
 
-import com.sebuilder.interpreter.StepType;
-import com.sebuilder.interpreter.TestRun;
+/**
+ * Generic Assert that wraps a getter.
+ * @author zarkonnen
+ */
+public class Assert implements StepType {
+	public final Getter getter;
 
-public class GoBack implements StepType {
+	public Assert(Getter getter) {
+		this.getter = getter;
+	}
+	
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
-		return true;
+		String got = getter.get(ctx);
+		boolean result = getter.cmpParamName() == null
+				? Boolean.parseBoolean(got)
+				: ctx.string(getter.cmpParamName()).equals(got);
+		return result != ctx.currentStep().isNegated();
 	}
 }

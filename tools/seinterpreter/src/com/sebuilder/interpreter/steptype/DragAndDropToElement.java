@@ -18,11 +18,14 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import org.openqa.selenium.interactions.Actions;
 
-public class GoBack implements StepType {
+public class DragAndDropToElement implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		new Actions(ctx.driver()).dragAndDrop(
+				ctx.locator("locator").find(ctx),
+				ctx.locator("locator2").find(ctx)).build().perform();
 		return true;
 	}
 }

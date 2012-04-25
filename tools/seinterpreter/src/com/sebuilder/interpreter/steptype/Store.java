@@ -19,7 +19,7 @@ package com.sebuilder.interpreter.steptype;
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
 
-public class Store extends StepType {
+public class Store implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
 		ctx.vars().put(ctx.string("variable"), ctx.string("text"));

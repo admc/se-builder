@@ -16,53 +16,17 @@
 
 package com.sebuilder.interpreter;
 
-import java.util.HashMap;
-
 /**
- * Abstract class for classes that define how to run a step of a particular type. Implementing
- * classes should be located in com.sebuilder.interpreter.steptype.
+ * Interface for classes that define how to run a step of a particular type. Implementing classes
+ * should be located in com.sebuilder.interpreter.steptype.
  * @author zarkonnen
  */
-public abstract class StepType {
+public interface StepType {
 	/**
 	 * Perform the action this step consists of.
 	 * @param ctx Current test run.
 	 * @return Whether the step succeeded. This should be true except for failed verify steps, which
-	 *         should return false. Other failures should throw a RuntimeException.
+	 * should return false. Other failures should throw a RuntimeException.
 	 */
-	public abstract boolean run(TestRun ctx);
-	
-	/**
-	 * Mapping of the names of step types to their implementing classes, lazily loaded through
-	 * reflection. StepType classes must be in the com.sebuilder.interpreter.steptype package and
-	 * their name must be the capitalized name of their type. For example, the class for "get" is at
-	 * com.sebuilder.interpreter.steptype.Get.
-	 */
-	private static final HashMap<String, StepType> typesMap = new HashMap<String, StepType>();
-	
-	public static StepType ofName(String name) {
-		try {
-			if (!typesMap.containsKey(name)) {
-				String className = name.substring(0, 1).toUpperCase() + name.substring(1);
-				try {
-					Class c = Class.forName("com.sebuilder.interpreter.steptype." + className);
-					try {
-						typesMap.put(name, (StepType) c.newInstance());
-					} catch (InstantiationException ie) {
-						throw new RuntimeException(c.getName() + " could not be instantiated.", ie);
-					} catch (IllegalAccessException iae) {
-						throw new RuntimeException(c.getName() + " could not be instantiated.", iae);
-					} catch (ClassCastException cce) {
-						throw new RuntimeException(c.getName() + " does not extend StepType.", cce);
-					}
-				} catch (ClassNotFoundException cnfe) {
-					throw new RuntimeException("No implementation class for step type \"" + name + "\" could be found.", cnfe);
-				}
-			}
-
-			return typesMap.get(name);
-		} catch (Exception e) {
-			throw new RuntimeException("Step type \"" + name + "\" is not implemented.", e);
-		}
-	}
+	boolean run(TestRun ctx);
 }

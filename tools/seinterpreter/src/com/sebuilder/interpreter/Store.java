@@ -14,15 +14,22 @@
 * limitations under the License.
 */
 
-package com.sebuilder.interpreter.steptype;
+package com.sebuilder.interpreter;
 
-import com.sebuilder.interpreter.StepType;
-import com.sebuilder.interpreter.TestRun;
+/**
+ * Generic Store that wraps a getter.
+ * @author zarkonnen
+ */
+public class Store implements StepType {
+	public final Getter getter;
 
-public class GoBack implements StepType {
+	public Store(Getter getter) {
+		this.getter = getter;
+	}
+	
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		ctx.vars.put(ctx.string("variable"), getter.get(ctx));
 		return true;
 	}
 }

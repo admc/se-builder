@@ -19,7 +19,7 @@ package com.sebuilder.interpreter.steptype;
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
 
-public class Print extends StepType {
+public class Print implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
 		ctx.log().info(ctx.string("text"));

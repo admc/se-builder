@@ -19,7 +19,7 @@ package com.sebuilder.interpreter.steptype;
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
 
-public class ClickElement extends StepType {
+public class ClickElement implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
 		ctx.locator("locator").find(ctx).click();

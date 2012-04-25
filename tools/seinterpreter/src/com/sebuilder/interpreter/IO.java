@@ -18,13 +18,14 @@ package com.sebuilder.interpreter;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 /**
- * Code for reading scripts.
+ * Utilities for reading scripts.
  * @author zarkonnen
  */
 public class IO {
@@ -55,7 +56,8 @@ public class IO {
 			JSONArray stepsA = scriptO.getJSONArray("steps");
 			for (int i = 0; i < stepsA.length(); i++) {
 				JSONObject stepO = stepsA.getJSONObject(i);
-				Script.Step step = new Script.Step(StepType.ofName(stepO.getString("type")));
+				Script.Step step = new Script.Step(getStepTypeOfName(stepO.getString("type")));
+				step.negated = stepO.optBoolean("negated", false);
 				script.steps.add(step);
 				JSONArray keysA = stepO.names();
 				for (int j = 0; j < keysA.length(); j++) {
@@ -74,6 +76,74 @@ public class IO {
 			return script;
 		} catch (Exception e) {
 			throw new IOException("Could not parse script.", e);
+		}
+	}
+	
+	
+	/**
+	 * Mapping of the names of step types to their implementing classes, lazily loaded through
+	 * reflection. StepType classes must be in the com.sebuilder.interpreter.steptype package and
+	 * their name must be the capitalized name of their type. For example, the class for "get" is at
+	 * com.sebuilder.interpreter.steptype.Get.
+	 * 
+	 * Assert/Verify/WaitFor/Store steps use "Getter" objects that encapsulate how to get the value
+	 * they are about. Getters should be named eg "Title" for "verifyTitle" and also be in the
+	 * com.sebuilder.interpreter.steptype package.
+	 */
+	private static final HashMap<String, StepType> typesMap = new HashMap<String, StepType>();
+	
+	public static StepType getStepTypeOfName(String name) {
+		try {
+			if (!typesMap.containsKey(name)) {
+				String className = name.substring(0, 1).toUpperCase() + name.substring(1);
+				boolean rawStepType = true;
+				if (name.startsWith("assert")) {
+					className = className.substring("assert".length());
+					rawStepType = false;
+				}
+				if (name.startsWith("verify")) {
+					className = className.substring("verify".length());
+					rawStepType = false;
+				}
+				if (name.startsWith("waitFor")) {
+					className = className.substring("waitFor".length());
+					rawStepType = false;
+				}
+				if (name.startsWith("store") && !name.equals("store")) {
+					className = className.substring("store".length());
+					rawStepType = false;
+				}
+				try {
+					Class c = Class.forName("com.sebuilder.interpreter.steptype." + className);
+					try {
+						Object o = c.newInstance();
+						if (name.startsWith("assert")) {
+							typesMap.put(name, new Assert((Getter) o));
+						} else if (name.startsWith("verify")) {
+							typesMap.put(name, new Verify((Getter) o));
+						} else if (name.startsWith("waitFor")) {
+							typesMap.put(name, new WaitFor((Getter) o));
+						} else if (name.startsWith("store") && !name.equals("store")) {
+							typesMap.put(name, new Store((Getter) o));
+						} else {
+							typesMap.put(name, (StepType) o);
+						}
+					} catch (InstantiationException ie) {
+						throw new RuntimeException(c.getName() + " could not be instantiated.", ie);
+					} catch (IllegalAccessException iae) {
+						throw new RuntimeException(c.getName() + " could not be instantiated.", iae);
+					} catch (ClassCastException cce) {
+						throw new RuntimeException(c.getName() + " does not extend " +
+								(rawStepType ? "StepType" : "Getter") + ".", cce);
+					}
+				} catch (ClassNotFoundException cnfe) {
+					throw new RuntimeException("No implementation class for step type \"" + name + "\" could be found.", cnfe);
+				}
+			}
+
+			return typesMap.get(name);
+		} catch (Exception e) {
+			throw new RuntimeException("Step type \"" + name + "\" is not implemented.", e);
 		}
 	}
 }

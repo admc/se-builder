@@ -18,11 +18,12 @@ package com.sebuilder.interpreter.steptype;
 
 import com.sebuilder.interpreter.StepType;
 import com.sebuilder.interpreter.TestRun;
+import org.openqa.selenium.support.ui.Select;
 
-public class GoBack implements StepType {
+public class ClearSelections implements StepType {
 	@Override
 	public boolean run(TestRun ctx) {
-		ctx.driver().navigate().back();
+		new Select(ctx.locator("locator").find(ctx)).deselectAll();
 		return true;
 	}
 }
