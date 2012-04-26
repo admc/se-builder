@@ -62,7 +62,7 @@ public class IO {
 				JSONArray keysA = stepO.names();
 				for (int j = 0; j < keysA.length(); j++) {
 					String key = keysA.getString(j);
-					if (key.equals("type")) { continue; }
+					if (key.equals("type") || key.equals("negated")) { continue; }
 					if (stepO.optJSONObject(key) != null) {
 						step.locatorParams.put(key, new Locator(
 								stepO.getJSONObject(key).getString("type"),
