@@ -88,29 +88,7 @@ builder.registerPostLoadHook(function() {
   });
   
   jQuery('#suite-addscript').click(function() {
-    var script = builder.selenium1.adapter.importScript();
-    if (script) {
-      // Save the current script and unselect it to make sure that when we overwrite its
-      // info in the GUI by opening the new script, we don't overwrite its info in
-      // builder.suite.
-      builder.suite.addScript(script);
-      builder.gui.menu.updateRunSuiteOnRC();
-    }
-  });
-  
-  jQuery('#suite-importscript-sel2').click(function() {
-    var script = builder.selenium2.io.loadScriptJSON();
-    if (script) {
-      // Save the current script and unselect it to make sure that when we overwrite its
-      // info in the GUI by opening the new script, we don't overwrite its info in
-      // builder.suite.
-      builder.suite.addScript(builder.versionConverter.convertScript(script, builder.selenium1));
-      builder.gui.menu.updateRunSuiteOnRC();
-    }
-  });
-  
-  jQuery('#suite-addscript-sel2').click(function() {
-    var script = builder.selenium2.io.loadScript();
+    var script = builder.io.loadNewScriptForSuite();
     if (script) {
       // Save the current script and unselect it to make sure that when we overwrite its
       // info in the GUI by opening the new script, we don't overwrite its info in

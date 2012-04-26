@@ -3,11 +3,14 @@ builder.selenium2.io = {};
 /**
  * Code for exporting/importing Selenium 2 scripts in a variety of formats.
 */
-builder.selenium2.io.loadScript = function(path) {
-  var scriptJSON = builder.selenium2.io.loadScriptJSON(path);
+builder.selenium2.io.parseScript = function(file) {
+  var scriptJSON = JSON.parse(builder.io.readFile(file));
   var script = new builder.Script(builder.selenium2);
-  script.path = scriptJSON.path;
-  script.path.format = builder.selenium2.io.formats[0];
+  script.path = {
+    where: "local",
+    path: file.path,
+    format: builder.selenium2.io.formats[0]
+  };
   
   for (var i = 0; i < scriptJSON.steps.length; i++) {
     var step = new builder.Step(builder.selenium2.stepTypes[scriptJSON.steps[i].type]);
@@ -24,8 +27,13 @@ builder.selenium2.io.loadScript = function(path) {
       }
     }
   }
-      
+  
   return script;
+};
+
+/** Stub: No suite implementation for Selenium 2 yet. */
+builder.selenium2.io.parseSuite = function(file) {
+  return null;
 };
 
 builder.selenium2.io.jsonToLoc = function(jsonO) {

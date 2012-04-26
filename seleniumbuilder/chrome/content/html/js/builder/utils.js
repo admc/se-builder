@@ -1,4 +1,9 @@
 /**
+ * Sets up selenium versions list.
+ */
+builder.seleniumVersions = [];
+
+/**
  * Converts runs of whitespace into single spaces and trims string to match behaviour of
  * XPath's normalize-space.
  */

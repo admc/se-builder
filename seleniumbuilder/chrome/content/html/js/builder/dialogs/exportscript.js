@@ -62,7 +62,6 @@ builder.dialogs.exportscript.show = function(node) {
 };
 
 builder.dialogs.exportscript.hide = function () {
-  //builder.dialogs.exportscript.node.html('');
   jQuery(builder.dialogs.exportscript.dialog).remove();
 };
 

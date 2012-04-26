@@ -33,6 +33,12 @@ builder.registerPostLoadHook(function() {
       builder.dialogs.exportscript.show(jQuery("#dialog-attachment-point"));
     }
   );
+  // Convert button
+  jQuery('#script-convert').click(
+    function() {
+      builder.dialogs.convert.show(jQuery("#dialog-attachment-point"));
+    }
+  );
   // Discard button: discards unsaved changes in script, if any. Returns to startup interface
   // to let user decide what to do next.
   jQuery('#script-discard').click(

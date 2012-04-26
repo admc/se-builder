@@ -5,8 +5,11 @@
  * doesn't have to know which version of Selenium is being used.
  */
 builder.selenium2 = {
-  toString: function() { return "__SELENIUM_2__"; }
+  toString: function() { return "__SELENIUM_2__"; },
+  name: "Selenium 2"
 };
+
+builder.seleniumVersions.push(builder.selenium2);
 
 builder.selenium2.StepType = function(name) {
   this.name = name;

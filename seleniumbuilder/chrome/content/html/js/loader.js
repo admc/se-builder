@@ -50,6 +50,7 @@ builder.loader.loadScripts(
   "selenium/selenium-commandhandlers.js",
   // Load Se Builder
   "builder/utils.js",
+  "builder/io.js",
   "builder/storage.js",
   "builder/script.js",
   "builder/loadlistener.js",
@@ -92,6 +93,7 @@ builder.loader.loadScripts(
   "builder/selenium2/docs.js",
   "builder/record.js",
   "builder/dialogs/dialogs.js",
+  "builder/dialogs/convert.js",
   "builder/dialogs/exportscript.js",
   "builder/dialogs/rc.js",
   "builder/dialogs/record.js",

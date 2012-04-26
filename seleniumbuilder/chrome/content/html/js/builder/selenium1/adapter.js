@@ -23,7 +23,7 @@ builder.selenium1.adapter.availableFormats = function() {
 };
 
 /**
- * Allows user to import a suite.
+ * Allows user to parse a suite.
  * @return A suiteInfo object, or null on failure.
  * SuiteInfo structure:
  * {
@@ -31,10 +31,10 @@ builder.selenium1.adapter.availableFormats = function() {
  *    scripts: list of script objects with path set
  * }
  */
-builder.selenium1.adapter.importSuite = function() {
+builder.selenium1.adapter.parseSuite = function(file) {
   try {
     var format = builder.selenium1.adapter.formatCollection().findFormat('default');
-    var ts = TestSuite.load();
+    var ts = TestSuite.loadFile(file);
     var si = { scripts: [], path: ts.file.path };
     for (var i = 0; i < ts.tests.length; i++) {
       var script = builder.selenium1.adapter.convertTestCaseToScript(
@@ -50,7 +50,7 @@ builder.selenium1.adapter.importSuite = function() {
     return si;
   } catch (e) {
     //alert("Could not open suite:\n" + e);
-    alert("Could not open the suite.");
+    //alert("Could not open the suite.");
     return null;
   }
 };
@@ -85,22 +85,23 @@ builder.selenium1.adapter.exportSuite = function(scripts, path) {
 };
 
 /**
- * Allows user to import a script in the default format.
+ * Allows user to parse a script in the default format.
  * @return A script, or null on failure.
  */
-builder.selenium1.adapter.importScript = function() {
+builder.selenium1.adapter.parseScript = function(file) {
   try {
     var format = builder.selenium1.adapter.formatCollection().findFormat('default');
-    return builder.selenium1.adapter.convertTestCaseToScript(format.load(), format);
+    return builder.selenium1.adapter.convertTestCaseToScript(format.loadFile(file, false), format);
   } catch (e) {
     //alert("Could not open script:\n" + e);
-    alert("Could not open script.");
+    //alert("Could not open script.");
     return null;
   }
 };
 
 builder.selenium1.io = {};
-builder.selenium1.io.loadScript = builder.selenium1.adapter.importScript;
+builder.selenium1.io.parseScript = builder.selenium1.adapter.parseScript;
+builder.selenium1.io.parseSuite = builder.selenium1.adapter.parseSuite;
   
 /**
  * Exports the given script using the default format.
