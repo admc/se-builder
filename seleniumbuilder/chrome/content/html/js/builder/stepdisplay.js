@@ -595,6 +595,12 @@ function addStep(step) {
           href: '#',
           class: 'b-task',
           click: function() { script.seleniumVersion.playback.runTestBetween(null, step.id, null); }
+        }),
+        newNode('a', "run to here", {
+          id: step.id + 'run-to-here',
+          href: '#',
+          class: 'b-task',
+          click: function() { script.seleniumVersion.playback.runTestBetween(null, null, step.id); }
         })
       ),
       newNode('div', {class: 'b-step-content', id: step.id + '-content'},

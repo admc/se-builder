@@ -33,7 +33,7 @@ builder.selenium2.playback.vars = {};
 /** What interval to check implicit waits for. */
 builder.selenium2.playback.implicitWaitTimeoutAmount = 300;
 /** How many implicit wait cycles are run before waits time out. */
-builder.selenium2.playback.maxImplicitWaitCycles = 60000 / builder.selenium2.playback.implicitWaitTimeoutAmount;
+builder.selenium2.playback.maxImplicitWaitCycles = 10000 / builder.selenium2.playback.implicitWaitTimeoutAmount;
 /** How many implicit wait cycles have been run. */
 builder.selenium2.playback.implicitWaitCycle = 0;
 /** The implicit wait timeout. */
@@ -56,7 +56,13 @@ builder.selenium2.playback.runTestBetween = function(postPlayCallback, startStep
   builder.selenium2.playback.script = builder.getScript();
   builder.selenium2.playback.postPlayCallback = postPlayCallback;
   builder.selenium2.playback.currentStep = builder.selenium2.playback.script.getStepWithID(startStepID);
+  if (!builder.selenium2.playback.currentStep) {
+    builder.selenium2.playback.currentStep = builder.selenium2.playback.script.steps[0];
+  }
   builder.selenium2.playback.finalStep = builder.selenium2.playback.script.getStepWithID(endStepID);
+  if (!builder.selenium2.playback.finalStep) {
+    builder.selenium2.playback.finalStep = builder.selenium2.playback.script.steps[builder.selenium2.playback.script.steps.length - 1];
+  }
   builder.selenium2.playback.playResult = {success: true};
   builder.selenium2.playback.startSession();
 };
@@ -137,7 +143,11 @@ builder.selenium2.playback.continueFindingElement = function(locator, callback, 
       /* errorCallback */
       function(e) {
         if (builder.selenium2.playback.implicitWaitCycle++ >= builder.selenium2.playback.maxImplicitWaitCycles) {
-          errorCallback(e);
+          if (errorCallback) {
+            errorCallback(e);
+          } else {
+            builder.selenium2.playback.recordError(e.value.message);
+          }
         } else {
           builder.selenium2.playback.continueFindingElement(locator, callback, errorCallback);
         }
