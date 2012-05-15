@@ -6,7 +6,7 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "require 'rubygems'\n" +
 	"require 'selenium-webdriver'"+
 	"\n" +
-	"wd = Selenium::WebDriver.for :firefox\n" +
+	"wd = Selenium::WebDriver.for :firefox\n",
   end:
     "wd.quit\n",
   lineForType: {
@@ -22,11 +22,11 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "wd.find_element({locatorBy}, \"{locator}\").send_keys \"{text}\"\n",
     "setElementSelected":
       "if not wd.find_element({locatorBy}, \"{locator}\").selected?\n" +
-	  "  wd.{locatorBy}(\"{locator}\").click\n"+
+	  "    wd.find_element({locatorBy}, \"{locator}\").click\n"+
 	  "end\n",
     "setElementNotSelected":
       "if wd.find_element({locatorBy}, \"{locator}\").selected?\n" +
-	  "  wd.{locatorBy}(\"{locator}\").click\n"+
+	  "    wd.find_element({locatorBy}, \"{locator}\").click\n"+
 	  "end\n",
     "submitElement":
       "wd.find_element({locatorBy}, \"{locator}\").submit\n",
@@ -34,108 +34,121 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "",
     "verifyTextPresent":
       "if wd.find_element(:tag_name, \"html\").text.include? {posNot}\"{text}\"\n" +
-	  "  print \"{negNot}verifyTextPresent failed\"\n"+
+	  "    print \"{negNot}verifyTextPresent failed\"\n"+
 	  "end\n",
     "assertTextPresent":
       "if wd.find_element(:tag_name, \"html\").text.include? {posNot}\"{text}\"\n" +
-	  "  wd.quit\n" +
-	  "  raise Exception, \"{negNot}assertTextPresent failed\"\n"+
+	  "    wd.quit\n" +
+	  "    raise Exception, \"{negNot}assertTextPresent failed\"\n"+
 	  "end\n",
     "waitForTextPresent":
       "",
     "verifyBodyText":
       "if {posNot}\"{text}\" == wd.find_element(:tag_name, \"html\").text\n" +
-	  "  print \"{negNot}verifyBodyText failed\" \n"+
+	  "    print \"{negNot}verifyBodyText failed\" \n"+
 	  "end\n",
     "assertBodyText":
       "if {posNot}\"{text}\" == wd.find_element_by_tag_name(\"html\").text\n" +
-	  "  wd.close()\n" +
-	  "  raise Exception, \"{negNot}assertBodyText failed\"\n"+
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertBodyText failed\"\n"+
 	  "end\n",
     "waitForBodyText":
       "",
     "verifyElementPresent":
       "if {negNot}wd.find_element({locatorBy}, \"{locator}\").length == 0\n" +
-	  "  print(\"{negNot}verifyElementPresent failed\")\n"+
+	  "    print \"{negNot}verifyElementPresent failed\"\n"+
 	  "end",
     "assertElementPresent":
       "if {negNot}wd.find_element({locatorBy}, \"{locator}\").length == 0\n" +
-	  "  wd.quit\n" +
-	  "  raise Exception, \"{negNot}assertElementPresent failed\"\n"+
+	  "    wd.quit\n" +
+	  "    raise Exception, \"{negNot}assertElementPresent failed\"\n"+
 	  "end\n",
     "waitForElementPresent":
       "",
     "verifyPageSource":
-      "if {posNot}(wd.get_page_source() == \"{source}\")\n" +
-	  "  print \"{negNot}verifyPageSource failed\"\n"+
+      "if {posNot}(wd.page_source == \"{source}\")\n" +
+	  "    print \"{negNot}verifyPageSource failed\"\n"+
 	  "end\n",
     "assertPageSource":
-      "if {posNot}wd.get_page_source() == \"{source}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertPageSource failed\")\n",
+      "if {posNot}wd.page_source == \"{source}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertPageSource failed\"\n"+
+	  "end\n",      
     "waitForPageSource":
       "",
     "verifyText":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").text == \"{text}\":\n" +
-      "    print(\"{negNot}verifyText failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").text == \"{text}\"\n" +
+	  "    print \"{negNot}verifyText failed\"\n",
     "assertText":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").text == \"{text}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertText failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").text == \"{text}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertText failed\"\n"+
+	  "end\n",
     "waitForText":
       "",
     "verifyCurrentUrl":
-      "if {posNot}wd.current_url == \"{url}\":\n" +
-      "    print(\"{negNot}verifyCurrentUrl failed\")\n",
+      "if {posNot}wd.current_url == \"{url}\"\n" +
+	  "      print \"{negNot}verifyCurrentUrl failed\"\n"+
+	  "end\n",
     "assertCurrentUrl":
-      "if {posNot}wd.current_url == \"{url}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertCurrentUrl failed\")\n",
+      "if {posNot}wd.current_url == \"{url}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception(\"{negNot}assertCurrentUrl failed\")\n"+
+	  "end\n",
     "waitForCurrentUrl":
       "",
     "verifyTitle":
-      "if {posNot}wd.title == \"{title}\":\n" +
-      "    print(\"{negNot}verifyTitle failed\")\n",
+      "if {posNot}wd.title == \"{title}\"\n" +
+	  "    print \"{negNot}verifyTitle failed\"\n"+
+	  "end\n",
     "assertTitle":
-      "if {posNot}wd.title == \"{title}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertTitle failed\")\n",
+      "if {posNot}wd.title == \"{title}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception(\"{negNot}assertTitle failed\")\n"+
+	  "end\n",
     "waitForTitle":
       "",
     "verifyElementSelected":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").is_selected():\n" +
-      "    print(\"{negNot}verifyElementSelected failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").selected?\n" +
+	  "    print \"{negNot}verifyElementSelected failed\"\n"+
+	  "end\n",
     "assertElementSelected":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").is_selected():\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertElementSelected failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").selected?\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertElementSelected failed\"\n"+
+	  "end\n",
     "waitForElementSelected":
       "",
     "verifyElementValue":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").value == \"{value}\":\n" +
-      "    print(\"{negNot}verifyElementValue failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").value == \"{value}\"\n" +
+      "    print \"{negNot}verifyElementValue failed\"\n",
     "assertElementValue":
-      "if {posNot}wd.{locatorBy}(\"{locator}\").value == \"{value}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertElementValue failed\")\n",
+      "if {posNot}wd.find_element({locatorBy}, \"{locator}\").value == \"{value}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertElementValue failed\"\n"+
+	  "end\n",
     "element.waitForValue":
       "",
     "verifyCookieByName":
-      "if {posNot}wd.get_cookie(\"{name}\") == \"{value}\":\n" +
-      "    print(\"{negNot}verifyCookieByName failed\")\n",
+      "if {posNot}wd.manage().cookie_named(\"{name}\") == \"{value}\"\n" +
+	  "    print \"{negNot}verifyCookieByName failed\"\n"+
+	  "end\n",
     "assertCookieByName":
-      "if {posNot}wd.get_cookie(\"{name}\") == \"{value}\":\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertCookieByName failed\")\n",
+      "if {posNot}wd.manage().cookie_named(\"{name}\") == \"{value}\"\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertCookieByName failed\"\n"+
+	  "end\n",
     "waitForCookieByName":
       "",
     "verifyCookiePresent":
-      "if {posNot}wd.get_cookie(\"{name}\"):\n" +
-      "    print(\"{negNot}verifyCookiePresent failed\")\n",
+      "if {posNot}wd.manage().cookie_named(\"{name}\")\n" +
+	  "    print \"{negNot}verifyCookiePresent failed\"\n"+
+	  "end\n",
     "assertCookiePresent":
-      "if {posNot}wd.get_cookie(\"{name}\"):\n" +
-      "    wd.close()\n" +
-      "    raise Exception(\"{negNot}assertCookiePresent failed\")\n",
+      "if {posNot}wd.manage().cookie_named(\"{name}\")\n" +
+	  "    wd.close\n" +
+	  "    raise Exception, \"{negNot}assertCookiePresent failed\"\n"+
+	  "end\n",
     "waitForCookiePresent":
       "",
     "storeTitle":
@@ -147,20 +160,20 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "verifyElementPresent": 1
     }[stepType.name]) {
       return {
-        "class": "find_elements_by_class_name",
-        "id": "find_elements_by_id",
-        "link text": "find_elements_by_link_text",
-        "xpath": "find_elements_by_xpath",
-        "css selector": "find_elements_by_css_selector",
-        "name": "find_elements_by_name"}[locatorType];
+        "class": ":class",
+        "id": ":id",
+        "link text": ":link_text",
+        "xpath": ":xpath",
+        "css selector": ":css",
+        "name": ":name"}[locatorType];
     }
     return {
-      "class": "find_element_by_class_name",
-      "id": "find_element_by_id",
-      "link text": "find_element_by_link_text",
-      "xpath": "find_element_by_xpath",
-      "css selector": "find_element_by_css_selector",
-      "name": "find_element_by_name"}[locatorType];
+        "class": ":class",
+        "id": ":id",
+        "link text": ":link_text",
+        "xpath": ":xpath",
+        "css selector": ":css",
+        "name": ":name"}[locatorType];
   },
   escapeValue: function(stepType, value, pName) {
     return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
