@@ -84,6 +84,7 @@ builder.loader.loadScripts(
   "builder/selenium2/io/formats/java.js",
   "builder/selenium2/io/formats/ruby.js",
   "builder/selenium2/io/formats/python.js",
+  "builder/selenium2/io/formats/php.js",
   "builder/selenium2/io/formats/node-wd.js",
   "builder/selenium2/io/formats/english.js",
   "builder/locator2.js",
