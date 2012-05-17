@@ -26,7 +26,12 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
         "         }\n"+ 
         "     }\n"+
         "     return false;\n"+
-        "}\n\n",
+        "}\n"+
+	"\n"+
+	"function split_keys($toSend){\n"+
+	"$payload = array(\"value\" => preg_split(\"//u\", $toSend, -1, PREG_SPLIT_NO_EMPTY));\n"+
+	"return $payload;\n"+
+	"}\n\n",
   end:
     "$session->close();\n"+
 	"?>",
@@ -181,20 +186,20 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "verifyElementPresent": 1
     }[stepType.name]) {
       return {
-        "class": "class",
-        "id": "id",
-        "link text": "link text",
-        "xpath": "xpath",
-        "css selector": "css",
-        "name": "name"}[locatorType];
+        "class": "\"class\"",
+        "id": "\"id\"",
+        "link text": "\"link text\"",
+        "xpath": "\"xpath\"",
+        "css selector": "\"css\"",
+        "name": "\"name\""}[locatorType];
     }
     return {
-        "class": "class",
-        "id": "id",
-        "link text": "link_text",
-        "xpath": "xpath",
-        "css selector": "css",
-        "name": "name"}[locatorType];
+        "class": "\"class\"",
+        "id": "\"id\"",
+        "link text": "\"link text\"",
+        "xpath": "\"xpath\"",
+        "css selector": "\"css\"",
+        "name": "\"name\""}[locatorType];
   },
   escapeValue: function(stepType, value, pName) {
     return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
