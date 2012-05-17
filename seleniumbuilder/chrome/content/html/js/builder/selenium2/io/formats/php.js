@@ -45,7 +45,7 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "clickElement":
       "$session->element({locatorBy}, \"{locator}\")->click();\n",
     "sendKeysToElement":
-      "$session->element({locatorBy}, \"{locator}\")->value(\"{text}\");\n",
+      "$session->element({locatorBy}, \"{locator}\")->value(split_keys(\"{text}\"));\n",
     "setElementSelected":
       "if (!($session->element({locatorBy}, \"{locator}\")->selected())) {\n" +
 	  "    $session->element({locatorBy}, \"{locator}\")->click();\n"+
