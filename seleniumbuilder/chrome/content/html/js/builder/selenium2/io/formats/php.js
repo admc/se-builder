@@ -3,11 +3,13 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
   extension: ".php",
   not: "! ",
   start:
+    "<?php\n"+
     "require_once 'php-webdriver';" +
 	"\n" +
 	"$wd = new WebDriver();\n" +
 	"//$wd.implicitly_wait(60)\n"+
-	"$session = $wd->session();"+
+	"$session = $wd->session();\n"+
+	"\n"+
 	"function cookies_contain($cookies, $name) {\n"+ 
         "     foreach ($cookies as $arr) {\n"+
         "         if ($arr['name'] == $name) {\n"+
@@ -17,7 +19,6 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
         "     return false;\n"+
         "}\n"+
 	"\n"+
-	"$session = $wd->session();"+
 	"function get_cookie($cookies, $name) {\n"+ 
         "     foreach ($cookies as $arr) {\n"+
         "         if ($arr['name'] == $name) {\n"+
@@ -25,9 +26,10 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
         "         }\n"+ 
         "     }\n"+
         "     return false;\n"+
-        "}\n\n"+,
+        "}\n\n",
   end:
-    "$wd->close();\n",
+    "$session->close();\n"+
+	"?>",
   lineForType: {
     "get":
       "$session->open(\"{url}\");\n",
@@ -36,15 +38,15 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "goForward":
       "$session->forward();\n",
     "clickElement":
-      "$session->element({locatorBy}, \"{locator}\")->click()\n;",
+      "$session->element({locatorBy}, \"{locator}\")->click();\n",
     "sendKeysToElement":
-      "$session->element({locatorBy}, \"{locator}\")->send_keys(\"{text}\");\n",
+      "$session->element({locatorBy}, \"{locator}\")->value(\"{text}\");\n",
     "setElementSelected":
-      "if not $session->element({locatorBy}, \"{locator}\")->selected() {\n" +
+      "if (!($session->element({locatorBy}, \"{locator}\")->selected())) {\n" +
 	  "    $session->element({locatorBy}, \"{locator}\")->click();\n"+
 	  "}\n",
     "setElementNotSelected":
-      "if $session->element({locatorBy}, \"{locator}\")->selected() {\n" +
+      "if ($session->element({locatorBy}, \"{locator}\")->selected()) {\n" +
 	  "    $session->element({locatorBy}, \"{locator}\")->click();\n"+
 	  "}\n",
     "submitElement":
@@ -63,11 +65,11 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "waitForTextPresent":
       "",
     "verifyBodyText":
-      "if {posNot}\"{text}\" == $session->element(\"tag_name\", \"html\")->text() {\n" +
+      "if ({posNot}(\"{text}\" == $session->element(\"tag_name\", \"html\")->text())) {\n" +
 	  "    echo \"{negNot}verifyBodyText failed\";\n"+
 	  "}\n",
     "assertBodyText":
-      "if {posNot}\"{text}\" == $session->find_element_by_tag_name(\"html\")->text {\n" +
+      "if ({posNot}(\"{text}\" == $session->find_element_by_tag_name(\"html\")->text())) {\n" +
 	  "    $session->close();\n" +
 	  "    raise Exception(\"{negNot}assertBodyText failed\");\n"+
 	  "}\n",
@@ -85,63 +87,67 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "waitForElementPresent":
       "",
     "verifyPageSource":
-      "if {posNot}($session->get_page_source() == \"{source}\") {\n" +
+      "if ({posNot}(($session->get_page_source() == \"{source}\"))) {\n" +
 	  "    echo \"{negNot}verifyPageSource failed\");\n"+
 	  "}\n",
     "assertPageSource":
-      "if {posNot}$session->get_page_source() == \"{source}\" {\n" +
+      "if ({posNot}($session->get_page_source() == \"{source}\")) {\n" +
 	  "    $session->close();\n" +
 	  "    throw Exception(\"{negNot}assertPageSource failed\");\n"+
 	  "}\n",
     "waitForPageSource":
       "",
     "verifyText":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->text == \"{text}\" {;\n" +
+      "if ({posNot}($session->{locatorBy}(\"{locator}\")->text == \"{text}\")) {;\n" +
       "    echo \"{negNot}verifyText failed\";\n",
     "assertText":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->text == \"{text}\" {\n" +
+      "if ({posNot}($session->{locatorBy}(\"{locator}\")->text == \"{text}\")) {\n" +
 	  "    $session->close();\n" +
 	  "    throw Exception(\"{negNot}assertText failed\");\n"+
 	  "}\n",
     "waitForText":
       "",
     "verifyCurrentUrl":
-      "if {posNot}$session->url() == \"{url}\" {\n" +
+      "if ({posNot}($session->url() == \"{url}\")) {\n" +
 	  "    echo \"{negNot}verifyCurrentUrl failed\");\n"+
 	  "}\n",
     "assertCurrentUrl":
-      "if {posNot}$session->url() == \"{url}\" {\n" +
+      "if ({posNot}($session->url() == \"{url}\")) {\n" +
 	  "    $session->close();\n" +
 	  "    throw Exception(\"{negNot}assertCurrentUrl failed\");\n"+
 	  "}\n",
     "waitForCurrentUrl":
       "",
     "verifyTitle":
-      "if {posNot}$session->title() == \"{title}\" {\n" +
+      "if ({posNot}($session->title() == \"{title}\")) {\n" +
 	  "    echo \"{negNot}verifyTitle failed\");\n"+
 	  "}\n",
     "assertTitle":
-      "if {posNot}$session->title() == \"{title}\" {\n" +
-      "    $session->close();\n" +
-      "    throw Exception(\"{negNot}assertTitle failed\");\n",
+      "if ({posNot}($session->title() == \"{title}\") {\n" +
+	  "    $session->close();\n" +
+	  "    throw Exception(\"{negNot}assertTitle failed\");\n"+
+	  "}\n",
     "waitForTitle":
       "",
     "verifyElementSelected":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->is_selected() {\n" +
+      "if {posNot}$session->element({locatorBy}, \"{locator}\")->selected() {\n" +
       "    echo \"{negNot}verifyElementSelected failed\");\n",
     "assertElementSelected":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->is_selected() {\n" +
-      "    $session->close();\n" +
-      "    throw Exception(\"{negNot}assertElementSelected failed\");\n",
+      "if ({posNot}($session->elememt({locatorBy}, \"{locator}\")->selected())) {\n" +
+	  "    $session->close();\n" +
+	  "    throw Exception(\"{negNot}assertElementSelected failed\");\n"+
+	  "}\n",
     "waitForElementSelected":
       "",
     "verifyElementValue":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->value == \"{value}\" {\n" +
-      "    echo \"{negNot}verifyElementValue failed\");\n",
+      "if ({posNot}($session->{locatorBy}(\"{locator}\")->attribute(value) == \"{value}\")) {\n" +
+	  "    echo \"{negNot}verifyElementValue failed\");\n"+
+	  "}\n",
     "assertElementValue":
-      "if {posNot}$session->{locatorBy}(\"{locator}\")->value == \"{value}\" {\n" +
-      "    $session->close();\n" +
-      "    throw Exception(\"{negNot}assertElementValue failed\");\n",
+      "if {posNot}$session->{locatorBy}(\"{locator}\")->attribute(value) == \"{value}\" {\n" +
+	  "    $session->close();\n" +
+	  "    throw Exception(\"{negNot}assertElementValue failed\");\n"+
+	  "}\n",
     "element->waitForValue":
       "",
     "verifyCookieByName":
