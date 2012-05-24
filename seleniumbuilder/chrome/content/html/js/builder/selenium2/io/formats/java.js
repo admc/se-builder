@@ -261,45 +261,68 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "tag name": "tagName",
       "partial link text": "partialLinkText"}[locatorType];
   },
+  /**
+   * Processes a parameter value into an appropriately escaped expression. Mentions of variables
+   * with the ${foo} syntax are transformed into expressions that concatenate the variables and
+   * literals.  
+   * For example:
+   * a${b}c
+   * becomes:
+   * "a" + b + "c"
+   */
   escapeValue: function(stepType, value, pName) {
     if (stepType.name.startsWith("store") && pName == "variable") { return value; }
+    // This function takes a string literal and escapes it and wraps it in quotes.
     function esc(v) { return "\"" + v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\""; }
-    var output = "";
-    var lastChunk = "";
-    var hasDollar = false;
-    var insideVar = false;
-    var varName = "";
+    
+    // The following is a transducer that produces the escaped expression by going over each
+    // character of the input.
+    var output = "";       // Escaped expression.
+    var lastChunk = "";    // Accumulates letters of the current literal.
+    var hasDollar = false; // Whether we've just encountered a $ character.
+    var insideVar = false; // Whether we are reading in the name of a variable.
+    var varName = "";      // Accumulates letters of the current variable.
     for (var i = 0; i < value.length; i++) {
       var ch = value.substring(i, i + 1);
       if (insideVar) {
         if (ch == "}") {
+          // We've finished reading in the name of a variable.
+          // If this isn't the start of the expression, use + to concatenate it.
           if (output.length > 0) { output += " + "; }
           output += varName;
           insideVar = false;
           hasDollar = false;
           varName = "";
         } else {
+          // This letter is part of the name of the variable we're reading in.
           varName += ch;
         }
       } else {
-        // !insideVar
+        // We're not currently reading in the name of a variable.
         if (hasDollar) {
+          // But we *have* just encountered a $, so if this character is a {, we are about to
+          // do a variable.
           if (ch == "{") {
             insideVar = true;
             if (lastChunk.length > 0) {
+              // Add the literal we've read in to the text.
               if (output.length > 0) { output += " + "; }
               output += esc(lastChunk);
             }
             lastChunk = "";
           } else {
+            // No, it was just a lone $.
             hasDollar = false;
             lastChunk += "$" + ch;
           }
         } else {
+          // This is the "normal case" - accumulating the letters of a literal. Unless the letter
+          // is a $, in which case this may be the start of a 
           if (ch == "$") { hasDollar = true; } else { lastChunk += ch; }
         }
       }
     }
+    // Append the final literal, if any, to the output.
     if (lastChunk.length > 0) {
       if (output.length > 0) { output += " + "; }
       output += esc(lastChunk);
