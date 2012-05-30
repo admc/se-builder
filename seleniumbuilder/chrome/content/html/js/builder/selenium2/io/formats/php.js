@@ -32,7 +32,7 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
 	"      return $payload;\n"+
 	"}\n\n",
   end:
-    "$session->close();\n"+
+    "\n$session->close();\n"+
 	"?>",
   lineForType: {
     "get":
