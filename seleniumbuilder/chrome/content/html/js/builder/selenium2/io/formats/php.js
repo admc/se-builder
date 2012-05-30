@@ -7,7 +7,6 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "require_once 'php-webdriver';" +
 	"\n" +
 	"$wd = new WebDriver();\n" +
-	"//$wd.implicitly_wait(60)\n"+
 	"$session = $wd->session();\n"+
 	"\n"+
 	"function cookies_contain($cookies, $name) {\n"+ 
@@ -29,8 +28,8 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
         "}\n"+
 	"\n"+
 	"function split_keys($toSend){\n"+
-	"$payload = array(\"value\" => preg_split(\"//u\", $toSend, -1, PREG_SPLIT_NO_EMPTY));\n"+
-	"return $payload;\n"+
+	"      $payload = array(\"value\" => preg_split(\"//u\", $toSend, -1, PREG_SPLIT_NO_EMPTY));\n"+
+	"      return $payload;\n"+
 	"}\n\n",
   end:
     "$session->close();\n"+
