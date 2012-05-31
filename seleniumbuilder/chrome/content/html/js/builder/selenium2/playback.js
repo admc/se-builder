@@ -599,7 +599,7 @@ builder.selenium2.playback.playbackFunctions = {
 
   "verifyElementValue": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: 'value'}, function(result) {
         if (result.value == builder.selenium2.playback.currentStep.value) {
           builder.selenium2.playback.recordResult({success: true});
         } else {
@@ -610,7 +610,7 @@ builder.selenium2.playback.playbackFunctions = {
   },
   "assertElementValue": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: 'value'}, function(result) {
         if (result.value == builder.selenium2.playback.currentStep.value) {
           builder.selenium2.playback.recordResult({success: true});
         } else {
@@ -622,7 +622,7 @@ builder.selenium2.playback.playbackFunctions = {
   "waitForElementValue": function() {
     builder.selenium2.playback.wait(function(callback) {
       builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-        builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+        builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: 'value'}, function(result) {
           callback(result.value == builder.selenium2.playback.currentStep.value);
         }, /*error*/ function() { callback(false); });
       }, /*error*/ function() { callback(false); });
@@ -630,7 +630,7 @@ builder.selenium2.playback.playbackFunctions = {
   },
   "storeElementValue": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('getElementValue', {id: result.value.ELEMENT}, function(result) {
+      builder.selenium2.playback.execute('getElementAttribute', {id: result.value.ELEMENT, name: 'value'}, function(result) {
         builder.selenium2.playback.vars[builder.selenium2.playback.param("variable")] = result.value;
         builder.selenium2.playback.recordResult({success: true});
       });

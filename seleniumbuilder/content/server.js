@@ -1,7 +1,7 @@
 /*
 Copyright 2007-2009 WebDriver committers
 Copyright 2007-2009 Google Inc.
-Portions copyright 2007 ThoughtWorks, Inc
+Portions copyright 2011 Software Freedom Conservancy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,18 @@ limitations under the License.
 
 var driver = false;
 var domMessenger = null;
+
+// If we're offline, attempt to force online mode, otherwise the server won't
+// start. If we can't do it, it's not the end of the world, but it's Not Good.
+// It became necessary to do this at some time after Firefox 4.
+try {
+  var ios = Components.classes['@mozilla.org/network/io-service;1']
+      .getService(Components.interfaces.nsIIOService);
+  if (ios && ios.offline) {
+      ios.offline = false;
+  }
+} catch (ignoredButItsNotGood) {}
+
 
 // This will configure a FirefoxDriver and DomMessenger for each
 // _browser window_ (not chrome window). Multiple tabs in the same window will
