@@ -46,8 +46,7 @@ builder.dialogs.record = new(function () {
           )
       ));
       node.append(dialog);
-      var v = builder.storage.get('currenturl');
-      jQuery('#startup-url-2').val(v);
+      jQuery('#startup-url-2').val(builder.pageState.currentUrl);
     },
     hide: function () {
       jQuery(dialog).remove();

@@ -38,7 +38,7 @@ builder.registerPostLoadHook(function() {
   });
 
   // A "currently recording at" label in the interface 
-  builder.storage.addChangeListener('currenturl', function (url) {
+  builder.pageState.addListener(function (url, loading) {
     jQuery('#record-url-display').attr('href', url).text(url);
   });
   

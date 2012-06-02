@@ -32,11 +32,11 @@ builder.selenium1.playback.handler.registerAll(builder.selenium1.playback.seleni
 
 // When we detect that the page has stop loading, tell the browser bot so we can stop waiting
 // for the load and play the next step.
-builder.storage.addChangeListener('pageloading', function (val) {
+builder.pageState.addListener(function (url, loading) {
   // The page has stopped loading, but for safety's sake, we now wait for a sequence of events to
   // happen that ensures the page is fully loaded before proceeding.
   // Code partly adapted from http://github.com/mozautomation/mozmill/blob/master/mozmill/mozmill/extension/resource/modules/init.js
-  if (!val) {
+  if (!loading) {
     window.bridge.getRecordingWindow().document.addEventListener("DOMContentLoaded", function() {
         window.bridge.getRecordingWindow().content.addEventListener("load", function() {
           // Now we just wait for 300 ms to hopefully allow any javascript that was waiting on

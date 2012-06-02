@@ -11,11 +11,11 @@ builder.registerPostLoadHook(function () {
   jQuery('#startup-start-recording-sel2').submit(function() {
     builder.record.startRecording(jQuery('#startup-url').val(), builder.selenium2);
   });
-  
-  // Populate the input field for the URL to record from.
-  builder.storage.addChangeListener('currenturl', function (v) {
-    jQuery('#startup-url').val(v);
-  });
+});
+
+// Populate the input field for the URL to record from.
+builder.pageState.addListener(function (url, loading) {
+  jQuery('#startup-url').val(url);
 });
 
 builder.views.startup.show = function() {

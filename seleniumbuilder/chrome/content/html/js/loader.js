@@ -51,11 +51,11 @@ builder.loader.loadScripts(
   // Load Se Builder
   "builder/utils.js",
   "builder/io.js",
-  "builder/storage.js",
+  "builder/url.js",
   "builder/script.js",
   "builder/loadlistener.js",
   "builder/verifyexplorer.js",
-  "builder/listeners.js",
+  "builder/pagestate.js",
   "builder/gui.js",
   "builder/gui/menu.js",
   "builder/gui/suite.js",

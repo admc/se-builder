@@ -16,7 +16,7 @@ builder.gui.switchView = function(newView) {
 builder.registerPostLoadHook(function() {
   // Set the initial value of currenturl - this is necessary so that the startup-url field is
   // populated.
-  builder.storage.set('currenturl', window.bridge.getRecordingWindow().document.location.toString());
+  builder.pageState.setCurrentUrl(window.bridge.getRecordingWindow().document.location.toString());
 });
 
 // There is a bug in Firefox ( https://bugzilla.mozilla.org/show_bug.cgi?id=531199 ) that causes

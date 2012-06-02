@@ -69,9 +69,9 @@ builder.record.stop = function() {
   jQuery('#record-panel').hide();
   builder.record.recorder.destroy();
   builder.record.recorder = null;
-  builder.storage.removeChangeListener('pageloading', builder.record.pageLoadListener);
+  builder.pageState.removeListener(builder.record.pageLoadListener);
   if (builder.record.selenium1WaitsListener) {
-    builder.storage.removeChangeListener('pageloading', builder.record.selenium1WaitsListener);
+    builder.pageState.removeListener(builder.record.selenium1WaitsListener);
     builder.record.selenium1WaitsListener = null;
   }
   builder.record.recording = false;
@@ -88,7 +88,7 @@ builder.record.continueRecording = function() {
   builder.record.recording = true;
   
   var isLoading = false;
-  builder.record.pageLoadListener = function(pageloading) {
+  builder.record.pageLoadListener = function(url, pageloading) {
     if (pageloading) {
       isLoading = true;
       jQuery('#heading-record').addClass('is-on');
@@ -121,11 +121,11 @@ builder.record.continueRecording = function() {
       isLoading = false;
     }
   };
-  builder.storage.addChangeListener('pageloading', builder.record.pageLoadListener);
+  builder.pageState.addListener(builder.record.pageLoadListener);
   
   if (builder.getScript().seleniumVersion == builder.selenium1) {
     builder.record.selenium1WaitsListenerNoticedLoading = false;
-    builder.record.selenium1WaitsListener = function(pageloading) {
+    builder.record.selenium1WaitsListener = function(url, pageloading) {
       if (pageloading && !builder.record.selenium1WaitsListenerNoticedLoading) {
         builder.record.selenium1WaitsListenerNoticedLoading = true;
         return;
@@ -137,7 +137,7 @@ builder.record.continueRecording = function() {
       }
     };
     
-    builder.storage.addChangeListener('pageloading', builder.record.selenium1WaitsListener);
+    builder.pageState.addListener(builder.record.selenium1WaitsListener);
   }
 };
 
@@ -155,13 +155,13 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
   }
   // Delete cookies for given URL.
   deleteURLCookies(url.href());
-  builder.storage.set('baseurl', url.server());
-
+  
   // Now load the page - both to ensure we're on the right page when we start recording
   // and to ensure that we get a clean page free of cookie influence.
   // Don't show the record interface until the new page has loaded.
   var isLoading = false;
-  builder.record.pageLoadListener = function(pageloading) {
+  builder.record.pageLoadListener = function(urlText, pageloading) {
+    var url = new builder.Url(urlText);
     if (pageloading) {
       isLoading = true;
       jQuery('#heading-record').addClass('is-on');
@@ -178,12 +178,12 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
           builder.getScript().addStep(new builder.Step(builder.selenium2.stepTypes.get, url.href()));
         }
         builder.stepdisplay.update();
-        builder.storage.removeChangeListener('pageloading', builder.record.pageLoadListener);
+        builder.pageState.removeListener(builder.record.pageLoadListener);
         builder.record.continueRecording();
       }
       isLoading = false;
     }
   };
-  builder.storage.addChangeListener('pageloading', builder.record.pageLoadListener);
+  builder.pageState.addListener(builder.record.pageLoadListener);
   window.bridge.getRecordingWindow().location = url.href();
 };

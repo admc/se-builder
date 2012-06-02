@@ -1,3 +1,45 @@
+/**
+ * Listeners for keeping track of which page we're on and whether we're loading.
+*/
+
+builder.pageState = {};
+
+builder.pageState.currentUrl = null;
+builder.pageState.pageLoading = false;
+builder.pageState.listeners = [];
+
+builder.pageState.setCurrentUrl = function(currentUrl) {
+  builder.pageState.currentUrl = currentUrl;
+  builder.pageState.broadcastChange();
+};
+
+builder.pageState.setPageLoading = function(pageLoading) {
+  builder.pageState.pageLoading = pageLoading;
+  builder.pageState.broadcastChange();
+};
+
+builder.pageState.set = function(currentUrl, pageLoading) {
+  builder.pageState.currentUrl = currentUrl;
+  builder.pageState.pageLoading = pageLoading;
+  builder.pageState.broadcastChange();
+};
+
+builder.pageState.broadcastChange = function() {
+  for (var i = 0; i < builder.pageState.listeners.length; i++) {
+    builder.pageState.listeners[i](builder.pageState.currentUrl, builder.pageState.pageLoading);
+  }
+};
+
+builder.pageState.addListener = function(l) {
+  builder.pageState.listeners.push(l);
+};
+
+builder.pageState.removeListener = function(l) {
+  if (builder.pageState.listeners.indexOf(l) != -1) {
+    builder.pageState.listeners.splice(builder.pageState.listeners.indexOf(l), 1);
+  }
+};
+
 builder.registerPostLoadHook(function() {
   // Attach a listener to the recorder tab that tells us when the page is being loaded. This
   // allows for waitForPageToLoad events to be generated, for recorders to be attached to
@@ -6,11 +48,10 @@ builder.registerPostLoadHook(function() {
       /* root window */ window.bridge.getRecordingWindow(),
       /* window */ window.bridge.getRecordingWindow(),
       /* load */ function(url) {
-        builder.storage.set('currenturl', url);
-        builder.storage.set('pageloading', false);
+        builder.pageState.set(url, false);
       },
       /* unload */ function() {
-        builder.storage.set('pageloading', true);
+        builder.pageState.setPageLoading(true);
       }
   );
 });
