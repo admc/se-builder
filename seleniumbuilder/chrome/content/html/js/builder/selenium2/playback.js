@@ -38,6 +38,8 @@ builder.selenium2.playback.maxImplicitWaitCycles = 10000 / builder.selenium2.pla
 builder.selenium2.playback.implicitWaitCycle = 0;
 /** The implicit wait timeout. */
 builder.selenium2.playback.implicitWaitTimeout = null;
+/** The session start timeout. */
+builder.selenium2.playback.sessionStartTimeout = null;
 
 builder.selenium2.playback.stopTest = function() {
   builder.selenium2.playback.stopRequest = true;
@@ -83,9 +85,9 @@ builder.selenium2.playback.startSession = function() {
   // In order to communicate to webdriver which window we want, we need to uniquely identify the
   // window. The best way to do this I've found is to look for it by title. qqDPS
   var title_identifier = "--" + new Date().getTime();
-  window.bridge.getRecordingWindow().document.title += title_identifier;
+  window.bridge.getRecordingWindow().document.title = title_identifier;
 
-  setTimeout(function() {
+  builder.selenium2.playback.sessionStartTimeout = function() {
     var newSessionCommand = {
       'name': 'newSession',
       'context': '',
@@ -94,10 +96,17 @@ builder.selenium2.playback.startSession = function() {
       }
     };
     builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+      if (JSON.parse(result).value === "NOT FOUND") {
+        window.bridge.getRecordingWindow().document.title = title_identifier;
+        window.setTimeout(builder.selenium2.playback.sessionStartTimeout, 1000);
+        return;
+      }
       builder.selenium2.playback.sessionId = JSON.parse(result).value;
       builder.selenium2.playback.playStep();
     });
-  }, 100);
+  };
+  
+  window.setTimeout(builder.selenium2.playback.sessionStartTimeout, 100);
 };
 
 builder.selenium2.playback.wait = function(testFunction) {
@@ -222,7 +231,6 @@ builder.selenium2.playback.param = function(pName) {
     }
   }
 
-  //return pName.startsWith("locator") ? {"type": builder.selenium2.playback.currentStep[pName].type, "value": output} : output;
   return builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
     ? {"type": builder.selenium2.playback.currentStep[pName].getName(builder.selenium2), "value": output} : output;
 };
