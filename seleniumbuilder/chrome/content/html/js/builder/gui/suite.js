@@ -95,6 +95,7 @@ builder.registerPostLoadHook(function() {
       // builder.suite.
       builder.suite.addScript(script);
       builder.gui.menu.updateRunSuiteOnRC();
+      builder.stepdisplay.update();
     }
   });
   

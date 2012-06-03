@@ -10,17 +10,17 @@ builder.dialogs.exportscript.dialog = null;
 
 builder.dialogs.exportscript.show = function(node) {
   builder.dialogs.exportscript.node = node;
-  builder.dialogs.exportscript.dialog = newNode('div', {class: 'dialog'});
+  builder.dialogs.exportscript.dialog = newNode('div', {'class': 'dialog'});
   jQuery(node).append(builder.dialogs.exportscript.dialog);
   
   var format_list = newNode('ul');
   
   var cancel_b = newNode('a', 'Cancel', {
-    class: 'button',
-    click: function () {
+    'class': 'button',
+    'click': function () {
       builder.dialogs.exportscript.hide();
     },
-    href: '#cancel'
+    'href': '#cancel'
   });
   
   jQuery(builder.dialogs.exportscript.dialog).
@@ -30,12 +30,12 @@ builder.dialogs.exportscript.show = function(node) {
   
   // Option to overwrite the already-saved file.
   if (builder.getScript().path &&
-      builder.getScript().path.where == "local")
+      builder.getScript().path.where === "local")
   {
     jQuery(format_list).append(create_overwrite_li());
   }
   
-  if (builder.getScript().seleniumVersion == builder.selenium2) {
+  if (builder.getScript().seleniumVersion === builder.selenium2) {
     for (var i = 0; i < builder.selenium2.io.formats.length; i++) {
       jQuery(format_list).append(create_sel2_format_li(builder.selenium2.io.formats[i]));
     }
@@ -99,7 +99,7 @@ function create_sel1_format_li(myFormat) {
   var li_node = newNode('li',
     newNode('a', myFormat.name, {
       click: function(event) {
-        if (myFormat.name == "HTML") {
+        if (myFormat.name === "HTML") {
           builder.dialogs.exportscript.do_export_sel1(myFormat);
         } else {
           builder.dialogs.rc.show(builder.dialogs.exportscript.node, null, function(hostPort, browserString) {
@@ -111,18 +111,18 @@ function create_sel1_format_li(myFormat) {
     })
   );
   return li_node;
-};
+}
 
 function create_sel2_format_li(myFormat) {
   var script = builder.getScript();
-  if (script.seleniumVersion == builder.selenium1) {
+  if (script.seleniumVersion === builder.selenium1) {
     script = builder.versionconverter.convertScript(script, builder.selenium2);
   }
   var nonExportables = myFormat.nonExportables(script);
   if (nonExportables.length > 0) {
     var l = "";
     for (var i = 0; i < nonExportables.length; i++) {
-      if (i != 0) { l += ", "; }
+      if (i !== 0) { l += ", "; }
       l += nonExportables[i];
     }
     return newNode('li', "Cannot export as " + myFormat.name + ". The following steps are not supported: " + l + ".");
@@ -141,7 +141,7 @@ function create_sel2_format_li(myFormat) {
     })
   );
   return li_node;
-};
+}
 
 /** Creates a li node for overwriting the existing file. */
 function create_overwrite_li() {
@@ -149,8 +149,8 @@ function create_overwrite_li() {
   var path = script.path;
   return newNode('li', newNode('a', "Save as " + path.format.name + " to " + path.path, {
     click: function(event) {
-      if (builder.getScript().seleniumVersion == builder.selenium1) {
-        if (builder.selenium2.io.formats.indexOf(path.format) != -1) {
+      if (builder.getScript().seleniumVersion === builder.selenium1) {
+        if (builder.selenium2.io.formats.indexOf(path.format) !== -1) {
           script = builder.versionconverter.convertScript(script, builder.selenium2);
         } else {
           var file = builder.selenium1.adapter.exportScriptWithFormatToPath(
@@ -163,7 +163,7 @@ function create_overwrite_li() {
           }
         }
       }
-      if (script.seleniumVersion == builder.selenium2) {
+      if (script.seleniumVersion === builder.selenium2) {
         if (builder.selenium2.io.saveScript(script, path.format, path.path)) {
           builder.suite.setCurrentScriptSaveRequired(false);
           builder.gui.suite.update();

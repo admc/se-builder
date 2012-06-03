@@ -12,6 +12,7 @@ builder.dialogs.runall.scriptNames = [];
 
 builder.dialogs.runall.info_p = null;
 builder.dialogs.runall.scriptlist = null;
+builder.dialogs.runall.stop_b = null;
 builder.dialogs.runall.close_b = null;
 
 builder.dialogs.runall.rc = false;
@@ -32,10 +33,16 @@ builder.dialogs.runall.runLocally = function(node) {
   builder.dialogs.runall.run();
 };
 
+function makeViewResultLink(sid) {
+  return newNode('a', {'class':"step-view", id:sid + "-view", style:"display: none", click: function(e) {
+    window.bridge.getRecordingWindow().location = this.href;
+    // We don't actually want the SB window to navigate to the script's page!
+    e.preventDefault();
+  }}, 'View Result');
+}
+
 builder.dialogs.runall.run = function() {
   jQuery('#edit-suite-editing').hide();
-  jQuery('#edit-suite-stopping').hide();
-  jQuery('#edit-suite-playing').show();
   builder.dialogs.runall.requestStop = false;
   
   builder.dialogs.runall.scriptNames = builder.suite.getScriptNames();
@@ -50,34 +57,40 @@ builder.dialogs.runall.run = function() {
     var sid = 'script-num-' + i;
 
     builder.dialogs.runall.scriptlist.appendChild(
-      newNode('div', {id: sid, class: 'b-suite-playback-script'},
+      newNode('div', {id: sid, 'class': 'b-suite-playback-script'},
         newNode('div',
           newNode('span', {}, name),
-          newNode('a', {class:"step-view", id:sid + "-view", style:"display: none", click: function(e) {
-            window.bridge.getRecordingWindow().location = this.href;
-            // We don't actually want the SB window to navigate to the script's page!
-            e.preventDefault();
-          }}, 'View Result')
+          makeViewResultLink(sid)
         ),
-        newNode('div', {class:"step-error", id:sid + "-error", style:"display: none"})
+        newNode('div', {'class':"step-error", id:sid + "-error", style:"display: none"})
       )
     );
   }
   
+  builder.dialogs.runall.stop_b = newNode('a', 'Stop', {
+    'class': 'button',
+    click: function () {
+      builder.dialogs.runall.stoprun();
+    },
+    href: '#stop'
+  });
+  
   builder.dialogs.runall.close_b = newNode('a', 'Close', {
-    class: 'button',
-    style: 'display: none',
+    'class': 'button',
     click: function () {
       jQuery(builder.dialogs.runall.dialog).remove();
     },
     href: '#close'
   });
   
-  builder.dialogs.runall.dialog = newNode('div', {class: 'dialog'});
+  builder.dialogs.runall.dialog = newNode('div', {'class': 'dialog'});
   jQuery(builder.dialogs.runall.dialog)
     .append(builder.dialogs.runall.info_p)
     .append(builder.dialogs.runall.scriptlist)
-    .append(newNode('p', builder.dialogs.runall.close_b));
+    .append(newNode('p',
+      newNode('span', {id: 'suite-playback-stop'}, builder.dialogs.runall.stop_b),
+      newNode('span', {id: 'suite-playback-close', style: 'display: none;'}, builder.dialogs.runall.close_b)
+    ));
     
   jQuery(builder.dialogs.runall.node).append(builder.dialogs.runall.dialog);
   
@@ -91,8 +104,7 @@ builder.dialogs.runall.run = function() {
 
 builder.dialogs.runall.stoprun = function() {
   builder.dialogs.runall.requestStop = true;
-  jQuery('#edit-suite-playing').hide();
-  jQuery('#edit-suite-stopping').show();
+  jQuery('#suite-playback-stop').hide();
   try {
     builder.dialogs.runall.currentPlayback.stopTest();
   } catch (e) {
@@ -129,17 +141,17 @@ builder.dialogs.runall.runNextRC = function() {
   {
     jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex).css('background-color', '#ffffaa');
     builder.suite.switchToScript(builder.dialogs.runall.currentScriptIndex);
+    builder.stepdisplay.update();
     builder.dialogs.runall.currentPlayback = builder.getScript().seleniumVersion.rcPlayback;
     builder.dialogs.runall.currentPlayback.run(
       builder.dialogs.runall.hostPort,
       builder.dialogs.runall.browserString,
       builder.dialogs.runall.processRCResult);
   } else {
-    jQuery(builder.dialogs.runall.close_b).show();
+    jQuery('#suite-playback-stop').hide();
+    jQuery('#suite-playback-close').show();
     jQuery(builder.dialogs.runall.info_p).html("Done!");
     jQuery('#edit-suite-editing').show();
-    jQuery('#edit-suite-stopping').hide();
-    jQuery('#edit-suite-playing').hide();
   }
 };
 
@@ -156,14 +168,14 @@ builder.dialogs.runall.runNextLocal = function() {
   {
     jQuery("#script-num-" + builder.dialogs.runall.currentScriptIndex).css('background-color', '#ffffaa');
     builder.suite.switchToScript(builder.dialogs.runall.currentScriptIndex);
+    builder.stepdisplay.update();
     builder.dialogs.runall.currentPlayback = builder.getScript().seleniumVersion.playback;
     builder.dialogs.runall.currentPlayback.runTest(builder.dialogs.runall.processLocalResult);
   } else {
-    jQuery(builder.dialogs.runall.close_b).show();
+    jQuery('#suite-playback-stop').hide();
+    jQuery('#suite-playback-close').show();
     jQuery(builder.dialogs.runall.info_p).html("Done!");
     jQuery('#edit-suite-editing').show();
-    jQuery('#edit-suite-stopping').hide();
-    jQuery('#edit-suite-playing').hide();
   }
 };
 
