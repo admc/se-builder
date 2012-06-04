@@ -1,8 +1,10 @@
+/** Suite GUI code, mostly for managing the suite menu. */
 builder.gui.suite = {};
 
+/** Creates a menu entry for switching to a script. */
 builder.gui.suite.create_script_li = function(name, index, isSelected) {
   if (isSelected) {
-    return newNode('li', { class: 'currentScript' },
+    return newNode('li', { 'class': 'currentScript' },
       newNode('a', {
           id: 'suite-script-' + index,
           href: '#suite-script-' + index,
@@ -16,6 +18,7 @@ builder.gui.suite.create_script_li = function(name, index, isSelected) {
           id: 'suite-script-' + index,
           href: '#suite-script-' + index,
           click: function() {
+            builder.record.stopAll();
             builder.suite.switchToScript(index);
             builder.stepdisplay.update();
           }
@@ -25,17 +28,10 @@ builder.gui.suite.create_script_li = function(name, index, isSelected) {
   }
 };
 
-builder.gui.suite.showButtons = function() {
-  jQuery('#edit-suite-buttons').show();
-};
-
-builder.gui.suite.hideButtons = function() {
-  jQuery('#edit-suite-buttons').hide();
-};
-
+/** Updates display of the suite menu. */
 builder.gui.suite.update = function() {
   if (builder.suite.getNumberOfScripts() > 1) {
-    jQuery('#suite-panel, #multiscript-0, #multiscript-1, #multiscript-2').show();
+    jQuery('#suite-panel, .suite-menu-item').show();
     jQuery('#script-discard-li').hide();
     
     jQuery('#scriptlist').html('');
@@ -43,7 +39,7 @@ builder.gui.suite.update = function() {
     var selectedScriptIndex = builder.suite.getSelectedScriptIndex();
     for (var i = 0; i < scriptNames.length; i++) {
       jQuery('#scriptlist').append(builder.gui.suite.create_script_li(scriptNames[i], i,
-          i == selectedScriptIndex));
+          i === selectedScriptIndex));
     }
     
     if (builder.suite.path) {
@@ -52,42 +48,46 @@ builder.gui.suite.update = function() {
       jQuery('#suite-save-as').hide();
     }
   } else {
-    jQuery('#suite-panel, #multiscript-0, #multiscript-1, #multiscript-2').hide();
+    jQuery('#suite-panel, .suite-menu-item').hide();
     jQuery('#script-discard-li').show();
   }
 };
 
+/** @return Whether the suite can be exported. */
 builder.gui.suite.canExport = function() {
   return builder.gui.suite.allSelenium1() && builder.gui.suite.allSavedAsHTML();
 };
 
+/** @return Whether all scripts have been saved in HTML format. */
 builder.gui.suite.allSavedAsHTML = function() {
   for (var i = 0; i < builder.suite.scripts.length; i++) {
     if (!builder.suite.scripts[i].path) { return false; }
-    if (builder.suite.scripts[i].path.format.name != "HTML") { return false; }
+    if (builder.suite.scripts[i].path.format.name !== "HTML") { return false; }
   }
   return true;
 };
 
+/** @return Whether all scripts are Selenium 1. */
 builder.gui.suite.allSelenium1 = function() {
   for (var i = 0; i < builder.suite.scripts.length; i++) {
-    if (builder.suite.scripts[i].seleniumVersion != builder.selenium1) { return false; }
+    if (builder.suite.scripts[i].seleniumVersion !== builder.selenium1) { return false; }
   }
   return true;
 };
 
+// Setup menus.
 builder.registerPostLoadHook(function() {
-  jQuery('#edit-suite-stop-playback').click(function() {
-    builder.dialogs.runall.stoprun();
-  });
-  
+  // Remove script from suite.
   jQuery('#suite-removescript').click(function() {
+    builder.record.stopAll();
     builder.suite.removeScript(builder.suite.getSelectedScriptIndex());
     builder.gui.menu.updateRunSuiteOnRC();
     builder.stepdisplay.update();
   });
   
+  // Add script from file.
   jQuery('#suite-addscript').click(function() {
+    builder.record.stopAll();
     var script = builder.io.loadNewScriptForSuite();
     if (script) {
       // Save the current script and unselect it to make sure that when we overwrite its
@@ -99,15 +99,22 @@ builder.registerPostLoadHook(function() {
     }
   });
   
+  
+  // Record new script.
   jQuery('#suite-recordscript').click(function() {
+    builder.record.stopAll();
     builder.dialogs.record.show(jQuery('#dialog-attachment-point'));
   });
   
+  // Play suite on RC.
   jQuery('#run-suite-onrc').bind('click', function () {
+    builder.record.stopAll();
     builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ true);
   });
   
+  // Play suite locally.
   jQuery('#run-suite-locally').bind('click', function () {
+    builder.record.stopAll();
     builder.dialogs.runall.runLocally(jQuery("#dialog-attachment-point"));
   });
 
@@ -118,18 +125,20 @@ builder.registerPostLoadHook(function() {
       if (!builder.suite.getSaveRequired() ||
           confirm("If you continue, you will lose all your recent changes."))
       {
+        builder.record.stopAll();
         builder.gui.switchView(builder.views.startup);
         builder.suite.clearSuite();
-        jQuery('#steps').html('');
         // Clear any error messages.
         jQuery('#error-panel').hide();
       }
     }
   );
   
+  // Save the suite as a Selenium 1 HTML file.
   jQuery('#suite-save').click(
     function() {
       if (builder.gui.suite.canExport()) {
+        builder.record.stopAll();
         var path = builder.selenium1.adapter.exportSuite(builder.suite.scripts, builder.suite.path);
         if (path) {
           builder.suite.path = path;
@@ -161,6 +170,7 @@ builder.registerPostLoadHook(function() {
     }
   );
   
+  // Depending on what the state of the scripts is, different options are available.
   builder.suite.addScriptChangeListener(function() {
     jQuery('#edit-suite-path').html("Suite: " + (builder.suite.path ? builder.suite.path : '[Untitled Suite]'));
     if (builder.suite.getSuiteSaveRequired()) {

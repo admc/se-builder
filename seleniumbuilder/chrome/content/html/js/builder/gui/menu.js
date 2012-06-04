@@ -29,12 +29,14 @@ builder.registerPostLoadHook(function() {
   // Export button: allows user to export script using Selenium IDE's formatting code.
   jQuery('#script-export').click(
     function() {
+      builder.record.stopAll();
       builder.dialogs.exportscript.show(jQuery("#dialog-attachment-point"));
     }
   );
   // Convert button
   jQuery('#script-convert').click(
     function() {
+      builder.record.stopAll();
       builder.dialogs.convert.show(jQuery("#dialog-attachment-point"));
     }
   );
@@ -45,6 +47,7 @@ builder.registerPostLoadHook(function() {
       if (!builder.getScript().saveRequired ||
           confirm("If you continue, you will lose all your recent changes."))
       {
+        builder.record.stopAll();
         builder.gui.switchView(builder.views.startup);
         builder.suite.clearSuite();        
         // Clear any error messages.
@@ -54,6 +57,7 @@ builder.registerPostLoadHook(function() {
   );
   // Record button: Record more of the script
   jQuery('#record').click(function () {
+    builder.record.stopAll();
     builder.record.continueRecording();
   });
   // Play button: Play back the script in this browser

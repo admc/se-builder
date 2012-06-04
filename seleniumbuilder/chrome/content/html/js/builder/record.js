@@ -9,6 +9,15 @@ builder.record.pageLoadListener = null;
 builder.record.selenium1WaitsListener = null;
 builder.record.selenium1WaitsListenerNoticedLoading = false;
 
+builder.record.stopAll = function() {
+  if (builder.record.recording) {
+    builder.record.stop();
+  }
+  if (builder.record.verifyExploring) {
+    builder.record.stopVerifyExploring();
+  }
+};
+
 builder.record.verifyExplore = function() {
   builder.record.verifyExploring = true;
   builder.record.stop();
