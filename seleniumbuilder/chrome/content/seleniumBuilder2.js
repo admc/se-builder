@@ -47,9 +47,9 @@ bridge.shutdown = function() {
     bridge.recordingTab.style.setProperty("background-color", null, null);
   }
   if (bridge.recorderWindow) {
-    recorderWindow.close();
+    bridge.recorderWindow.close();
   }
-  recorderWindow = null;
+  bridge.recorderWindow = null;
 };
 
 /**
@@ -84,6 +84,12 @@ bridge.setRcBrowserString = function(browserstring) {
 };
 
 bridge.boot = function() {
+  // If we've already booted just put the GUI into the foreground.
+  if (bridge.recorderWindow) {
+    bridge.recorderWindow.focus();
+    return;
+  }
+  
   // Save the tab the user has currently open: it's the one we'll record from.
   bridge.recordingTab = getBrowser().mCurrentTab;
 
