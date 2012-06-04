@@ -91,9 +91,7 @@ builder.record.continueRecording = function() {
   builder.record.pageLoadListener = function(url, pageloading) {
     if (pageloading) {
       isLoading = true;
-      jQuery('#heading-record').addClass('is-on');
     } else {
-      jQuery('#heading-record').removeClass('is-on');
       if (isLoading) {
         builder.record.recorder.destroy();
         var script = builder.getScript();
