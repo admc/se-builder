@@ -1,3 +1,4 @@
+/** Code for recording steps. */
 builder.record = {};
 
 builder.record.verifyExploring = false;
@@ -9,6 +10,7 @@ builder.record.pageLoadListener = null;
 builder.record.selenium1WaitsListener = null;
 builder.record.selenium1WaitsListenerNoticedLoading = false;
 
+/** Stop recorder or verify explorer currently running. */
 builder.record.stopAll = function() {
   if (builder.record.recording) {
     builder.record.stop();
@@ -18,6 +20,7 @@ builder.record.stopAll = function() {
   }
 };
 
+/** Allows user to select a text whose presence should be verified. */
 builder.record.verifyExplore = function() {
   builder.record.verifyExploring = true;
   builder.record.stop();
@@ -66,7 +69,7 @@ function deleteURLCookies(url) {
 /** Whether a ends with b. */
 function endsWith(a, b) {
   if (a.length < b.length) { return false; }
-  return a.substring(a.length - b.length) == b;
+  return a.substring(a.length - b.length) === b;
 }
 
 builder.record.recordStep = function(step) {
@@ -88,11 +91,8 @@ builder.record.stop = function() {
 
 builder.record.continueRecording = function() {
   jQuery('#record-panel').show();
-  if (builder.getScript().seleniumVersion == builder.selenium1) {
-    builder.record.recorder = new builder.selenium1.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
-  } else {
-    builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
-  }
+  
+  builder.record.recorder = builder.getScript().seleniumVersion.getRecorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
   
   builder.record.recording = true;
   
@@ -104,33 +104,22 @@ builder.record.continueRecording = function() {
       if (isLoading) {
         builder.record.recorder.destroy();
         var script = builder.getScript();
-        if (builder.getScript().seleniumVersion == builder.selenium1) {
-          // If we've navigated to this location manually, the URL has not yet been set, so we do
-          // this now.
-          var ls = script.getLastStep();
-          if (ls && ls.type == builder.selenium1.stepTypes.open && (ls.url || "") == "") {
-            ls.url = window.bridge.getRecordingWindow().location + "";
-            builder.stepdisplay.update();
-          }
-          
-          builder.record.recorder = new builder.selenium1.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
-        } else {
-          // If we've navigated to this location manually, the URL has not yet been set, so we do
-          // this now.
-          var ls = script.getLastStep();
-          if (ls && ls.type == builder.selenium2.stepTypes.get && (ls.url || "") == "") {
-            ls.url = window.bridge.getRecordingWindow().location + "";
-            builder.stepdisplay.update();
-          }
-          builder.record.recorder = new builder.selenium2.Recorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
+        // If we've navigated to this location manually, the URL has not yet been set, so we do
+        // this now.
+        var ls = script.getLastStep();
+        if (ls && (ls.type === script.seleniumVersion.navigateToUrlStepType) && (ls.url || "") === "") {
+          ls.url = window.bridge.getRecordingWindow().location + "";
+          builder.stepdisplay.update();
         }
+      
+        builder.record.recorder = script.seleniumVersion.getRecorder(window.bridge.getRecordingWindow(), builder.record.recordStep);
       }
       isLoading = false;
     }
   };
   builder.pageState.addListener(builder.record.pageLoadListener);
   
-  if (builder.getScript().seleniumVersion == builder.selenium1) {
+  if (builder.getScript().seleniumVersion === builder.selenium1) {
     builder.record.selenium1WaitsListenerNoticedLoading = false;
     builder.record.selenium1WaitsListener = function(url, pageloading) {
       if (pageloading && !builder.record.selenium1WaitsListenerNoticedLoading) {
@@ -150,12 +139,12 @@ builder.record.continueRecording = function() {
 
 builder.record.startRecording = function(urlText, seleniumVersion) {
   var anchorIndex = urlText.indexOf('#');
-  if (anchorIndex != -1) {
+  if (anchorIndex !== -1) {
     urlText = urlText.substring(0, anchorIndex);
   }
   var url = new builder.Url(urlText);
 
-  if (!url.hostname() || urlText.substring(0, 6) == 'about:') {
+  if (!url.hostname() || urlText.substring(0, 6) === 'about:') {
     alert("The URL is not valid and cannot be loaded.");
     jQuery("#startup-url").focus();
     return;
@@ -178,7 +167,7 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
         builder.record.recording = true;    
         builder.gui.switchView(builder.views.script);
         builder.suite.addScript(new builder.Script(seleniumVersion));
-        if (seleniumVersion == builder.selenium1) {
+        if (seleniumVersion === builder.selenium1) {
           builder.getScript().addStep(new builder.Step(builder.selenium1.stepTypes.open, url.href()));
           builder.record.recordStep(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, "60000"));
         } else {

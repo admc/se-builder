@@ -549,3 +549,7 @@ builder.selenium2.Recorder.prototype = {
     this.unbind_browser(window.bridge.getBrowser());
   }
 };
+
+builder.selenium2.getRecorder = function(recordingWindow, recordStep) {
+  return new builder.selenium2.Recorder(recordingWindow, recordStep);
+};

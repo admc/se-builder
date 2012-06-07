@@ -110,6 +110,7 @@ for (var n in builder.selenium2.__stepData) {
 }
 
 builder.selenium2.defaultStepType = builder.selenium2.stepTypes.clickElement;
+builder.selenium2.navigateToUrlStepType = builder.selenium2.stepTypes.get;
 
 /** List of categories. */
 builder.selenium2.categories = [

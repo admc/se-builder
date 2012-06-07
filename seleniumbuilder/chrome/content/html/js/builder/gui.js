@@ -6,7 +6,7 @@ builder.views = {};
 builder.gui.currentView = null;
 
 builder.gui.switchView = function(newView) {
-  if (builder.gui.currentView != null) {
+  if (builder.gui.currentView !== null) {
     builder.gui.currentView.hide();
   }
   builder.gui.currentView = newView;
@@ -32,7 +32,7 @@ window.onbeforeunload = function() {
     window.setTimeout(function() { builder.gui.preventDoubleQuestion = false; }, 2000);
     return "Any unsaved changes will be lost!";
   }
-}
+};
 
 // If the recorder window is closed, shut down builder.
 window.onunload = function() {

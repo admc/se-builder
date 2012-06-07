@@ -32,7 +32,7 @@ builder.locator.methods.xpath[builder.selenium2] = "xpath";
 
 builder.locator.methodForName = function(seleniumVersion, name) {
   for (var k in builder.locator.methods) {
-    if (builder.locator.methods[k][seleniumVersion] == name) {
+    if (builder.locator.methods[k][seleniumVersion] === name) {
       return builder.locator.methods[k];
     }
   }
@@ -66,7 +66,7 @@ builder.locator.Locator.prototype = {
   getValueForMethod: function(method)    { return this.values[method] || ""; },
   /** @return Whether the given locator has the same preferred method with the same value. */
   probablyHasSameTarget: function(l2) {
-    return this.preferredMethod == l2.preferredMethod && this.getValue() == l2.getValue();
+    return this.preferredMethod === l2.preferredMethod && this.getValue() === l2.getValue();
   }
 };
 
@@ -87,7 +87,7 @@ builder.locator.fromElement = function(element) {
   if (id) {
     values[builder.locator.methods.id] = id;
     values[builder.locator.methods.css] = "#" + id;
-    if (findNode("id", id) == element) {
+    if (findNode("id", id) === element) {
       preferredMethod = builder.locator.methods.id;
     }
   }
@@ -96,19 +96,19 @@ builder.locator.fromElement = function(element) {
   var name = element.getAttribute('name');
   if (name) {
     values[builder.locator.methods.name] = name;
-    if (!preferredMethod && findNode("name", name) == element) {
+    if (!preferredMethod && findNode("name", name) === element) {
       preferredMethod = builder.locator.methods.name;
     }
   }
   
   // Locate by link text
-  if ((element.tagName.toUpperCase() == "A") ||
-      (element.parentNode.tagName && element.parentNode.tagName.toUpperCase() == "A")) 
+  if ((element.tagName.toUpperCase() === "A") ||
+      (element.parentNode.tagName && element.parentNode.tagName.toUpperCase() === "A")) 
   {
     var link = removeHTMLTags(element.innerHTML);
     if (link) {
       values[builder.locator.methods.link] = link;
-      if (!preferredMethod && findNode("link", link) == element) {
+      if (!preferredMethod && findNode("link", link) === element) {
         preferredMethod = builder.locator.methods.link;
       }
     }
@@ -119,7 +119,7 @@ builder.locator.fromElement = function(element) {
   if (xpath) {
     // Contrary to the XPath spec, Selenium requires the "//" at the start, even for paths that 
     // don't start at the root.
-    xpath = (xpath.substring(0, 2) != "//" ? ("/" + xpath) : xpath);
+    xpath = (xpath.substring(0, 2) !== "//" ? ("/" + xpath) : xpath);
     values[builder.locator.methods.xpath] = xpath;
     if (!preferredMethod) {
       preferredMethod = builder.locator.methods.xpath;
@@ -152,17 +152,17 @@ function getChildSelector(node) {
   var count = 1;
   var sibling = node.previousSibling;
   while (sibling) {
-    if (sibling.nodeType == ELEMENT_NODE_TYPE && sibling.nodeName == node.nodeName) {
+    if (sibling.nodeType === ELEMENT_NODE_TYPE && sibling.nodeName === node.nodeName) {
       count++;
     }
     sibling = sibling.previousSibling;
   }
-  if (count == 1) {
+  if (count === 1) {
     // This may be the only node of its name, which would make for simpler XPath.
     var onlyNode = true;
     sibling = node.nextSibling;
     while (sibling) {
-      if (sibling.nodeType == ELEMENT_NODE_TYPE && sibling.nodeName == node.nodeName) {
+      if (sibling.nodeType === ELEMENT_NODE_TYPE && sibling.nodeName === node.nodeName) {
         onlyNode = false;
         break;
       }
@@ -187,21 +187,21 @@ function getMyXPath(node, doc) {
   var nodeName = node.nodeName.toLowerCase();
 
   // If the node has an ID unique in the document, select by ID.
-  if (node.id && doc.getElementById(node.id) == node) {
+  if (node.id && doc.getElementById(node.id) === node) {
     return "//" + nodeName + "[@id='" + node.id + "']";
   }
 
   // If the node has a class unique in the document, select by class.
   var className = node.className;
   // The XPath syntax to match one class name out of many is atrocious.
-  if (className && className.indexOf(' ') == -1 &&
-      doc.getElementsByClassName(className).length == 1) 
+  if (className && className.indexOf(' ') === -1 &&
+      doc.getElementsByClassName(className).length === 1) 
   {
     return "//" + nodeName + "[@class='" + className + "']";
   }
 
   // If the node is a label for a field - whose ID we assume is unique, use that.
-  if (nodeName == "label" && node.hasAttribute('for')) {
+  if (nodeName === "label" && node.hasAttribute('for')) {
     return "//label[@for='" + node.getAttribute('for') + "']";
   }
 
@@ -209,8 +209,8 @@ function getMyXPath(node, doc) {
   // If the node is a "body" or "html" element, recursing further up leads to trouble -
   // so we give up and just return a child selector. Multiple bodies or htmls are the sign of
   // deeply disturbed HTML, so we can be OK with giving up at this point.
-  if (nodeName != "body" && nodeName != "html" && node.parentNode &&
-      node.parentNode.nodeName.toLowerCase() != "body") 
+  if (nodeName !== "body" && nodeName !== "html" && node.parentNode &&
+      node.parentNode.nodeName.toLowerCase() !== "body") 
   {
     return getMyXPath(node.parentNode, doc) + "/" + getChildSelector(node);
   } else {
@@ -226,7 +226,7 @@ function getHtmlXPath(node) {
   var nodeName = node.nodeName.toLowerCase();
   // If we're clicking on the raw "html" area, which is possible if we're clicking below the
   // body for some reason, just return the path to "html".
-  if (nodeName == "html") {
+  if (nodeName === "html") {
     return "//html";
   }
   var parent = getMyXPath(node.parentNode, window.bridge.getRecordingWindow().document);
@@ -253,7 +253,7 @@ function getHtmlXPath(node) {
         attempt = attempt + "[.='" + text + "']";
       }
       // Check this actually works. 
-      if (new MozillaBrowserBot(win).findElementBy("xpath", attempt, win.document, win) == node) {
+      if (new MozillaBrowserBot(win).findElementBy("xpath", attempt, win.document, win) === node) {
         return attempt;
       }
     }
@@ -278,7 +278,7 @@ function findNode(locatorType, locator) {
 /** Function from global.js in Windmill, licensed under Apache 2.0. */
 function removeHTMLTags(str){
   str = str.replace(/&(lt|gt);/g, function (strMatch, p1) {
-    return (p1 == "lt") ? "<" : ">";
+    return (p1 === "lt") ? "<" : ">";
   });
   var strTagStrippedText = str.replace(/<\/?[^>]+(>|$)/g, "");
   strTagStrippedText = strTagStrippedText.replace(/&nbsp;/g,"");

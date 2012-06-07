@@ -35,7 +35,7 @@ builder.pageState.addListener = function(l) {
 };
 
 builder.pageState.removeListener = function(l) {
-  if (builder.pageState.listeners.indexOf(l) != -1) {
+  if (builder.pageState.listeners.indexOf(l) !== -1) {
     builder.pageState.listeners.splice(builder.pageState.listeners.indexOf(l), 1);
   }
 };

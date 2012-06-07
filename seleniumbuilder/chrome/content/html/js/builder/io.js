@@ -2,7 +2,7 @@ builder.io = {};
 
 builder.io.loadFile = function(path) {
   var file = null;
-  if (path == null) {
+  if (path === null) {
     file = showFilePicker(window, "Select a File", 
                           Components.interfaces.nsIFilePicker.modeOpen,
                           Format.TEST_CASE_DIRECTORY_PREF,
@@ -18,7 +18,7 @@ builder.io.readFile = function(file) {
   var data = FileUtils.getUnicodeConverter('UTF-8').ConvertToUnicode(sis.read(sis.available()));
   sis.close();
   return data;
-}
+};
 
 /** Displays a dialog to load a script and add it to the current suite. */
 builder.io.loadNewScriptForSuite = function(path) {
@@ -39,7 +39,7 @@ builder.io.loadNewScriptForSuite = function(path) {
   
   alert("Unable to read file, sorry.");
   return null;
-}
+};
 
 /** Displays a dialog to load a file (a script or suite) and attempts to interpret it and load it in. */
 builder.io.loadUnknownFile = function(path) {

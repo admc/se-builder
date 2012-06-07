@@ -1,5 +1,6 @@
 /**
- * Listens for page loads/unloads. Call on window.bridge.getRecordingWindow() to listen on record window.
+ * Listens for page loads/unloads. Call on window.bridge.getRecordingWindow() to get the record
+ * window to listen on.
  */
 builder.loadlistener = {};
 
@@ -45,7 +46,7 @@ builder.loadlistener.detach = function(w) {
 builder.loadlistener.getUnloadListener = function(rootW, w, load_callback, unload_callback) {
   return function() {
     unload_callback();
-    if (w == rootW) {
+    if (w === rootW) {
       builder.loadlistener.executeAfterPageLoad(w, function() {
         load_callback(rootW.document.location.toString());
         builder.loadlistener.attach(rootW, w, load_callback, unload_callback);
