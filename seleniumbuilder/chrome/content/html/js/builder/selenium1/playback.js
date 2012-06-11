@@ -4,11 +4,10 @@
 
 builder.selenium1.playback = {};
 
-// qqDPS Stub
+/** We should be able to play back any kind Selenium 1 method. */
 builder.selenium1.playback.canPlayback = function(stepType) {
   return true;
 };
-
 
 /** The script being played back. */
 builder.selenium1.playback.script = null;
@@ -64,7 +63,7 @@ builder.selenium1.playback.record_result = function(result) {
   } else {
     jQuery('#' + builder.selenium1.playback.script[builder.selenium1.playback.step_index].id + '-content').css('background-color', '#bfee85');
   }
-  if (builder.selenium1.playback.step_index != builder.selenium1.playback.end_step_index &&
+  if (builder.selenium1.playback.step_index !== builder.selenium1.playback.end_step_index &&
       ++builder.selenium1.playback.step_index < builder.selenium1.playback.script.length &&
       !builder.selenium1.playback.stopRequest)
   {
@@ -139,6 +138,14 @@ builder.selenium1.playback.play_step = function(step) {
   
   // Highlight the step being executed.
   jQuery('#' + step.id + '-content').css('background-color', '#ffffaa');
+  
+  function makeLoadListener(win, browserbot) {
+    return function() {
+      if (win.name && !browserbot.openedWindows[win.name]) {
+        builder.selenium1.playback.browserbot.openedWindows[win.name] = win;
+      }
+    };
+  }
 
   function wait() {
     // Tell the browser bot to run a bunch of functions used to eg determine if the page
@@ -165,20 +172,16 @@ builder.selenium1.playback.play_step = function(step) {
           // This expression filters out the frames that aren't browser tabs.
           // I'm sure there's a better way to detect this, but this would require meaningful
           // documentation in Firefox! qqDPS
-          if ((w.frames[i] + "").indexOf("ChromeWindow") == -1) {
+          if ((w.frames[i] + "").indexOf("ChromeWindow") === -1) {
             var win = w.frames[i];
             builder.selenium1.playback.browserbot._modifyWindow(win);
             // FF 4 has rearchitected so that we can no longer successfully intercept open()
             // calls on windows. So instead, we manually look for new windows that have opened.
             // But doing so actually breaks under FF 3, so only do this on FF 4.
             // qqDPS TODO Use a nicer way to check for browser version.
-            if (navigator.userAgent.indexOf("Firefox/4") != -1 && !win.__selenium_builder_popup_listener_active) {
+            if (navigator.userAgent.indexOf("Firefox/4") !== -1 && !win.__selenium_builder_popup_listener_active) {
               win.__selenium_builder_popup_listener_active = true;
-              win.addEventListener("load", function() {
-                if (win.name && !browserbot.openedWindows[win.name]) {
-                  builder.selenium1.playback.browserbot.openedWindows[win.name] = win;
-                }
-              }, false);
+              win.addEventListener("load", makeLoadListener(win, builder.selenium1.playback.browserbot), false);
             }
           }
         }
@@ -240,7 +243,7 @@ builder.selenium1.playback.runtestbetween = function(start_step_id, end_step_id,
   
   if (start_step_id) {
     for (i = 0; i < script.length; i++) {
-      if (builder.selenium1.playback.script[i].id == start_step_id) {
+      if (builder.selenium1.playback.script[i].id === start_step_id) {
         builder.selenium1.playback.step_index = i;
       }
     }
@@ -248,7 +251,7 @@ builder.selenium1.playback.runtestbetween = function(start_step_id, end_step_id,
   
   if (end_step_id) {
     for (i = 0; i < script.length; i++) {
-      if (builder.selenium1.playback.script[i].id == end_step_id) {
+      if (builder.selenium1.playback.script[i].id === end_step_id) {
         builder.selenium1.playback.end_step_index = i;
       }
     }

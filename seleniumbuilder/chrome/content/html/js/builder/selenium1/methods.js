@@ -1,3 +1,13 @@
+// The structure of this registry is as follows:
+// The top-level list items are broad categories, like "action" or "assertion".
+// These contain a list of named categories, like "clicks" or "form fields", which in turn contain
+// the raw names of the methods. Since lots of methods have variants, such as click/clickAndWait,
+// the broad categories may contain a list of variants, which are functions that turn the raw names
+// into specific ones. For example, "isChecked" becomes "verifyChecked" and "assertChecked".
+// Some methods can also be negated. Negation is handled by the script code as a boolean flag, so
+// we don't generate negated variants, but we do need to know how to output the negated names of
+// methods for export purposes. This is done by the "negator" function in a broad category.
+
 builder.selenium1.__methodRegistry = [
   {
     name: 'action',
@@ -201,7 +211,7 @@ builder.selenium1.__methodRegistry = [
   {
     name: 'wait for condition',
     variants: [
-      function(n) { return n.replace(/^(is|get)/, 'waitFor'); },
+      function(n) { return n.replace(/^(is|get)/, 'waitFor'); }
     ],
     negator: function(n) {
       return (/Present/.test(n) ? n.replace("Present", "NotPresent").replace(/^(is|get)/, "waitFor") : n.replace(/^(is|get)/, 'waitForNot'));
@@ -271,7 +281,7 @@ builder.selenium1.__methodRegistry = [
   {
     name: 'store',
     variants: [
-      function(n) { return n.replace(/^(is|get)/, 'store'); },
+      function(n) { return n.replace(/^(is|get)/, 'store'); }
     ],
     categories: [
       // All added in the code below by deriving from assert's categories.

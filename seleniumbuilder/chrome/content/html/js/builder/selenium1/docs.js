@@ -1,3 +1,4 @@
+/** Loads and parses the Selenium 1 documentation. */
 builder.selenium1.docs = {};
 
 bridge.loadFile("chrome://seleniumbuilder/content/html/iedoc.xml",
@@ -26,13 +27,13 @@ function fakeCloneChildren(node) {
   for (var i = 0; i < node.childNodes.length; i++) {
     var child = node.childNodes[i];
 
-    if (child.nodeType == 3) {
+    if (child.nodeType === 3) {
       text = child.textContent.split("\n\n");
       for (var j = 0; j < text.length - 1; j++) {
         if (text[j]) { frag.appendChild(newFragment(text[j], newNode('br'))); }
       }
       frag.appendChild(newFragment(text[text.length - 1]));
-    } else if (child.nodeType == 1) {
+    } else if (child.nodeType === 1) {
       frag.appendChild(newNode(child.nodeName, fakeCloneChildren(child)));
     }
   }

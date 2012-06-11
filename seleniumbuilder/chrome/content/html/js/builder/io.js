@@ -2,7 +2,7 @@ builder.io = {};
 
 builder.io.loadFile = function(path) {
   var file = null;
-  if (path === null) {
+  if (!path) {
     file = showFilePicker(window, "Select a File", 
                           Components.interfaces.nsIFilePicker.modeOpen,
                           Format.TEST_CASE_DIRECTORY_PREF,
