@@ -1,21 +1,32 @@
+/** Converts between selenium 1 and 2. */
 builder.versionconverter = {};
 
+/**
+ * Special conversion functions. Most step types can be converted "automatically", but some need
+ * special treatments, eg adding a waitForPageToLoad after an open when converting Selenium 2 to
+ * Selenium 1.
+ */
 builder.versionconverter.conversionHooks = {};
 
-builder.versionconverter.addHook = function(srcType, srcVersion, targetVersion, f) {
+builder.versionconverter.addHook = function(srcType, srcVersion, targetVersion, conversionFunction) {
   var key = srcType.getName() + "-" + srcVersion + "-" + targetVersion;
-  builder.versionconverter.conversionHooks[key] = f;
+  builder.versionconverter.conversionHooks[key] = conversionFunction;
 };
 
 builder.versionconverter.addHook(builder.selenium1.stepTypes.waitForPageToLoad, builder.selenium1, builder.selenium2, function(step, src, tar) {
   return [];
 });
 
-builder.versionconverter.addHook(builder.selenium2.stepTypes.get, builder.selenium2, builder.selenium1, function(step, src, tar) {
-  var newSteps = builder.versionconverter.defaultConvertStep(step, src, tar);
-  newSteps.push(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
-  return newSteps;
-});
+builder.versionconverter.addHook(
+  builder.selenium2.stepTypes.get,
+  builder.selenium2,
+  builder.selenium1,
+  function(step, src, tar) {
+    var newSteps = builder.versionconverter.defaultConvertStep(step, src, tar);
+    newSteps.push(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
+    return newSteps;
+  }
+);
 
 // Need to combine the selectLocator and optionLocator into a single locator for Selenium 2.
 builder.versionconverter.convertSelectStep1To2 = function(step, sourceVersion, targetVersion) {

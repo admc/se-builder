@@ -1,49 +1,49 @@
 /**
- * A class that can record clicks and typing on a window and all sub-windows.
+ * A class that can record clicks and typing on a window and all its sub-windows.
  *
  * @param {Window} The frame to explore
  * @param {Function(step)} Function called with recorded steps
  */
 builder.selenium1.Recorder = function(top_window, recordStep) {
   try {
-  this.top_window = top_window;
-  this.recordStep = recordStep;
+    this.top_window = top_window;
+    this.recordStep = recordStep;
   
-  // These three variables are used to notice when the same event gets issued twice in a row.
-  /** The last locator clicked on. */
-  this.lastLocator = false;
-  /** Timeout used to reset the above values after a second. */
-  this.lastLocTimeout;
-  /**
-   * List of frames to which the recorder has been bound. Gets continually updated via timeout.
-   */
-  this.bound = [];
-  /** Listener functions attached to frames. Stored so they can be detached again. */
-  this.listeners = {};
+    // These two variables are used to notice when the same event gets issued twice in a row.
+    /** The last locator clicked on. */
+    this.lastLocator = false;
+    /** Timeout used to reset the above values after a second. */
+    this.lastLocTimeout = null;
+    /**
+     * List of frames to which the recorder has been bound. Gets continually updated via timeout.
+     */
+    this.bound = [];
+    /** Listener functions attached to frames. Stored so they can be detached again. */
+    this.listeners = {};
   
-  var rec = this;
-  // Shims for listeners.
-  this.listeners.writeJsonClicks   = function(e) { rec.writeJsonClicks(e);   };
-  this.listeners.writeJsonClickAt  = function(e) { rec.writeJsonClickAt(e);  };
-  this.listeners.writeJsonType     = function(e) { rec.writeJsonType(e);     };
-  this.listeners.writeJsonChange   = function(e) { rec.writeJsonChange(e);   };
-  this.listeners.writeJsonKeyPress = function(e) { rec.writeJsonKeyPress(e); };
-  this.listeners.bindFrame         = function(frame, level) { rec.bindFrame(frame, level);   };
-  this.listeners.unbindFrame       = function(frame, level) { rec.unbindFrame(frame, level); };
+    var rec = this;
+    // Shims for listeners.
+    this.listeners.writeJsonClicks   = function(e) { rec.writeJsonClicks(e);   };
+    this.listeners.writeJsonClickAt  = function(e) { rec.writeJsonClickAt(e);  };
+    this.listeners.writeJsonType     = function(e) { rec.writeJsonType(e);     };
+    this.listeners.writeJsonChange   = function(e) { rec.writeJsonChange(e);   };
+    this.listeners.writeJsonKeyPress = function(e) { rec.writeJsonKeyPress(e); };
+    this.listeners.bindFrame         = function(frame, level) { rec.bindFrame(frame, level);   };
+    this.listeners.unbindFrame       = function(frame, level) { rec.unbindFrame(frame, level); };
   
-  // Initialise the recorder by binding to all frames in the recorder window.
-  builder.loadlistener.on_all_frames(top_window, this.listeners.bindFrame, 0);
-  // Periodically check if new frames have appeared.  
-  this.checkFrames = setInterval(function () {
-    builder.loadlistener.on_all_frames(rec.top_window, function (frame, level) {
-      if (rec.bound.indexOf(frame) == -1) {
-        rec.bindFrame(frame, level);
-      }
-    }, 0);
-  }, 200);
+    // Initialise the recorder by binding to all frames in the recorder window.
+    builder.loadlistener.on_all_frames(top_window, this.listeners.bindFrame, 0);
+    // Periodically check if new frames have appeared.  
+    this.checkFrames = setInterval(function () {
+      builder.loadlistener.on_all_frames(rec.top_window, function (frame, level) {
+        if (rec.bound.indexOf(frame) === -1) {
+          rec.bindFrame(frame, level);
+        }
+      }, 0);
+    }, 200);
   
-  // Now listen on navigation functions in the browser.
-  this.bind_browser(window.bridge.getBrowser());
+    // Now listen on navigation functions in the browser.
+    this.bind_browser(window.bridge.getBrowser());
   } catch(e) {
     Components.utils.reportError(e); // report the error and continue execution
   }
@@ -64,13 +64,13 @@ builder.selenium1.Recorder.prototype = {
     // To keep from generating multiple actions for the same click, we check if the click 
     // happened in the same place as the last one.
     if (this.lastLocator && locator.probablyHasSameTarget(this.lastLocator)) {
-      if (e.type == 'click') {
+      if (e.type === 'click') {
         return;
       }
-      if (e.type == 'dblclick') {
-        if (lastStep.type == builder.selenium1.stepTypes.click ||
-            lastStep.type == builder.selenium1.stepTypes.clickAt ||
-            lastStep.type == builder.selenium1.stepTypes.doubleClick)
+      if (e.type === 'dblclick') {
+        if (lastStep.type === builder.selenium1.stepTypes.click ||
+            lastStep.type === builder.selenium1.stepTypes.clickAt ||
+            lastStep.type === builder.selenium1.stepTypes.doubleClick)
         {
           lastStep.changeType(builder.selenium1.stepTypes.doubleClick);
           builder.stepdisplay.update();
@@ -86,28 +86,28 @@ builder.selenium1.Recorder.prototype = {
       rec.lastLocator = null;
     }, 1000);
 
-    if (e.type == 'dblclick') {
+    if (e.type === 'dblclick') {
       this.recordStep(new builder.Step(builder.selenium1.stepTypes.doubleClick, locator));
       return;
     }
-    if (e.target.type == "checkbox") {
+    if (e.target.type === "checkbox") {
       this.recordStep(new builder.Step(builder.selenium1.stepTypes.check, locator));
       return;
     }
     this.recordStep(new builder.Step(builder.selenium1.stepTypes.click, locator));
   },
   isTypeOrClickInSamePlace: function(step, locator) {
-    if (step.type != builder.selenium1.stepTypes.type &&
-        step.type != builder.selenium1.stepTypes.click &&
-        step.type != builder.selenium1.stepTypes.doubleClick &&
-        step.type != builder.selenium1.stepTypes.check)
+    if (step.type !== builder.selenium1.stepTypes.type &&
+        step.type !== builder.selenium1.stepTypes.click &&
+        step.type !== builder.selenium1.stepTypes.doubleClick &&
+        step.type !== builder.selenium1.stepTypes.check)
     {
       return false;
     }
     var stepParams = step.getParamNames();
     for (var i = 0; i < stepParams.length; i++) {
-      if (stepParams[i] == "locator") {
-        if (locator.probablyHasSameTarget(step["locator"])) {
+      if (stepParams[i] === "locator") {
+        if (locator.probablyHasSameTarget(step.locator)) {
           return true;
         }
       }
@@ -150,7 +150,7 @@ builder.selenium1.Recorder.prototype = {
     }
     
     // Selecting
-    if (e.target.type == 'select' || e.target.type == 'select-one') {
+    if (e.target.type === 'select' || e.target.type === 'select-one') {
       // Replace a click with a select
       if (this.isTypeOrClickInSamePlace(lastStep, locator)) {
         lastStep.changeType(builder.selenium1.stepTypes.select);
@@ -160,12 +160,12 @@ builder.selenium1.Recorder.prototype = {
       
       // Deduplicate selects, as we only need the final state of a sequence of selects.
       // Also, sometimes Firefox issues multiple select events.
-      if (lastStep.type == builder.selenium1.stepTypes.select) {
+      if (lastStep.type === builder.selenium1.stepTypes.select) {
         var frame = findFrame(e.target.ownerDocument);
         if (frame) {
           var lastTarget = new MozillaBrowserBot(frame).findElementBy("xpath",
               lastStep.selectLocator.getValueForMethod(builder.locator.methods.xpath), frame.document, frame);
-          if (lastTarget == e.target) {
+          if (lastTarget === e.target) {
             lastStep.selectLocator = e.target.options[e.target.selectedIndex].text;
             builder.stepdisplay.update();
             return;
@@ -180,15 +180,15 @@ builder.selenium1.Recorder.prototype = {
     }
     
     // Radio button
-    if (e.target.type == 'radio') {
+    if (e.target.type === 'radio') {
       // See if the check is already reported, and if yes, bail. Firefox does multiple events
       // when you select a radio button using a keyboard, so we have to deduplicate.
-      if (lastStep.type == builder.selenium1.stepTypes.check) {
+      if (lastStep.type === builder.selenium1.stepTypes.check) {
         var frame = this.findFrame(e.target.ownerDocument);
         if (frame) {
           var lastTarget = new MozillaBrowserBot(frame).findElementBy("xpath",
               lastStep.locator.getValueForMethod(builder.locator.methods.xpath), frame.document, frame);
-          if (lastTarget == e.target) {
+          if (lastTarget === e.target) {
             return;
           }
         }
@@ -210,7 +210,7 @@ builder.selenium1.Recorder.prototype = {
   },
   /** Finds the frame for a given document. */
   findFrame: function(d) {
-    for (i in this.bound) {
+    for (var i = 0; i < this.bound.length; i++) {
       if (this.bound[i].document == d) {
         return this.bound[i];
       }
@@ -423,7 +423,7 @@ builder.selenium1.Recorder.prototype = {
     jQuery(frame.document).
         bind("dblclick", {}, this.listeners.writeJsonClicks, true).
         bind("keyup", {}, this.listeners.writeJsonChange, true).
-        bind("change", {}, this.listeners.writeJsonChange, true)
+        bind("change", {}, this.listeners.writeJsonChange, true);
 
 
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {

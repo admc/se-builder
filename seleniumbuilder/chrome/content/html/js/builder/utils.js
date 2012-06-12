@@ -1,5 +1,6 @@
 /**
- * Sets up selenium versions list.
+ * Sets up selenium versions list. Whenever possible, the UI should not use builder.seleniumX, but
+ * loop over builder.seleniumVersions;
  */
 builder.seleniumVersions = [];
 

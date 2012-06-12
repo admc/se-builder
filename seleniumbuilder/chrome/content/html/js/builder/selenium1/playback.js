@@ -193,7 +193,6 @@ builder.selenium1.playback.play_step = function(step) {
       builder.selenium1.playback.record_result(result);
     } catch (e) {
       window.clearInterval(interval);
-      dump(e.stack);
       builder.selenium1.playback.record_error(e);
     }
   }
