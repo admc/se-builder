@@ -121,11 +121,15 @@ function create_sel2_format_li(myFormat) {
   var nonExportables = myFormat.nonExportables(script);
   if (nonExportables.length > 0) {
     var l = "";
-    for (var i = 0; i < nonExportables.length; i++) {
+    var max = nonExportables.length > 3 ? 3 : nonExportables.length;
+    for (var i = 0; i < max; i++) {
       if (i !== 0) { l += ", "; }
       l += nonExportables[i];
     }
-    return newNode('li', "Cannot export as " + myFormat.name + ". The following steps are not supported: " + l + ".");
+    if (nonExportables.length > 3) {
+      l += "...";
+    }
+    return newNode('li', newNode('strike', myFormat.name), " Unsupported: " + l);
   }
   var li_node = newNode('li',
     newNode('a', myFormat.name, {
