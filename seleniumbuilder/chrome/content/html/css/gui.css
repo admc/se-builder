@@ -61,7 +61,7 @@ input:active.button,
 a:hover.button,
 a:active.button,
 a.button {
-	display:inline-block !important ;
+	display:inline-block;
 	box-model:border-box;
 	border: 1px solid rgb(168,168,168);
 	border-bottom: 1px solid rgb(96,96,96);
@@ -69,7 +69,7 @@ a.button {
 	font: 500 1.3rem/1.6rem lucida grande, segoeUI ;
 	display:inline-block;
 	padding:0.2rem 0.5rem;
-	color:rgb(64,64,64) !important;
+	color:rgb(64,64,64);
 	/*margin: 0.5rex 0.5rex 0.5rex 0.5rex;*/
 	margin: 0px 3px 6px 0px;
 	min-width:  5rem;
@@ -212,7 +212,7 @@ div a:last-child
 }
 
 /** Windows and dialogs */
-#steplist, #startup {
+#steplist, #startup, #plugins {
   counter-reset: line-number;
   margin-top: 40px;
   margin-left: 80px;
@@ -230,6 +230,57 @@ div a:last-child
   box-shadow: -.1em 0em 1em rgba(0,0,0,0.5), inset 0 0 2rem rgba(0,0,0,0.1);  
 }
 
+/** Plugins */
+#plugins-list {
+	display: block;
+	overflow: auto;
+	height: 300px;
+}
+
+#plugins-list li {
+	padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.5em;
+  padding-bottom:0.25em;
+  border: 1px solid rgb(128,128,128);
+  box-model:border-box;
+  box-shadow: -.02em 0em 0.2em rgba(0,0,0,0.5), inset 0 0 2rem rgba(0,0,0,0.1);
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+#plugins-list .pluginHeader {
+	margin-bottom: 0.5em;
+}
+
+#plugins-list .pluginDescription {
+	margin-bottom: 0.5em;
+}
+
+#plugins-list .installed {
+	background: rgb(242, 255, 226);
+}
+
+#plugins-list .disabled {
+	background: rgb(220, 220, 220);
+}
+
+#plugins-list .not_installed {
+	background: white;
+}
+
+#plugins-list .pluginName {
+	font-weight: bold;
+}
+
+#plugins-list .pluginStatus:before {
+	content: " ";
+}
+
+#plugins-list .pluginStatus {
+	color: #666666;
+}
+
 /** Startup */
 .cookie-warning {
   color: #aa0000;
@@ -238,7 +289,7 @@ div a:last-child
 #startup * {
 	box-model:border-box;
 }
-#startup h1 {
+h1 {
 	color: rgb(64, 64, 64);
 	margin: 0px;
 	margin-bottom: 3px;

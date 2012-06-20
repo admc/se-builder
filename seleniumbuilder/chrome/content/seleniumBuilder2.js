@@ -67,6 +67,8 @@ bridge.removeDocLoadListener = function(win, l) {
 
 bridge.prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 
+bridge.browserType = function() { return "firefox"; }
+
 bridge.rcHostPort = function() {
   return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.hostport");
 };
@@ -81,6 +83,14 @@ bridge.rcBrowserString = function() {
 
 bridge.setRcBrowserString = function(browserstring) {
   bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.browserstring", browserstring);
+};
+
+bridge.pluginRepository = function() {
+  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.plugins.repository");
+};
+
+bridge.setPluginRepository = function(rep) {
+  bridge.prefManager.setCharPref("extensions.seleniumbuilder.plugins.repository", rep);
 };
 
 bridge.boot = function() {

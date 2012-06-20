@@ -4,6 +4,9 @@ builder.views.startup = {};
 builder.registerPostLoadHook(function () {
   jQuery('#startup-open a').click(function() { builder.io.loadUnknownFile(); });
   jQuery('#startup-show-steps-table a').click(builder.gui.stepstable.show);
+  jQuery('#startup-plugins a').click(function() {
+    builder.gui.switchView(builder.views.plugins);
+  });
   
   jQuery('#startup-start-recording-sel1').submit(function() {
     builder.record.startRecording(jQuery('#startup-url').val(), builder.selenium1);
