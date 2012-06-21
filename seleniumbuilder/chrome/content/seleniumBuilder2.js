@@ -9,6 +9,12 @@ bridge.recorderWindow = null;
 /** Document load listeners, mapped from window to listener. */
 bridge.docLoadListeners = {};
 
+bridge.logMessage = function(aMessage) {
+  var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+                                 .getService(Components.interfaces.nsIConsoleService);
+  consoleService.logStringMessage(aMessage);
+}
+
 /** Set an alternate window to record in that's not the window of the recordingTab. */
 bridge.setCustomRecordingWindow = function(newWindow) {
   bridge.customRecordingWindow = newWindow;

@@ -87,7 +87,7 @@ builder.selenium2.playback.startSession = function() {
   // the code in the command processor is modified from its baseline to notice the title_identifier
   // parameter and find the correct window.
   var title_identifier = "--" + new Date().getTime();
-  window.bridge.getRecordingWindow().document.title = title_identifier;
+  window.bridge.getRecordingWindow().document.title += title_identifier;
 
   builder.selenium2.playback.sessionStartTimeout = function() {
     var newSessionCommand = {
@@ -100,7 +100,7 @@ builder.selenium2.playback.startSession = function() {
     builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
       if (JSON.parse(result).value === "NOT FOUND") {
         // It might be we're still loading the recording window's page, and the title has changed.
-        window.bridge.getRecordingWindow().document.title = title_identifier;
+        window.bridge.getRecordingWindow().document.title += title_identifier;
         window.setTimeout(builder.selenium2.playback.sessionStartTimeout, 1000);
         return;
       }

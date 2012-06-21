@@ -25,6 +25,13 @@ builder.registerPostLoadHook = function(f) {
   }
 };
 
+/** Functions that get executed before shutdown. */
+builder.preShutdownHooks = [];
+
+builder.registerPreShutdownHook = function(f) {
+  builder.preShutdownHooks.push(f);
+};
+
 builder.loader.loadScripts(
   // Load Libraries
   "lib/jquery-ui-1.8.17.custom/js/jquery-1.7.1.min.js",

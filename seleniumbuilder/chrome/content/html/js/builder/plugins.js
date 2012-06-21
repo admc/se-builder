@@ -1,10 +1,6 @@
 /** Code for managing plugins */
 builder.plugins = {};
 
-builder.plugins.getPluginsFolder = function() {
-  
-};
-
 // States
 builder.plugins.NOT_INSTALLED = "NOT_INSTALLED";
 builder.plugins.INSTALLED     = "INSTALLED";
@@ -17,6 +13,9 @@ builder.plugins.ENABLED    = "ENABLED";
 builder.plugins.TO_ENABLE  = "TO_ENABLE";
 builder.plugins.TO_DISABLE = "TO_DISABLE";
 
+builder.plugins.ds = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
+builder.plugins.ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+builder.plugins.db = null;
 
 /**
  * Will call callback with a list of {identifier, state, enabled, installedInfo, repositoryInfo} of all plugins.
@@ -74,23 +73,64 @@ builder.plugins.isUpdateable = function(info) {
   return info.installedInfo.pluginVersion < info.repositoryInfo.browsers[bridge.browserType()].pluginVersion;
 };
 
+builder.plugins.createDir = function(f) {
+  if (!f.exists() || !f.isDirectory()) {  
+    f.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0774);  
+  }
+}
+
+builder.plugins.isValidID = function(str) {
+  return new RegExp("[0-9a-zA-Z_]+", "g").test(str);
+};
+
+builder.plugins.getBuilderDir = function() {
+  var f = builder.plugins.ds.get("ProfD", Components.interfaces.nsIFile);
+  f.append("SeBuilder");
+  builder.plugins.createDir(f);
+  return f;
+};
+
+builder.plugins.getPluginsDir = function() {
+  var f = builder.plugins.getBuilderDir();
+  f.append("plugins");
+  builder.plugins.createDir(f);
+  return f;
+};
+
 builder.plugins.getInstalledIDs = function() {
-  return [];
+  var result = [];
+  var f = builder.plugins.getPluginsDir();
+  var en = f.directoryEntries;
+  while (en.hasMoreElements()) {
+    var child = en.getNext();
+    if (builder.plugins.isValidID(child.leafName)) {
+      result.push(child.leafName);
+    }
+  }
+  return result;
 };
 
 builder.plugins.getInstalledInfo = function(id) {
-  return [];
+  try {
+    var f = builder.plugins.getDirForPlugin(id);
+    f.append("header.json");
+    if (f.isFile()) {
+      return JSON.parse(bridge.readFile(f));
+    }
+  } catch (e) {
+    return null;
+  }
 };
 
 builder.plugins.getInstalledState = function(id) {
   return {"state": builder.plugins.INSTALLED, "enabled": builder.plugins.ENABLED};
 };
 
-builder.plugins.getFolderForID = function(id) {
-  return null;
+builder.plugins.getDirForPlugin = function(id) {
+  return builder.plugins.getPluginsDir().append(id);
 };
 
-builder.plugins.getZipForID = function(id) {
+builder.plugins.getZipForPlugin = function(id) {
   return null;
 };
 
@@ -142,14 +182,26 @@ builder.plugins.performUninstall = function(id) {
   
 };
 
-builder.plugins.loadAll = function() {
-  
+builder.plugins.start = function() {
+  Components.utils.import("resource://gre/modules/Services.jsm");
+  var dbFile = builder.plugins.getBuilderDir()
+  dbFile.append("plugins.sqlite");
+  builder.plugins.db = Services.storage.openDatabase(dbFile); // Will also create the file if it does not exist
 };
 
-builder.plugins.shutdownAll = function() {
-  
+builder.registerPostLoadHook(builder.plugins.start);
+
+builder.plugins.shutdown = function() {
+  builder.plugins.db.asyncClose();
 };
+
+builder.registerPreShutdownHook(builder.plugins.shutdown);
 
 builder.plugins.getResourcePath = function(id, relativePath) {
-  
+  var els = relativePath.split("/");
+  var f = builder.plugins.getDirForPlugin(id);
+  for (var i = 0; i < els.length; i++) {
+    f.append(els[i]);
+  }
+  return builder.plugins.ios.newFileURI(f).spec;
 };
