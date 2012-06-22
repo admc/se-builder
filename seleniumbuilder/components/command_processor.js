@@ -10072,7 +10072,7 @@ nsCommandProcessor.prototype.newSession = function(a, parameters) {
   // qqDPS This allows for correct window targeting.
   try {
     var foundW = null;
-    var en = this.wm.getZOrderDOMWindowEnumerator("navigator:browser", false);
+    var en = this.wm.getEnumerator("navigator:browser");
     while (en.hasMoreElements()) {
       var w = en.getNext();
       if ((w.title && w.title.indexOf(parameters['title_identifier']) != -1) ||
