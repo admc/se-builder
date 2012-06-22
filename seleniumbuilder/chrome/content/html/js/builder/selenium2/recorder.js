@@ -442,8 +442,7 @@ builder.selenium2.Recorder.prototype = {
     jQuery(frame.document).
         bind("dblclick", {}, this.listeners.writeJsonClicks, true).
         bind("keyup", {}, this.listeners.writeJsonChange, true).
-        bind("change", {}, this.listeners.writeJsonChange, true)
-
+        bind("change", {}, this.listeners.writeJsonChange, true);
 
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
