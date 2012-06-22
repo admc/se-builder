@@ -18,7 +18,7 @@ builder.plugins.ios = Components.classes["@mozilla.org/network/io-service;1"].ge
 builder.plugins.db = null;
 
 /**
- * Will call callback with a list of {identifier, state, enabled, installedInfo, repositoryInfo} of all plugins.
+ * Will call callback with a list of {identifier, installState, enabledState, installedInfo, repositoryInfo} of all plugins.
  */
 builder.plugins.getListAsync = function(callback) {
   builder.plugins.getRemoteListAsync(function(repoList, error) {
@@ -37,7 +37,7 @@ builder.plugins.getListAsync = function(callback) {
     // Add all installed plugins.
     for (var i = 0; i < installedList.length; i++) {
       var id = installedList[i];
-      var line = builder.plugins.getInstalledState(id);
+      var line = builder.plugins.getState(id);
       line.identifier = id;
       line.installedInfo = builder.plugins.getInstalledInfo(id);
       if (repoMap[id]) {
@@ -52,8 +52,8 @@ builder.plugins.getListAsync = function(callback) {
       if (installedMap[id]) { continue; }
       result.push({
         "identifier": id,
-        "state": builder.plugins.NOT_INSTALLED,
-        "enabled": builder.plugins.ENABLED,
+        "installState": builder.plugins.NOT_INSTALLED,
+        "enabledState": builder.plugins.ENABLED,
         "installedInfo": null,
         "repositoryInfo": repoList[i]
       });
@@ -99,11 +99,17 @@ builder.plugins.getPluginsDir = function() {
 
 builder.plugins.getInstalledIDs = function() {
   var result = [];
+  var toInstall = {};
+  var s = builder.plugins.db.createStatement("SELECT identifier FROM state WHERE installState = '" + builder.plugins.TO_INSTALL + "'");
+  while (s.executeStep()) {
+    result.push(s.row.identifier);
+    toInstall[s.row.identifier] = true;
+  }
   var f = builder.plugins.getPluginsDir();
   var en = f.directoryEntries;
   while (en.hasMoreElements()) {
     var child = en.getNext();
-    if (builder.plugins.isValidID(child.leafName)) {
+    if (!toInstall[child.leafName] && builder.plugins.isValidID(child.leafName)) {
       result.push(child.leafName);
     }
   }
@@ -122,12 +128,60 @@ builder.plugins.getInstalledInfo = function(id) {
   }
 };
 
-builder.plugins.getInstalledState = function(id) {
-  return {"state": builder.plugins.INSTALLED, "enabled": builder.plugins.ENABLED};
+builder.plugins.setInstallState = function(id, installState) {
+  var s = builder.plugins.db.createStatement("SELECT * FROM state WHERE identifier = :identifier");
+  s.params.identifier = id;
+  if (s.executeStep()) {
+    s = builder.plugins.db.createStatement("UPDATE state SET installState = :installState WHERE identifier = :identifier");
+    s.params.identifier = id;
+    s.params.installState = installState; 
+    s.executeStep();
+  } else {
+    s = builder.plugins.db.createStatement("INSERT INTO state VALUES (:identifier, :installState, :enabledState)");
+    s.params.identifier = id;
+    s.params.installState = installState;
+    s.params.enabledState = builder.plugins.ENABLED; 
+    s.executeStep();
+  }
+};
+
+builder.plugins.setEnabledState = function(id, state) {
+  var s = builder.plugins.db.createStatement("SELECT * FROM state WHERE identifier = :identifier");
+  s.params.identifier = id;
+  if (s.executeStep()) {
+    s = builder.plugins.db.createStatement("UPDATE state SET enabledState = :enabledState WHERE identifier = :identifier");
+    s.params.identifier = id;
+    s.params.enabledState = enabledState; 
+    s.executeStep();
+  } else {
+    s = builder.plugins.db.createStatement("INSERT INTO state VALUES (:identifier, :installState, :enabledState)");
+    s.params.identifier = id;
+    s.params.installState = builder.plugins.INSTALLED;
+    s.params.enabledState = enabledState; 
+    s.executeStep();
+  }
+};
+
+/** @return The state of an installed plugin. */
+builder.plugins.getState = function(id) {
+  var s = builder.plugins.db.createStatement("SELECT * FROM state WHERE identifier = :identifier");
+  s.params.identifier = id;
+  if (s.executeStep()) { // qqDPS Synchronous API usage, naughty.
+    return {"installState": s.row.installState, "enabledState": s.row.enabledState};
+  } else {
+    // We have no record of it, so keep it as default.
+    return {"installState": builder.plugins.INSTALLED, "enabledState": builder.plugins.ENABLED};
+  }
+};
+
+builder.plugins.pluginExists = function(id) {
+  return builder.plugins.getDirForPlugin(id).isDirectory();
 };
 
 builder.plugins.getDirForPlugin = function(id) {
-  return builder.plugins.getPluginsDir().append(id);
+  var f = builder.plugins.getPluginsDir()
+  f.append(id);
+  return f;
 };
 
 builder.plugins.getZipForPlugin = function(id) {
@@ -162,14 +216,6 @@ builder.plugins.getRemoteListAsync = function(callback) {
   });
 };
 
-builder.plugins.setInstallState = function(id, state) {
-  
-};
-
-builder.plugins.setEnabledState = function(id, state) {
-  
-};
-
 builder.plugins.performDownload = function(id) {
   
 };
@@ -187,6 +233,10 @@ builder.plugins.start = function() {
   var dbFile = builder.plugins.getBuilderDir()
   dbFile.append("plugins.sqlite");
   builder.plugins.db = Services.storage.openDatabase(dbFile); // Will also create the file if it does not exist
+  if (!builder.plugins.db.createStatement("SELECT name FROM sqlite_master WHERE type='table' AND name='state'").executeStep())
+  {
+    builder.plugins.db.createStatement("CREATE TABLE state (identifier varchar(255), installState varchar(255), enabledState varchar(255))").executeStep();
+  }
 };
 
 builder.registerPostLoadHook(builder.plugins.start);

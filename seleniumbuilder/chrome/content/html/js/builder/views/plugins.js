@@ -23,13 +23,13 @@ builder.views.plugins.getName = function(info) {
 };
 
 builder.views.plugins.getStatus = function(info) {
-  if (info.state == builder.plugins.INSTALLED) {
+  if (info.installState == builder.plugins.INSTALLED) {
     return {
       "DISABLED":   "Disabled",
       "ENABLED":    "Installed",
       "TO_ENABLE":  "Installed, Enabled after Restart",
       "TO_DISABLE": "Installed, Disabled after Restart"
-    }[info.enabled];
+    }[info.enabledState];
   }
   
   return {
@@ -37,17 +37,17 @@ builder.views.plugins.getStatus = function(info) {
     "TO_INSTALL"    : "Installed after Restart",
     "TO_UNINSTALL"  : "Uninstalled after Restart",
     "TO_UPDATE"    : "Installed, Updated after Restart"
-  }[info.state];
+  }[info.installState];
 };
 
 builder.views.plugins.getEntryClass = function(info) {
-  if (info.state == builder.plugins.INSTALLED) {
+  if (info.installState == builder.plugins.INSTALLED) {
     return {
       "DISABLED":   "disabled",
       "ENABLED":    "installed",
       "TO_ENABLE":  "installed",
       "TO_DISABLE": "disabled"
-    }[info.enabled];
+    }[info.enabledState];
   }
   
   return {
@@ -55,7 +55,7 @@ builder.views.plugins.getEntryClass = function(info) {
     "TO_INSTALL"    : "installed",
     "TO_UNINSTALL"  : "not_installed",
     "TO_UPDATE"     : "installed"
-  }[info.state];
+  }[info.installState];
 };
 
 builder.views.plugins.getDescription = function(info) {
@@ -86,64 +86,64 @@ builder.views.plugins.updatePluginEntry = function(info) {
   jQuery('#' + info.identifier + '-entry').removeClass().addClass(builder.views.plugins.getEntryClass(info));
   jQuery('#' + info.identifier + '-status').text(builder.views.plugins.getStatus(info));
   
-  jQuery('#' + info.identifier + '-install').toggle(info.state == builder.plugins.NOT_INSTALLED);
-  jQuery('#' + info.identifier + '-cancel-install').toggle(info.state == builder.plugins.TO_INSTALL);
-  jQuery('#' + info.identifier + '-uninstall').toggle(info.state == builder.plugins.INSTALLED);
-  jQuery('#' + info.identifier + '-cancel-uninstall').toggle(info.state == builder.plugins.TO_UNINSTALL);
-  jQuery('#' + info.identifier + '-update').toggle(info.state == builder.plugins.INSTALLED && builder.plugins.isUpdateable(info));
-  jQuery('#' + info.identifier + '-cancel-update').toggle(info.state == builder.plugins.TO_UPDATE);
-  jQuery('#' + info.identifier + '-enable').toggle(info.state == builder.plugins.INSTALLED && (info.enabled == builder.plugins.DISABLED || info.enabled == builder.plugins.TO_DISABLE));
-  jQuery('#' + info.identifier + '-disable').toggle(info.state == builder.plugins.INSTALLED && (info.enabled == builder.plugins.ENABLED || info.enabled == builder.plugins.TO_ENABLE));
+  jQuery('#' + info.identifier + '-install').toggle(info.installState == builder.plugins.NOT_INSTALLED);
+  jQuery('#' + info.identifier + '-cancel-install').toggle(info.installState == builder.plugins.TO_INSTALL);
+  jQuery('#' + info.identifier + '-uninstall').toggle(info.installState == builder.plugins.INSTALLED);
+  jQuery('#' + info.identifier + '-cancel-uninstall').toggle(info.installState == builder.plugins.TO_UNINSTALL);
+  jQuery('#' + info.identifier + '-update').toggle(info.installState == builder.plugins.INSTALLED && builder.plugins.isUpdateable(info));
+  jQuery('#' + info.identifier + '-cancel-update').toggle(info.installState == builder.plugins.TO_UPDATE);
+  jQuery('#' + info.identifier + '-enable').toggle(info.installState == builder.plugins.INSTALLED && (info.enabledState == builder.plugins.DISABLED || info.enabledState == builder.plugins.TO_DISABLE));
+  jQuery('#' + info.identifier + '-disable').toggle(info.installState == builder.plugins.INSTALLED && (info.enabledState == builder.plugins.ENABLED || info.enabledState == builder.plugins.TO_ENABLE));
 };
 
 builder.views.plugins.wirePluginEntry = function(info) {
   jQuery('#' + info.identifier + '-install').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.TO_INSTALL);
-    info.state = builder.plugins.TO_INSTALL;
+    info.installState = builder.plugins.TO_INSTALL;
     builder.views.plugins.updatePluginEntry(info);
   });  
   
   jQuery('#' + info.identifier + '-cancel-install').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.NOT_INSTALLED);
-    info.state = builder.plugins.NOT_INSTALLED;
+    info.installState = builder.plugins.NOT_INSTALLED;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-uninstall').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.TO_UNINSTALL);
-    info.state = builder.plugins.TO_UNINSTALL;
+    info.installState = builder.plugins.TO_UNINSTALL;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-cancel-uninstall').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.INSTALLED);
-    info.state = builder.plugins.INSTALLED;
+    info.installState = builder.plugins.INSTALLED;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-update').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.TO_UPDATE);
-    info.state = builder.plugins.TO_UPDATE;
+    info.installState = builder.plugins.TO_UPDATE;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-cancel-update').click(function() {
     builder.plugins.setInstallState(info.identifier, builder.plugins.INSTALLED);
-    info.state = builder.plugins.INSTALLED;
+    info.installState = builder.plugins.INSTALLED;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-enable').click(function() {
-    var newEnabled = info.enabled == builder.plugins.DISABLED ? builder.plugins.TO_ENABLE : builder.plugins.ENABLED;
+    var newEnabled = info.enabledState == builder.plugins.DISABLED ? builder.plugins.TO_ENABLE : builder.plugins.ENABLED;
     builder.plugins.setEnabledState(info.identifier, newEnabled);
-    info.enabled = newEnabled;
+    info.enabledState = newEnabled;
     builder.views.plugins.updatePluginEntry(info);
   });
   
   jQuery('#' + info.identifier + '-disable').click(function() {
-    var newEnabled = info.enabled == builder.plugins.ENABLED ? builder.plugins.TO_DISABLE : builder.plugins.DISABLED;
+    var newEnabled = info.enabledState == builder.plugins.ENABLED ? builder.plugins.TO_DISABLE : builder.plugins.DISABLED;
     builder.plugins.setEnabledState(info.identifier, newEnabled);
-    info.enabled = newEnabled;
+    info.enabledState = newEnabled;
     builder.views.plugins.updatePluginEntry(info);
   });
 }

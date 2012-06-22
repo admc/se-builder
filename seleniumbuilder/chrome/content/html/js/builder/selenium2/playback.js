@@ -98,6 +98,10 @@ builder.selenium2.playback.startSession = function() {
       }
     };
     builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+      if (builder.selenium2.playback.stopRequest) {
+        builder.selenium2.playback.shutdown();
+        return;
+      }
       if (JSON.parse(result).value === "NOT FOUND") {
         // It might be we're still loading the recording window's page, and the title has changed.
         window.bridge.getRecordingWindow().document.title += title_identifier;
