@@ -31,7 +31,7 @@ builder.plugins.getListAsync = function(callback) {
     }
     var installedMap = {};
     for (var i = 0; i < installedList.length; i++) {
-      installedMap[installedList] = true;
+      installedMap[installedList[i]] = true;
     }
     var result = [];
     // Add all installed plugins.
@@ -179,13 +179,17 @@ builder.plugins.pluginExists = function(id) {
 };
 
 builder.plugins.getDirForPlugin = function(id) {
-  var f = builder.plugins.getPluginsDir()
+  var f = builder.plugins.getPluginsDir();
   f.append(id);
   return f;
 };
 
 builder.plugins.getZipForPlugin = function(id) {
-  return null;
+  var f = builder.plugins.getBuilderDir();
+  f.append("pluginzips");
+  builder.plugins.createDir(f);
+  f.append(id + ".zip");
+  return f;
 };
 
 /**
@@ -216,8 +220,40 @@ builder.plugins.getRemoteListAsync = function(callback) {
   });
 };
 
-builder.plugins.performDownload = function(id) {
-  
+builder.plugins.performDownload = function(id, url) {
+  var oReq = new XMLHttpRequest();
+  oReq.open("GET", url, true);
+  oReq.responseType = "arraybuffer";
+
+  oReq.onload = function (oEvent) {
+    var arrayBuffer = oReq.response; // Note: not oReq.responseText
+    if (arrayBuffer) {
+      var byteArray = new Uint8Array(arrayBuffer);
+      var str = "";
+      for (var i = 0; i < byteArray.length; i++) {
+        str += String.fromCharCode(byteArray[i]);
+      }
+      var f = builder.plugins.getZipForPlugin(id);
+      f.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0600);
+      var stream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"].
+                   createInstance(Components.interfaces.nsIFileOutputStream);
+      stream.init(f, 0x04 | 0x08 | 0x20, 0600, 0); // readwrite, create, truncate
+      stream.write(str, byteArray.length);
+      if (stream instanceof Components.interfaces.nsISafeOutputStream) {
+        stream.finish();
+      } else {
+        stream.close();
+      }
+    } else {
+      builder.plugins.downloadFailed(url + " not found");
+    }
+  };
+
+  oReq.send(null);
+};
+
+builder.plugins.downloadFailed = function(id, e) {
+  alert("Download failed: " + e);
 };
 
 builder.plugins.performInstall = function(id) {
