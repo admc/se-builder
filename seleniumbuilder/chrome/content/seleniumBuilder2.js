@@ -119,13 +119,14 @@ bridge.boot = function() {
     var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(
         Components.interfaces.nsIObserverService);
     var observer = {
-      observe: function (win) {
-        if (bridge.docLoadListeners[win]) {
-          bridge.docLoadListeners[win]();
+      observe: function (doc) {
+        if (bridge.docLoadListeners[doc.defaultView]) {
+          bridge.docLoadListeners[doc.defaultView]();
         }
       }
     };
-    observerService.addObserver(observer, "content-document-global-created", false);
+    //observerService.addObserver(observer, "content-document-global-created", false);
+    observerService.addObserver(observer, "document-element-inserted", false);
   } catch (e) {
     dump(e);
   }

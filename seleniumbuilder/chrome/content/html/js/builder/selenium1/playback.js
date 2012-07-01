@@ -165,7 +165,7 @@ builder.selenium1.playback.play_step = function(step) {
       // specific) for all the windows in the browser and pass them to browserbot to have them
       // processed.
       var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-      var en = windowManager.getZOrderDOMWindowEnumerator(null, false);
+      var en = windowManager.getEnumerator(null, false);
       while (en.hasMoreElements()) {
         var w = en.getNext();
         for (i = 0; i < w.frames.length; i++) {

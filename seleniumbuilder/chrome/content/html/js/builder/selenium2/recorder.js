@@ -433,25 +433,23 @@ builder.selenium2.Recorder.prototype = {
       }
     }
 
-    this.overrideDialogs(frame);
+    this.overrideDialogs(frame.document);
 
-    jQuery('canvas').
+    jQuery('canvas', frame.document).
         bind('click', {}, this.listeners.writeJsonClickAt, true).
         bind('keypress', {}, this.listeners.writeJsonType, true);
-
-    jQuery(frame.document).
-        bind("dblclick", {}, this.listeners.writeJsonClicks, true).
-        bind("keyup", {}, this.listeners.writeJsonChange, true).
-        bind("change", {}, this.listeners.writeJsonChange, true);
+    
+    frame.document.addEventListener("dblclick", this.listeners.writeJsonClicks, true);
+    frame.document.addEventListener("change", this.listeners.writeJsonChange, true);    
+    frame.document.addEventListener("keyup", this.listeners.writeJsonChange, true);
 
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
           bind("keypress", {}, this.listeners.writeJsonType, true).
           bind("click", {}, this.listeners.writeJsonClickAt, true);
     } else {
-      jQuery(frame.document).
-          bind("click", {}, this.listeners.writeJsonClicks, true).
-          bind("keypress", {}, this.listeners.writeJsonKeyPress, true);
+      frame.document.addEventListener("click", this.listeners.writeJsonClicks, true);
+      frame.document.addEventListener("keypress", this.listeners.writeJsonKeyPress, true);
     }
 
     // Turn off autocomplete.
@@ -475,24 +473,21 @@ builder.selenium2.Recorder.prototype = {
 
     this.underrideDialogs(frame);
     
-    jQuery('canvas').
+    jQuery('canvas', frame.document).
         unbind('click', this.listeners.writeJsonClickAt, true).
         unbind('keypress', this.listeners.writeJsonType, true);
-    
-    jQuery(frame.document).unbind("dblclick", this.listeners.writeJsonClicks, true);
-    
-    jQuery(frame.document).
-        unbind("keyup", this.listeners.writeJsonChange, true).
-        unbind("change", this.listeners.writeJsonChange, true);
+      
+    frame.document.removeEventListener("dblclick", this.listeners.writeJsonClicks, true);
+    frame.document.removeEventListener("change", this.listeners.writeJsonChange, true);    
+    frame.document.removeEventListener("keyup", this.listeners.writeJsonChange, true);
     
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
           unbind("keypress", this.listeners.writeJsonType, true).
           unbind("click", this.listeners.writeJsonClickAt, true);
     } else {
-      jQuery(frame.document).
-          unbind("click", this.listeners.writeJsonClicks, true).
-          unbind("keypress", this.listeners.writeJsonKeyPress, true);
+      frame.document.removeEventListener("click", this.listeners.writeJsonClicks, true);
+      frame.document.removeEventListener("keypress", this.listeners.writeJsonKeyPress, true);
     }
 
     // Turn autocomplete back on. Unfortunately, this also turns on autocomplete for elements

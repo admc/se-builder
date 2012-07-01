@@ -17,6 +17,8 @@ builder.plugins.ds = Components.classes["@mozilla.org/file/directory_service;1"]
 builder.plugins.ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 builder.plugins.db = null;
 
+builder.plugins.downloadingCount = 0;
+
 /**
  * Will call callback with a list of {identifier, installState, enabledState, installedInfo, repositoryInfo} of all plugins.
  */
@@ -192,6 +194,14 @@ builder.plugins.getZipForPlugin = function(id) {
   return f;
 };
 
+builder.plugins.getExtractForPlugin = function(id) {
+  var f = builder.plugins.getBuilderDir();
+  f.append("extract");
+  builder.plugins.createDir(f);
+  f.append(id + ".zip");
+  return f;
+};
+
 /**
  * @return A list of info objects of all plugins in the plugin DB.
  */
@@ -221,6 +231,9 @@ builder.plugins.getRemoteListAsync = function(callback) {
 };
 
 builder.plugins.performDownload = function(id, url) {
+  builder.plugins.downloadingCount++;
+  jQuery('#plugins-downloading').show();
+  
   var oReq = new XMLHttpRequest();
   oReq.open("GET", url, true);
   oReq.responseType = "arraybuffer";
@@ -244,20 +257,58 @@ builder.plugins.performDownload = function(id, url) {
       } else {
         stream.close();
       }
+      builder.plugins.downloadSucceeded(id);
     } else {
-      builder.plugins.downloadFailed(url + " not found");
+      builder.plugins.downloadFailed(id, url + " not found");
     }
   };
 
   oReq.send(null);
 };
 
+builder.plugins.downloadSucceeded = function(id) {
+  builder.plugins.downloadingCount--;
+  if (builder.plugins.downloadingCount == 0) {
+    jQuery('#plugins-downloading').hide();
+  }
+  builder.views.plugins.refresh();
+}
+
 builder.plugins.downloadFailed = function(id, e) {
   alert("Download failed: " + e);
+  builder.plugins.setInstallState(id, builder.plugins.NOT_INSTALLED);
+  builder.plugins.downloadingCount--;
+  if (builder.plugins.downloadingCount == 0) {
+    jQuery('#plugins-downloading').hide();
+  }
+  builder.views.plugins.refresh();
+};
+
+builder.plugins.isValidPlugin = function(f) {
+  return true;
 };
 
 builder.plugins.performInstall = function(id) {
+  var zipF = builder.plugins.getZipForPlugin(id);
+  var installD = builder.plugins.getDirForPlugin(id);
   
+  var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
+                  .createInstance(Components.interfaces.nsIZipReader);
+  zipReader.open(zipF);
+  var entries = zipReader.findEntries("*");
+  while (entries.hasMore()) {
+    var e = zipReader.getEntry(entries.getNext());
+    var path = e.split("/");
+    var f = builder.plugins.getExtractForPlugin(id);
+    for (var i = 0; i < path.length; i++) {
+      f.append(path[i]);
+    }
+    if (e.isDirectory) {
+      builder.plugins.createDir(f);
+    } else {
+      zipReader.extract(e.name, f);
+    }
+  }
 };
 
 builder.plugins.performUninstall = function(id) {

@@ -175,7 +175,22 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
         }
         builder.stepdisplay.update();
         builder.pageState.removeListener(builder.record.pageLoadListener);
-        builder.record.continueRecording();
+        // qqDPS THE HORROR, THE HORROR
+        /*dump(HTMLInputElement.prototype.addEventListener);
+        dump(HTMLInputElement.prototype.addEventListener);
+        if (!HTMLInputElement.prototype.realAddEventListener) {
+          dump("THE HORROR");
+          HTMLInputElement.prototype.realAddEventListener = HTMLInputElement.prototype.addEventListener;
+
+          HTMLInputElement.prototype.addEventListener = function(a, b, c) {
+            dump("adding " + a + "/" + b + "/" + c);
+            this.realAddEventListener(a,b,c); 
+          };
+        }*/
+        // qqDPS
+        //setTimeout(function() {
+          builder.record.continueRecording();
+        //}, 5000);
       }
       isLoading = false;
     }

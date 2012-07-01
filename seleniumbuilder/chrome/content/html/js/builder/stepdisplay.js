@@ -171,7 +171,7 @@ function attachSearchers(stepID, pIndex, force) {
   // To do this, we first must iterate over the windows in the browser - but of course
   // each window may contain multiple tabs!
   var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-  var en = windowManager.getZOrderDOMWindowEnumerator(null, false);
+  var en = windowManager.getEnumerator(null, false);
   while (en.hasMoreElements()) {
     var w = en.getNext();
     for (var i = 0; i < w.frames.length; i++) {

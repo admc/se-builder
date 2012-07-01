@@ -67,7 +67,7 @@ builder.loadlistener.executeAfterPageLoad = function(w, fn) {
   // bad for when we are recording: the user was able to click on things before we attached
   // listeners.
   // However, for playback, we do want to wait until the page is truly truly loaded, which is why
-  // the code in local.js now uses the code previously resident here. 
+  // the code in selenium1/playback.js now uses the code previously resident here. 
   window.bridge.addDocLoadListener(w, function() {
     fn();
     window.bridge.removeDocLoadListener(w);
