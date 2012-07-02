@@ -105,7 +105,8 @@ builder.selenium2.Recorder.prototype = {
     }
   },
   isTypeOrClickInSamePlace: function(step, locator) {
-    if (step.type != builder.selenium2.stepTypes.sendKeysToElement &&
+    if (step.type != builder.selenium2.stepTypes.setElementText &&
+        step.type != builder.selenium2.stepTypes.sendKeysToElement &&
         step.type != builder.selenium2.stepTypes.clickElement &&
         step.type != builder.selenium2.stepTypes.doubleClickElement &&
         step.type != builder.selenium2.stepTypes.setElementSelected &&
@@ -139,7 +140,7 @@ builder.selenium2.Recorder.prototype = {
     if ({ textarea: 1, text: 1, password: 1 }[e.target.type.toLowerCase()]) {
       // Continue typing or replace a click with a type.
       if (lastStep && this.isTypeOrClickInSamePlace(lastStep, locator)) {
-        lastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        lastStep.changeType(builder.selenium2.stepTypes.setElementText);
         lastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
@@ -148,7 +149,7 @@ builder.selenium2.Recorder.prototype = {
       // otherwise we get a spurious extra "type" step after the submit click step.
       var nextToLastStep = builder.getScript().getStepBefore(lastStep);
       if (nextToLastStep && this.isTypeOrClickInSamePlace(nextToLastStep, locator)) {
-        nextToLastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        nextToLastStep.changeType(builder.selenium2.stepTypes.setElementText);
         nextToLastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
@@ -288,8 +289,6 @@ builder.selenium2.Recorder.prototype = {
     
     this.recordStep(new builder.Step(builder.selenium2.clickAt, locator, coordString));
   },
-  // qqDPS Doesn't work in Selenium 2 yet.
-  /*
   writeJsonKeyPress: function(e) {
     if (e.which == 13) { // 13 is the key code for enter
       var previousId = builder.getScript().getLastStep() ? builder.getScript().getLastStep().id : null;
@@ -315,7 +314,7 @@ builder.selenium2.Recorder.prototype = {
         }
       }, 100);
     }
-  },*/
+  },
   /**
    * Given a function and a recording function, returns a new function that first executes the 
    * original function and then calls the recording function, passing in the Observer function,

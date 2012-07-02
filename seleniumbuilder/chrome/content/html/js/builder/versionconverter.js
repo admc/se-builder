@@ -110,7 +110,7 @@ builder.versionconverter.sel1ToSel2Steps = {
   "goBack":               "goBack",
   "goForward":            "goForward",
   "click":                "clickElement",
-  "type":                 "sendKeysToElement",
+  "type":                 "setElementText",
   "select":               "setElementSelected",
   "check":                "setElementSelected",
   "clickAt":              "clickElementWithOffset",

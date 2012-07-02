@@ -43,6 +43,13 @@ builder.selenium2.docs = {
     },
     "description": "Click an element on the current page, with the click offset by a certain amount."
   },
+  "setElementText": {
+    "params": {
+      "locator": "How to find the element to type into.",
+      "text": "The text to set its content to."
+    },
+    "description": "Set the text content of the given element."
+  },
   "sendKeysToElement": {
     "params": {
       "locator": "How to find the element to type into.",
