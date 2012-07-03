@@ -475,7 +475,7 @@ function editParam(stepID, pIndex) {
     
     var hasAlts = false;
     for (var altMethod in step[pName].values) {
-      if (!altMethod[script.seleniumVersion]) { continue; }
+      if (!step[pName].values[altMethod].length) { continue; }
       if (altMethod != step[pName].preferredMethod || step[pName].values[altMethod].length > 1) {
         hasAlts = true;
         for (var i = 0; i < step[pName].values[altMethod].length; i++) {
