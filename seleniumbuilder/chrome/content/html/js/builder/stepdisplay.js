@@ -403,11 +403,18 @@ function editParam(stepID, pIndex) {
       var locMethod = builder.locator.methodForName(script.seleniumVersion, locMethodName);
       if (locMethod) {
         step[pName].preferredMethod = locMethod;
-        step[pName].values[locMethod] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+        step[pName].preferredAlternative = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').data('alt') || 0;
+        if (!step[pName].values[step[pName].preferredMethod] || step[pName].values[step[pName].preferredMethod].length == 0)
+        {
+          step[pName].preferredAlternative = 0;
+          step[pName].values[locMethod] = [jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val()];
+        } else {
+          if (step[pName].preferredAlternative >= step[pName].values[step[pName].preferredMethod].length) {
+            step[pName].preferredAlternative = 0;
+          }
+          step[pName].values[locMethod][step[pName].preferredAlternative] = jQuery('#' + stepID + '-p' + pIndex + '-edit-input').val();
+        }
       }
-      /*if (step[pName].alternatives && step[pName].alternatives[step[pName].type] != step[pName].value) {
-        step[pName].alternatives = {};
-      }*/ // qqDPS
       jQuery('#' + stepID + '-p' + pIndex + '-edit-div').remove();
       jQuery('#' + stepID + '-p' + pIndex).show();
       builder.stepdisplay.updateStep(stepID);
@@ -438,6 +445,7 @@ function editParam(stepID, pIndex) {
     
     for (var k in builder.locator.methods) {
       var lMethod = builder.locator.methods[k];
+      if (!lMethod[script.seleniumVersion]) { continue; }
       if (lMethod == step[pName].preferredMethod) {
         jQuery(typeDropDown).append(newNode(
           'option', lMethod[script.seleniumVersion], { selected: "true" }
@@ -467,9 +475,12 @@ function editParam(stepID, pIndex) {
     
     var hasAlts = false;
     for (var altMethod in step[pName].values) {
-      if (altMethod != step[pName].preferredMethod) {
+      if (!altMethod[script.seleniumVersion]) { continue; }
+      if (altMethod != step[pName].preferredMethod || step[pName].values[altMethod].length > 1) {
         hasAlts = true;
-        jQuery(alternativesList).append(createAltItem(step, pIndex, pName, builder.locator.methods[altMethod][script.seleniumVersion], step[pName].values[altMethod]));
+        for (var i = 0; i < step[pName].values[altMethod].length; i++) {
+          jQuery(alternativesList).append(createAltItem(step, pIndex, pName, builder.locator.methods[altMethod][script.seleniumVersion], step[pName].values[altMethod][i], i));
+        }
       }
     }
     
@@ -518,7 +529,7 @@ function editParam(stepID, pIndex) {
 }
 
 /** Creates list item for alternative locator. */
-function createAltItem(step, pIndex, pName, altName, altValue) {
+function createAltItem(step, pIndex, pName, altName, altValue, altIndex) {
   return newNode(
     'li',
     newNode(
@@ -529,6 +540,7 @@ function createAltItem(step, pIndex, pName, altName, altValue) {
         click: function(e) {
           jQuery('#' + step.id + '-p' + pIndex + '-locator-type-chooser').val(altName);
           jQuery('#' + step.id + '-p' + pIndex + '-edit-input').val(altValue);
+          jQuery('#' + step.id + '-p' + pIndex + '-edit-input').data('alt', altIndex);
         }
       }
     )

@@ -163,7 +163,7 @@ builder.selenium2.Recorder.prototype = {
     // Selecting
     if (e.target.type.toLowerCase() == 'select' || e.target.type.toLowerCase() == 'select-one') {
       var vals = {};
-      vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[" + (e.target.selectedIndex + 1) + "]";
+      vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[" + (e.target.selectedIndex + 1) + "]"];
       var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
       
       // Add select
@@ -183,7 +183,7 @@ builder.selenium2.Recorder.prototype = {
         }
         if (newlyAdded) {
           var vals = {};
-          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']";
+          vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"];
           var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
           
           this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, optLoc));
@@ -198,7 +198,7 @@ builder.selenium2.Recorder.prototype = {
         }
         if (!stillThere) {
           var vals = {};
-          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']";
+          vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"];
           var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
           
           this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementNotSelected, optLoc));
@@ -448,7 +448,7 @@ builder.selenium2.Recorder.prototype = {
           bind("click", {}, this.listeners.writeJsonClickAt, true);
     } else {
       frame.document.addEventListener("click", this.listeners.writeJsonClicks, true);
-      frame.document.addEventListener("keypress", this.listeners.writeJsonKeyPress, true);
+      //frame.document.addEventListener("keypress", this.listeners.writeJsonKeyPress, true); qqDPS
     }
 
     // Turn off autocomplete.
@@ -486,7 +486,7 @@ builder.selenium2.Recorder.prototype = {
           unbind("click", this.listeners.writeJsonClickAt, true);
     } else {
       frame.document.removeEventListener("click", this.listeners.writeJsonClicks, true);
-      frame.document.removeEventListener("keypress", this.listeners.writeJsonKeyPress, true);
+      //frame.document.removeEventListener("keypress", this.listeners.writeJsonKeyPress, true); qqDPS
     }
 
     // Turn autocomplete back on. Unfortunately, this also turns on autocomplete for elements
