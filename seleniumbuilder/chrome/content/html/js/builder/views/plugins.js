@@ -126,6 +126,7 @@ builder.views.plugins.wirePluginEntry = function(info) {
     builder.plugins.setInstallState(info.identifier, builder.plugins.TO_UPDATE);
     info.installState = builder.plugins.TO_UPDATE;
     builder.views.plugins.updatePluginEntry(info);
+    builder.plugins.performDownload(info.identifier, info.repositoryInfo.browsers[bridge.browserType()].downloadUrl);
   });
   
   jQuery('#' + info.identifier + '-cancel-update').click(function() {

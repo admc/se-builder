@@ -13,6 +13,19 @@ builder.loader.loadScripts = function() {
   }
 };
 
+builder.loader.loadListOfScripts = function(scripts) {
+  for (var i = 0; i < scripts.length; i++) {
+    var script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    // Force no caching.
+    script.setAttribute('src', scripts[i] + "?" + Math.random());
+    // Above line may not work due to security reasons, so let's try a different
+    // way too.
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+};
+
+
 /** Functions that get executed once everything has been loaded. */
 builder.postLoadHooks = [];
 

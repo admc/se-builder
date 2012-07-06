@@ -18,6 +18,9 @@ builder.plugins.ios = Components.classes["@mozilla.org/network/io-service;1"].ge
 builder.plugins.db = null;
 
 builder.plugins.downloadingCount = 0;
+builder.plugins.startupErrors = [];
+
+builder.plugins.MAX_HEADER_VERSION = 1;
 
 /**
  * Will call callback with a list of {identifier, installState, enabledState, installedInfo, repositoryInfo} of all plugins.
@@ -82,7 +85,7 @@ builder.plugins.createDir = function(f) {
 }
 
 builder.plugins.isValidID = function(str) {
-  return new RegExp("[0-9a-zA-Z_]+", "g").test(str);
+  return str && str.match(/^[0-9a-zA-Z_]+$/);
 };
 
 builder.plugins.getBuilderDir = function() {
@@ -111,8 +114,12 @@ builder.plugins.getInstalledIDs = function() {
   var en = f.directoryEntries;
   while (en.hasMoreElements()) {
     var child = en.getNext();
-    if (!toInstall[child.leafName] && builder.plugins.isValidID(child.leafName)) {
-      result.push(child.leafName);
+    var leafName = child.QueryInterface(Components.interfaces.nsIFile).leafName;
+    if (child.QueryInterface(Components.interfaces.nsIFile).isHidden()) {
+      continue;
+    }
+    if (!toInstall[leafName] && builder.plugins.isValidID(leafName)) {
+      result.push(leafName);
     }
   }
   return result;
@@ -147,7 +154,7 @@ builder.plugins.setInstallState = function(id, installState) {
   }
 };
 
-builder.plugins.setEnabledState = function(id, state) {
+builder.plugins.setEnabledState = function(id, enabledState) {
   var s = builder.plugins.db.createStatement("SELECT * FROM state WHERE identifier = :identifier");
   s.params.identifier = id;
   if (s.executeStep()) {
@@ -198,7 +205,7 @@ builder.plugins.getExtractForPlugin = function(id) {
   var f = builder.plugins.getBuilderDir();
   f.append("extract");
   builder.plugins.createDir(f);
-  f.append(id + ".zip");
+  f.append(id);
   return f;
 };
 
@@ -210,7 +217,7 @@ builder.plugins.getRemoteListAsync = function(callback) {
     type: "GET",
     cache: false,
     dataType: "json",
-    url: bridge.pluginRepository(),
+    url: bridge.pluginRepository() + "?" + Math.random(),
     success: function(data) {
       if (data.repositoryVersion > 1) {
         callback(null, "Plugin list data format is too new. Please upgrade Builder.");
@@ -235,7 +242,7 @@ builder.plugins.performDownload = function(id, url) {
   jQuery('#plugins-downloading').show();
   
   var oReq = new XMLHttpRequest();
-  oReq.open("GET", url, true);
+  oReq.open("GET", url + "?" + Math.random(), true);
   oReq.responseType = "arraybuffer";
 
   oReq.onload = function (oEvent) {
@@ -247,6 +254,7 @@ builder.plugins.performDownload = function(id, url) {
         str += String.fromCharCode(byteArray[i]);
       }
       var f = builder.plugins.getZipForPlugin(id);
+      try { f.remove(true); } catch (e) {} // qqDPS
       f.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0600);
       var stream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"].
                    createInstance(Components.interfaces.nsIFileOutputStream);
@@ -284,38 +292,93 @@ builder.plugins.downloadFailed = function(id, e) {
   builder.views.plugins.refresh();
 };
 
-builder.plugins.isValidPlugin = function(f) {
-  return true;
+builder.plugins.validatePlugin = function(id, f) {
+  try {
+    if (!f.exists()) { return "Plugin directory at " + f.path + " missing."; }
+    if (!f.isDirectory()) { return "Plugin directory at " + f.path + " is not a directory, it's a file."; }
+    f.append("header.json");
+    if (!f.exists()) {
+      return "Plugin header at " + f.path + " missing.";
+    }
+    if (!f.isFile()) {
+      return "Plugin header at " + f.path + " not a file.";
+    }
+    var fileData = bridge.readFile(f);
+    var header = null;
+    try {
+      header = JSON.parse(fileData);
+    } catch (e) {
+      return "Header file at " + f.path + " is corrupted, has a syntax error, or is not a JSON file: " + e;
+    }
+    if (!header.headerVersion) {
+      return "Header file at " + f.path + " has no header version."; 
+    }
+    if (header.headerVersion > builder.plugins.MAX_HEADER_VERSION) {
+      return "This version of Builder is too old to use this plugin. Please upgrade to the newest version.";
+    }
+    if (header.identifier != id) {
+      return "The plugin ID in the header (" + header.identifier + ") does not match the expected ID (" + id + ").";
+    }
+  } catch (e) {
+    return "Unable to verify plugin: " + e;
+  }
+  return null;
 };
 
 builder.plugins.performInstall = function(id) {
-  var zipF = builder.plugins.getZipForPlugin(id);
-  var installD = builder.plugins.getDirForPlugin(id);
+  try {
+    var zipF = builder.plugins.getZipForPlugin(id);
+    var installD = builder.plugins.getDirForPlugin(id);
+    try { builder.plugins.getExtractForPlugin(id).remove(true); } catch (e) {} // qqDPS
+    builder.plugins.createDir(builder.plugins.getExtractForPlugin(id));
+    var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
+                    .createInstance(Components.interfaces.nsIZipReader);
+    zipReader.open(zipF);
+    var entries = zipReader.findEntries("*");
+    while (entries.hasMore()) {
+      var path = entries.getNext();
+      var e = zipReader.getEntry(path);
+      var splitPath = path.split("/");
+      var f = builder.plugins.getExtractForPlugin(id);
+      if (splitPath[0] != id) { continue; }
+      for (var i = 1; i < splitPath.length; i++) {
+        f.append(splitPath[i]);
+      }
+      if (e.isDirectory) {
+        builder.plugins.createDir(f);
+      } else {
+        builder.plugins.createDir(f.parent);
+        zipReader.extract(path, f);
+      }
+    }
   
-  var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                  .createInstance(Components.interfaces.nsIZipReader);
-  zipReader.open(zipF);
-  var entries = zipReader.findEntries("*");
-  while (entries.hasMore()) {
-    var e = zipReader.getEntry(entries.getNext());
-    var path = e.split("/");
-    var f = builder.plugins.getExtractForPlugin(id);
-    for (var i = 0; i < path.length; i++) {
-      f.append(path[i]);
+    var validationError = builder.plugins.validatePlugin(id, builder.plugins.getExtractForPlugin(id));
+    if (validationError) {
+      builder.plugins.startupErrors.push("Could not install " + id + ": " + validationError);
+      builder.plugins.setInstallState(id, builder.plugins.NOT_INSTALLED);
+      return;
     }
-    if (e.isDirectory) {
-      builder.plugins.createDir(f);
-    } else {
-      zipReader.extract(e.name, f);
-    }
+  
+    try { installD.remove(true); } catch (e) {} // qqDPS
+    builder.plugins.getExtractForPlugin(id).moveTo(installD.parent, installD.leafName);
+    builder.plugins.setInstallState(id, builder.plugins.INSTALLED);
+  } catch (e) {
+    builder.plugins.startupErrors.push("Could not install " + id + ": " + e);
+    builder.plugins.setInstallState(id, builder.plugins.NOT_INSTALLED);
   }
 };
 
 builder.plugins.performUninstall = function(id) {
-  
+  try {
+    builder.plugins.getDirForPlugin(id).remove(true);
+    builder.plugins.setInstallState(id, builder.plugins.NOT_INSTALLED);
+  } catch (e) {
+    builder.plugins.startupErrors.push("Could not uninstall " + id + ": " + e);
+  }
 };
 
 builder.plugins.start = function() {
+  // Start up database connection.
   Components.utils.import("resource://gre/modules/Services.jsm");
   var dbFile = builder.plugins.getBuilderDir()
   dbFile.append("plugins.sqlite");
@@ -324,11 +387,79 @@ builder.plugins.start = function() {
   {
     builder.plugins.db.createStatement("CREATE TABLE state (identifier varchar(255), installState varchar(255), enabledState varchar(255))").executeStep();
   }
+  
+  // Install new plugins.
+  var s = builder.plugins.db.createStatement("SELECT identifier FROM state WHERE installState = '" + builder.plugins.TO_INSTALL + "'");
+  var to_install = [];
+  while (s.executeStep()) {
+    to_install.push(s.row.identifier);
+  }
+  for (var i = 0; i < to_install.length; i++) {
+    builder.plugins.performInstall(to_install[i]);
+    builder.plugins.setEnabledState(to_install[i], builder.plugins.ENABLED);
+  }
+  
+  // Update plugins
+  s = builder.plugins.db.createStatement("SELECT identifier FROM state WHERE installState = '" + builder.plugins.TO_UPDATE + "'");
+  var to_update = [];
+  while (s.executeStep()) {
+    to_update.push(s.row.identifier);
+  }
+  for (var i = 0; i < to_update.length; i++) {
+    builder.plugins.performInstall(to_update[i]);
+  }
+  
+  // Uninstall plugins.
+  s = builder.plugins.db.createStatement("SELECT identifier FROM state WHERE installState = '" + builder.plugins.TO_UNINSTALL + "'");
+  var to_uninstall = [];
+  while (s.executeStep()) {
+    to_uninstall.push(s.row.identifier);
+  }
+  for (var i = 0; i < to_uninstall.length; i++) {
+    builder.plugins.performUninstall(to_uninstall[i]);
+  }
+  
+  // Enable and disable plugins.
+  builder.plugins.db.createStatement("UPDATE state SET enabledState = '" + builder.plugins.DISABLED + "' WHERE enabledState = '" + builder.plugins.TO_DISABLE + "'").executeStep();
+  builder.plugins.db.createStatement("UPDATE state SET enabledState = '" + builder.plugins.ENABLED + "' WHERE enabledState = '" + builder.plugins.TO_ENABLE + "'").executeStep();
+  
+  // Load plugins
+  var installeds = builder.plugins.getInstalledIDs();
+  for (var i = 0; i < installeds.length; i++) {
+    var state = builder.plugins.getState(installeds[i]);
+    if (state.installState == builder.plugins.INSTALLED && state.enabledState == builder.plugins.ENABLED) {
+      var info = builder.plugins.getInstalledInfo(installeds[i]);
+      var to_load = [];
+      for (var j = 0; j < info.load.length; j++) {
+        to_load.push(builder.plugins.getResourcePath(installeds[i], info.load[i]));
+      }
+      builder.loader.loadListOfScripts(to_load);
+    }
+  }
+  
+  // Show any startup errors.
+  for (var i = 0; i < builder.plugins.startupErrors.length; i++) {
+    alert(builder.plugins.startupErrors[i]);
+  }
 };
 
 builder.registerPostLoadHook(builder.plugins.start);
 
 builder.plugins.shutdown = function() {
+  var installeds = builder.plugins.getInstalledIDs();
+  for (var i = 0; i < installeds.length; i++) {
+    var state = builder.plugins.getState(installeds[i]);
+    if (
+      (state.installState == builder.plugins.INSTALLED || state.installState == builder.plugins.TO_UNINSTALL)  &&
+      (state.enabledState == builder.plugins.ENABLED || state.enabledState == builder.plugins.TO_DISABLE))
+    {
+      var info = builder.plugins.getInstalledInfo(installeds[i]);
+      if (info.shutdownFunction) {
+        // Eval is traditionally bad, but we've already let the plugin do whatever it wants!
+        eval(info.shutdownFunction + "();");
+      }
+    }
+  }
   builder.plugins.db.asyncClose();
 };
 
