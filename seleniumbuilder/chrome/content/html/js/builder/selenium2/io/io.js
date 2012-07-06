@@ -64,6 +64,16 @@ builder.selenium2.io.loadScriptJSON = function(path) {
 };
 
 builder.selenium2.io.saveScript = function(script, format, path) {
+  if (format.get_params) {
+    format.get_params(script, function(params) {
+      builder.selenium2.io.saveScriptWithParams(script, format, path, params);
+    });
+  } else {
+    builder.selenium2.io.saveScriptWithParams(script, format, path, {});
+  }
+};
+
+builder.selenium2.io.saveScriptWithParams = function(script, format, path, params) {
   try {
     var file = null;
     if (path == null) {
@@ -79,7 +89,7 @@ builder.selenium2.io.saveScript = function(script, format, path) {
       var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream);
       outputStream.init(file, 0x02 | 0x08 | 0x20, 0644, 0);
       var converter = FileUtils.getUnicodeConverter('UTF-8');
-      var text = converter.ConvertFromUnicode(format.format(script, file.leafName));
+      var text = converter.ConvertFromUnicode(format.format(script, file.leafName, params));
       outputStream.write(text, text.length);
       var fin = converter.Finish();
       if (fin.length > 0) {
@@ -107,9 +117,14 @@ builder.selenium2.io.createLangFormatter = function(lang_info) {
   return {
     name: lang_info.name,
     extension: lang_info.extension,
-    format: function(script, name) {
+    get_params: lang_info.get_params || null,
+    format: function(script, name, userParams) {
       var t = "";
-      t += lang_info.start.replace("{name}", name.substr(0, name.indexOf(".")));
+      var start = lang_info.start.replace("{name}", name.substr(0, name.indexOf(".")));
+      for (var k in userParams) {
+        start = start.replace("{" + k + "}", userParams[k]);
+      }
+      t += start;
       var used_vars = {};
       for (var i = 0; i < script.steps.length; i++) {
         var step = script.steps[i];
@@ -118,8 +133,11 @@ builder.selenium2.io.createLangFormatter = function(lang_info) {
           throw("Cannot export step of type \"" + step.type.name + "\".");
         }
         if (line instanceof Function) {
-          t += line(step, lang_info.escapeValue);
+          t += line(step, lang_info.escapeValue, userParams);
           continue;
+        }
+        for (var k in userParams) {
+          line = line.replace("{" + k + "}", userParams[k]);
         }
         var pNames = script.steps[i].getParamNames();
         for (var j = 0; j < pNames.length; j++) {

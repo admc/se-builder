@@ -431,7 +431,7 @@ builder.plugins.start = function() {
       var info = builder.plugins.getInstalledInfo(installeds[i]);
       var to_load = [];
       for (var j = 0; j < info.load.length; j++) {
-        to_load.push(builder.plugins.getResourcePath(installeds[i], info.load[i]));
+        to_load.push(builder.plugins.getResourcePath(installeds[i], info.load[j]));
       }
       builder.loader.loadListOfScripts(to_load);
     }

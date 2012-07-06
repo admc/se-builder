@@ -1,6 +1,10 @@
 /** Attaches functionality to menu items. */
 builder.gui.menu = {};
 
+builder.gui.menu.addItem = function(menu, title, f) {
+  jQuery('#' + menu + '-menu').append(newNode('li', newNode('a', {'click': f}, title)));
+};
+
 /** Updates display of the "run suite on RC" option. */
 builder.gui.menu.updateRunSuiteOnRC = function() {
   if (builder.suite.areAllScriptsOfVersion(builder.selenium1)) {
