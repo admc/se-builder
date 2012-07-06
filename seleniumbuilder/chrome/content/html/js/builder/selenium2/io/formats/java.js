@@ -1,4 +1,4 @@
-builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
+builder.selenium2.io.formats.java_info = {
   name: "Java",
   extension: ".java",
   not: "!",
@@ -336,4 +336,6 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
   },
   usedVar: function(varName, varType) { return varName; },
   unusedVar: function(varName, varType) { return varType + " " + varName; }
-}));
+};
+
+builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter(builder.selenium2.io.formats.java_info));
