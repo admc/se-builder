@@ -114,6 +114,7 @@ builder.loader.loadScripts(
   "builder/suite2.js",
   "builder/stepdisplay.js",
   "builder/selenium2/playback.js",
+  "builder/selenium2/rcPlayback.js",
   "builder/selenium2/recorder.js",
   "builder/selenium2/docs.js",
   "builder/record.js",

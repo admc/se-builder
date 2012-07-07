@@ -75,22 +75,6 @@ bridge.prefManager = Components.classes["@mozilla.org/preferences-service;1"].ge
 
 bridge.browserType = function() { return "firefox"; }
 
-bridge.rcHostPort = function() {
-  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.hostport");
-};
-
-bridge.setRcHostPort = function(hostport) {
-  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.hostport", hostport);
-};
-
-bridge.rcBrowserString = function() {
-  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.browserstring");
-};
-
-bridge.setRcBrowserString = function(browserstring) {
-  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.browserstring", browserstring);
-};
-
 bridge.pluginRepository = function() {
   return bridge.prefManager.getCharPref("extensions.seleniumbuilder.plugins.repository");
 };

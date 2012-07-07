@@ -17,14 +17,14 @@ builder.gui.menu.updateRunSuiteOnRC = function() {
 builder.registerPostLoadHook(function() {
   // Running script on RC: Available in Selenium 1 only.
   jQuery("#run-onrc-li").show();
-  builder.suite.addScriptChangeListener(function() {
+  /*builder.suite.addScriptChangeListener(function() { qqDPS!!!
     var script = builder.getScript();
     if (script && script.seleniumVersion === builder.selenium1) {
       jQuery("#run-onrc-li").show();
     } else {
       jQuery("#run-onrc-li").hide();
     }
-  });
+  });*/
   builder.gui.menu.updateRunSuiteOnRC();
   jQuery('#run-onrc').bind('click', function () {
     builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ false);

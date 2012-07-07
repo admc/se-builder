@@ -16,7 +16,23 @@ builder.selenium1.rcPlayback.session = false;
 /** The host and port to communicate with. */
 builder.selenium1.rcPlayback.hostport = false;
 
-builder.selenium1.rcPlayback.run = function(hostport, browserstring, postRunCallback) {
+builder.selenium1.rcPlayback.getHostPort = function() {
+  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.hostport");
+};
+
+builder.selenium1.rcPlayback.setHostPort = function(hostPort) {
+  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.hostport", hostPort);
+};
+
+builder.selenium1.rcPlayback.getBrowserString = function() {
+  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.browserstring");
+};
+
+builder.selenium1.rcPlayback.setBrowserString = function(browserstring) {
+  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.browserstring", browserstring);
+};
+
+builder.selenium1.rcPlayback.run = function(hostPort, browserstring, postRunCallback) {
   jQuery('#steps-top')[0].scrollIntoView(false);
   jQuery('#edit-editing').hide();
   jQuery('#edit-rc-playing').show();
@@ -25,7 +41,7 @@ builder.selenium1.rcPlayback.run = function(hostport, browserstring, postRunCall
   builder.selenium1.rcPlayback.result = { success: false };
   builder.selenium1.rcPlayback.postRunCallback = postRunCallback;
   builder.selenium1.rcPlayback.currentStepIndex = -1;
-  builder.selenium1.rcPlayback.hostport = hostport;
+  builder.selenium1.rcPlayback.hostPort = hostPort;
   builder.selenium1.rcPlayback.script = builder.getScript();
   builder.views.script.clearResults();
   var baseURL = builder.selenium1.rcPlayback.script.steps[0].url; // qqDPS BRITTLE!

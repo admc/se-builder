@@ -1,5 +1,5 @@
 /**
- * Dialog that can be inserted to allow the user to run a test on Selenium RC.
+ * Dialog that can be inserted to allow the user to run a test on Selenium RC/RemoteWebdriver.
  */
 builder.dialogs.rc = {};
 /** The DOM node into which to insert the dialog. */
@@ -21,14 +21,15 @@ builder.dialogs.rc.show = function (node, playall, altCallback, altOKText) {
   builder.dialogs.rc.playall = playall;
   
   builder.dialogs.rc.dialog = newNode('div', {'class': 'dialog'});
+  var script = builder.getScript();
   
   var run_b = newNode('a', altOKText || 'Run', {
     'class': 'button',
     'click': function () {
       var hostPort = jQuery('#rc-hostport').val();
       var browserString = jQuery('#rc-browserstring').val();
-      window.bridge.setRcHostPort(hostPort);
-      window.bridge.setRcBrowserString(browserString);
+      script.seleniumVersion.rcPlayback.setHostPort(hostPort);
+      script.seleniumVersion.rcPlayback.setBrowserString(browserString);
       builder.dialogs.rc.hide();
       if (altCallback) {
         altCallback(hostPort, browserString);
@@ -36,7 +37,7 @@ builder.dialogs.rc.show = function (node, playall, altCallback, altOKText) {
         if (playall) {
           builder.dialogs.runall.runRC(node, hostPort, browserString);
         } else {
-          builder.getScript().seleniumVersion.rcPlayback.run(hostPort, browserString);
+          script.seleniumVersion.rcPlayback.run(hostPort, browserString);
         }
       }
     },
@@ -57,11 +58,11 @@ builder.dialogs.rc.show = function (node, playall, altCallback, altOKText) {
     newNode('table', {style: 'border: none;', id: 'rc-options-table'},
       newNode('tr',
         newNode('td', "Host:Port of RC Server "),
-        newNode('td', newNode('input', {id: 'rc-hostport', type: 'text', value: window.bridge.rcHostPort()}))
+        newNode('td', newNode('input', {id: 'rc-hostport', type: 'text', value: script.seleniumVersion.rcPlayback.getHostPort()}))
       ),
       newNode('tr',
         newNode('td', "Browser String "),
-        newNode('td', newNode('input', {id: 'rc-browserstring', type: 'text', value: window.bridge.rcBrowserString()}))
+        newNode('td', newNode('input', {id: 'rc-browserstring', type: 'text', value: script.seleniumVersion.rcPlayback.getBrowserString()}))
       )
     )
   );
