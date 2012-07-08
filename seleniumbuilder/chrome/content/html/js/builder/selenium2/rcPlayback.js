@@ -124,6 +124,10 @@ builder.selenium2.rcPlayback.handleError = function(response) {
   if (response.value && response.value.message) {
     err += ": " + response.value.message;
   }
+  builder.selenium2.rcPlayback.recordError(err);
+};
+
+builder.selenium2.rcPlayback.recordError = function(err) {
   if (builder.selenium2.rcPlayback.currentStepIndex === -1) {
     // If we can't connect to the server right at the start, just attach the error message to the
     // first step.
@@ -263,20 +267,32 @@ builder.selenium2.rcPlayback.types.get = function(step) {
   builder.selenium2.rcPlayback.send("POST", "/url", JSON.stringify({'url': step.url}));
 };
 
+builder.selenium2.rcPlayback.types.clickElement = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("POST", "/element/" + id + "/click", "");
+  });
+};
+
 builder.selenium2.rcPlayback.types.verifyTextPresent = function(step) {
-  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'},
-    /* success */
-    function(id) {
-      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "",
-        /* success */
-        function(response) {
-          if (response.value.indexOf(builder.selenium2.rcPlayback.param("text")) != -1) {
-            builder.selenium2.rcPlayback.recordResult({success: true});
-          } else {
-            builder.selenium2.rcPlayback.recordResult({success: false, message: "Text not present."});
-          }
-        }
-      );
-    }
-  );
+  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value.indexOf(builder.selenium2.rcPlayback.param("text")) != -1) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Text not present."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertTextPresent = function(step) {
+  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value.indexOf(builder.selenium2.rcPlayback.param("text")) != -1) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Text not present.");
+      }
+    });
+  });
 };
