@@ -183,4 +183,18 @@ bridge.readFile = function(file) {
   } while (read != 0);
   cstream.close(); // this closes fstream
   return data;
-}
+};
+
+bridge.decodeBase64 = function(data) {
+  return window.atob(data);
+};
+
+bridge.writeBinaryFile = function(path, data) {
+  var file = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+  file.initWithPath(path);
+  var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream);
+  outputStream.init(file, -1, -1, 0);
+  outputStream.write(data, data.length);
+  outputStream.close();
+};

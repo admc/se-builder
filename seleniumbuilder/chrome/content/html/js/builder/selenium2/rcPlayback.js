@@ -142,6 +142,12 @@ builder.selenium2.rcPlayback.handleError = function(response) {
 };
 
 builder.selenium2.rcPlayback.recordError = function(err) {
+  if (builder.selenium2.rcPlayback.currentStep.negated && builder.selenium2.rcPlayback.currentStep.type.getName().startsWith("assert")) {
+    // Record this as a failed result instead - this way it will be turned into a successful result
+    // by recordResult.
+    builder.selenium2.rcPlayback.recordResult({success: false});
+    return;
+  }
   if (builder.selenium2.rcPlayback.currentStepIndex === -1) {
     // If we can't connect to the server right at the start, just attach the error message to the
     // first step.
@@ -469,5 +475,503 @@ builder.selenium2.rcPlayback.types.storeTextPresent = function(step) {
       builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value.indexOf(builder.selenium2.rcPlayback.param("text")) != -1;
       builder.selenium2.rcPlayback.recordResult({success: true});
     });
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyBodyText = function(step) {
+  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("text")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Body text does not match."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertBodyText = function(step) {
+  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("text")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Body text does not match.");
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForBodyText = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+        callback(response.value == builder.selenium2.rcPlayback.param("text"));
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeBodyText = function(step) {
+  builder.selenium2.rcPlayback.findElement({'using': 'tag name', 'value': 'body'}, function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyElementPresent = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  }, function() {
+    builder.selenium2.rcPlayback.recordResult({success: false});
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertElementPresent = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  }, function() {
+    builder.selenium2.rcPlayback.recordError("Element not found.");
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForElementPresent = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+      callback(true);
+    }, function() {
+      callback(false);
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeElementPresent = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = true;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  }, function() {
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = false;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyPageSource = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/source", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("source")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordResult({success: false, message: "Source does not match."});
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertPageSource = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/source", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("source")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordError("Source does not match.");
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForPageSource = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.send("GET", "/source", "", function(response) {
+      callback(response.value == builder.selenium2.rcPlayback.param("source"));
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storePageSource = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/source", "", function(response) {
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyText = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("text")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Element text does not match."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertText = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("text")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Element text does not match.");
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForText = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+        callback(response.value == builder.selenium2.rcPlayback.param("text"));
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeText = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/text", "", function(response) {
+      builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyCurrentUrl = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/url", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("url")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordResult({success: false, message: "URL does not match."});
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertCurrentUrl = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/url", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("url")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordError("URL does not match.");
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForCurrentUrl = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.send("GET", "/url", "", function(response) {
+      callback(response.value == builder.selenium2.rcPlayback.param("url"));
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeCurrentUrl = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/url", "", function(response) {
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyTitle = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/title", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("title")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordResult({success: false, message: "Title does not match."});
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertTitle = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/title", "", function(response) {
+    if (response.value == builder.selenium2.rcPlayback.param("title")) {
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    } else {
+      builder.selenium2.rcPlayback.recordError("Title does not match.");
+    }
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForTitle = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.send("GET", "/title", "", function(response) {
+      callback(response.value == builder.selenium2.rcPlayback.param("title"));
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeTitle = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/title", "", function(response) {
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyElementSelected = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/selected", "", function(response) {
+      if (response.value) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Element is not selected."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertElementSelected = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/selected", "", function(response) {
+      if (response.value) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Element is not selected.");
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForElementSelected = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/selected", "", function(response) {
+        callback(response.value);
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeElementSelected = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/selected", "", function(response) {
+      builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyElementValue = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/value", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("value")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Element value does not match."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertElementValue = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/value", "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("value")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Element value does not match.");
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForElementValue = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/value", "", function(response) {
+        callback(response.value == builder.selenium2.rcPlayback.param("value"));
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeElementValue = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/value", "", function(response) {
+      builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyElementAttribute = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/" + builder.selenium2.rcPlayback.param("attributeName"), "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("value")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordResult({success: false, message: "Element value does not match."});
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertElementAttribute = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/" + builder.selenium2.rcPlayback.param("attributeName"), "", function(response) {
+      if (response.value == builder.selenium2.rcPlayback.param("value")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+      } else {
+        builder.selenium2.rcPlayback.recordError("Element value does not match.");
+      }
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForElementAttribute = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+      builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/" + builder.selenium2.rcPlayback.param("attributeName"), "", function(response) {
+        callback(response.value == builder.selenium2.rcPlayback.param("value"));
+      }, /*error*/ function() { callback(false); });
+    }, /*error*/ function() { callback(false); });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeElementAttribute = function(step) {
+  builder.selenium2.rcPlayback.findElement(builder.selenium2.rcPlayback.param("locator"), function(id) {
+    builder.selenium2.rcPlayback.send("GET", "/element/" + id + "/attribute/" + builder.selenium2.rcPlayback.param("attributeName"), "", function(response) {
+      builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value;
+      builder.selenium2.rcPlayback.recordResult({success: true});
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.deleteCookie = function(step) {
+  builder.selenium2.rcPlayback.send("DELETE", "/cookie/" + builder.selenium2.rcPlayback.param("name"), "");
+};
+
+builder.selenium2.rcPlayback.types.addCookie = function(step) {
+  var cookie = {"name": builder.selenium2.rcPlayback.param("name"), "value": builder.selenium2.rcPlayback.param("value")};
+  var opts = builder.selenium2.rcPlayback.param("options").split(",");
+  for (var i = 0; i < opts.length; i++) {
+    var kv = opts[i].trim().split("=");
+    if (kv.length == 1) { continue; }
+    if (kv[0] == "path") {
+      cookie.path = kv[1];
+    }
+    if (kv[0] == "expiry") {
+      cookie.expiry = (new Date().getTime()) / 1000 + parseInt(kv[1]);
+    }
+  }
+  builder.selenium2.rcPlayback.send("POST", "/cookie", JSON.stringify({'cookie': cookie}));
+};
+
+builder.selenium2.rcPlayback.types.verifyCookieByName = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        if (response.value[i].value == builder.selenium2.rcPlayback.param("value")) {
+          builder.selenium2.rcPlayback.recordResult({success: true});
+        } else {
+          builder.selenium2.rcPlayback.recordResult({success: false, message: "Cookie value does not match."});
+        }
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.recordResult({success: false, message: "Cookie not found."});
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertCookieByName = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        if (response.value[i].value == builder.selenium2.rcPlayback.param("value")) {
+          builder.selenium2.rcPlayback.recordResult({success: true});
+        } else {
+          builder.selenium2.rcPlayback.recordError("Cookie value does not match.");
+        }
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.recordError("Cookie not found.");
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForCookieByName = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+      for (var i = 0; i < response.value.length; i++) {
+        if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+          callback(response.value[i].value == builder.selenium2.rcPlayback.param("value"));
+          return;
+        }
+      }
+      callback(false);
+    }, function() {
+      callback(false);
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeCookieByName = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = response.value[i].value;
+        builder.selenium2.rcPlayback.recordResult({success: true});
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.recordError("Cookie not found.");
+  });
+};
+
+builder.selenium2.rcPlayback.types.verifyCookiePresent = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.recordResult({success: false, message: "Cookie not found."});
+  });
+};
+
+builder.selenium2.rcPlayback.types.assertCookiePresent = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        builder.selenium2.rcPlayback.recordResult({success: true});
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.recordError("Cookie not found.");
+  });
+};
+
+builder.selenium2.rcPlayback.types.waitForCookiePresent = function(step) {
+  builder.selenium2.rcPlayback.wait(function(callback) {
+    builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+      for (var i = 0; i < response.value.length; i++) {
+        if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+          callback(true);
+          return;
+        }
+      }
+      callback(false);
+    }, function() {
+      callback(false);
+    });
+  });
+};
+
+builder.selenium2.rcPlayback.types.storeCookiePresent = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/cookie", "", function(response) {
+    for (var i = 0; i < response.value.length; i++) {
+      if (response.value[i].name == builder.selenium2.rcPlayback.param("name")) {
+        builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = true;
+        builder.selenium2.rcPlayback.recordResult({success: true});
+        return;
+      }
+    }
+    builder.selenium2.rcPlayback.vars[builder.selenium2.rcPlayback.param("variable")] = false;
+    builder.selenium2.rcPlayback.recordResult({success: true});
+  });
+};
+
+builder.selenium2.rcPlayback.types.saveScreenshot = function(step) {
+  builder.selenium2.rcPlayback.send("GET", "/screenshot", "", function(response) {
+    bridge.writeBinaryFile(builder.selenium2.rcPlayback.param("file"), bridge.decodeBase64(response.value));
+    builder.selenium2.rcPlayback.recordResult({success: true});
   });
 };
