@@ -842,7 +842,13 @@ builder.selenium2.rcPlayback.types.deleteCookie = function(step) {
 };
 
 builder.selenium2.rcPlayback.types.addCookie = function(step) {
-  var cookie = {"name": builder.selenium2.rcPlayback.param("name"), "value": builder.selenium2.rcPlayback.param("value")};
+  var cookie = {
+    'name': builder.selenium2.rcPlayback.param("name"),
+    'value': builder.selenium2.rcPlayback.param("value"),
+    'secure': false,
+    'path': '/',
+    'class': 'org.openqa.selenium.Cookie'
+  };
   var opts = builder.selenium2.rcPlayback.param("options").split(",");
   for (var i = 0; i < opts.length; i++) {
     var kv = opts[i].trim().split("=");
