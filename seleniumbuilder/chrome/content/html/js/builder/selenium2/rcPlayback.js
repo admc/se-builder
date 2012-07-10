@@ -27,13 +27,15 @@ builder.selenium2.rcPlayback.requestStop = false;
 builder.selenium2.rcPlayback.playResult = null;
 builder.selenium2.rcPlayback.vars = {};
 /** What interval to check waits for. */
-builder.selenium2.rcPlayback.waitIntervalAmount = 3000;
+builder.selenium2.rcPlayback.waitIntervalAmount = 100;
 /** How many wait cycles are run before waits time out. */
-builder.selenium2.rcPlayback.maxWaitCycles = 45000 / builder.selenium2.rcPlayback.waitIntervalAmount;
+builder.selenium2.rcPlayback.maxWaitCycles = 100;
 /** How many wait cycles have been run. */
 builder.selenium2.rcPlayback.waitCycle = 0;
-/** The wait interval. */
-builder.selenium2.rcPlayback.waitInterval = null;
+/** The wait timeout. */
+builder.selenium2.rcPlayback.waitTimeout = null;
+/** The wait timeout function. Not using interval to prevent overlapping */
+builder.selenium2.rcPlayback.waitFunction = null;
 
 builder.selenium2.rcPlayback.run = function(hostPort, browserstring, postRunCallback) {
   jQuery('#steps-top')[0].scrollIntoView(false);
@@ -309,29 +311,33 @@ builder.selenium2.rcPlayback.findElements = function(locator, callback, errorCal
 builder.selenium2.rcPlayback.wait = function(testFunction) {
   builder.stepdisplay.setProgressBar(builder.selenium2.rcPlayback.currentStep.id, 0);
   builder.selenium2.rcPlayback.waitCycle = 0;
-  builder.selenium2.rcPlayback.waitInterval = window.setInterval(function() {
+  // Using a timeout that keeps on re-installing itself rather than an interval to prevent
+  // the case where the request takes longer than the timeout and requests overlap.
+  builder.selenium2.rcPlayback.waitFunction = function() {
     testFunction(function(success) {
       if (success != builder.selenium2.rcPlayback.currentStep.negated) {
-        window.clearInterval(builder.selenium2.rcPlayback.waitInterval);
         builder.stepdisplay.hideProgressBar(builder.selenium2.rcPlayback.currentStep.id);
         builder.selenium2.rcPlayback.recordResult({'success': success});
         return;
       }
       if (builder.selenium2.rcPlayback.waitCycle++ >= builder.selenium2.rcPlayback.maxWaitCycles) {
-        window.clearInterval(builder.selenium2.rcPlayback.waitInterval);
         builder.stepdisplay.hideProgressBar(builder.selenium2.rcPlayback.currentStep.id);
         builder.selenium2.rcPlayback.recordError("Wait timed out.");
         return;
       }
       if (builder.selenium2.rcPlayback.stopRequest) {
-        window.clearInterval(builder.selenium2.rcPlayback.waitInterval);
         builder.stepdisplay.hideProgressBar(builder.selenium2.rcPlayback.currentStep.id);
         builder.selenium2.rcPlayback.shutdown();
         return;
       }
       builder.stepdisplay.setProgressBar(builder.selenium2.rcPlayback.currentStep.id, builder.selenium2.rcPlayback.waitCycle * 100 / builder.selenium2.rcPlayback.maxWaitCycles);
+      builder.selenium2.rcPlayback.waitTimeout = window.setTimeout(
+        builder.selenium2.rcPlayback.waitFunction,
+        builder.selenium2.rcPlayback.waitIntervalAmount
+      );
     });
-  }, builder.selenium2.rcPlayback.waitIntervalAmount);
+  };
+  builder.selenium2.rcPlayback.waitTimeout = window.setTimeout(builder.selenium2.rcPlayback.waitFunction, 1);
 };
 
 builder.selenium2.rcPlayback.types = {};
