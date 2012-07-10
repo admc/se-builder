@@ -5,7 +5,7 @@
     {
       "identifier": "sauce",
       "name": "Sauce for Se Builder",
-      "description": "This extension is fake!",
+      "description": "Enables export and playback on Sauce OnDemand.",
       "siteUrl": "http://admc.github.com/SaucePlugin/",
       "browsers": {
         "firefox": {
