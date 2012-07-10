@@ -53,7 +53,7 @@ builder.selenium2.rcPlayback.run = function(hostPort, browserstring, postRunCall
   builder.selenium2.rcPlayback.send(
     "POST",
     "",
-    JSON.stringify({"desiredCapabilities":{"platform":"ANY","browserName":"firefox","version":""}}), // qqDPS
+    JSON.stringify({"desiredCapabilities":{"platform":"ANY","browserName":browserstring||"firefox","version":""}}),
     builder.selenium2.rcPlayback.startJob);
 };
 
@@ -847,7 +847,7 @@ builder.selenium2.rcPlayback.types.addCookie = function(step) {
     if (kv[0] == "path") {
       cookie.path = kv[1];
     }
-    if (kv[0] == "expiry") {
+    if (kv[0] == "max_age") {
       cookie.expiry = (new Date().getTime()) / 1000 + parseInt(kv[1]);
     }
   }

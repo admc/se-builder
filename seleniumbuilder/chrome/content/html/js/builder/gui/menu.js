@@ -1,8 +1,8 @@
 /** Attaches functionality to menu items. */
 builder.gui.menu = {};
 
-builder.gui.menu.addItem = function(menu, title, f) {
-  jQuery('#' + menu + '-menu').append(newNode('li', newNode('a', {'click': f}, title)));
+builder.gui.menu.addItem = function(menu, title, id, f) {
+  jQuery('#' + menu + '-menu').append(newNode('li', newNode('a', {'click': f, 'id': id}, title)));
 };
 
 /** Updates display of the "run suite on RC" option. */
