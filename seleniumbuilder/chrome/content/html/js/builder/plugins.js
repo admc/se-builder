@@ -21,6 +21,7 @@ builder.plugins.downloadingCount = 0;
 builder.plugins.startupErrors = [];
 
 builder.plugins.MAX_HEADER_VERSION = 1;
+builder.plugins.PLUGINS_BUILDER_VERSION = 1;
 
 /**
  * Will call callback with a list of {identifier, installState, enabledState, installedInfo, repositoryInfo} of all plugins.
@@ -429,6 +430,16 @@ builder.plugins.start = function() {
     var state = builder.plugins.getState(installeds[i]);
     if (state.installState == builder.plugins.INSTALLED && state.enabledState == builder.plugins.ENABLED) {
       var info = builder.plugins.getInstalledInfo(installeds[i]);
+      if (info.builderMinVersion && info.builderMinVersion > builder.plugins.PLUGINS_BUILDER_VERSION) {
+        builder.plugins.setEnabledState(installeds[i], builder.plugins.DISABLED);
+        builder.plugins.startupErrors.push("Disabled plugin \"" + info.name + "\": This version of Builder is too old for this plugin. Please update Builder, then re-enable the plugin.");
+        continue;
+      }
+      if (info.builderMaxVersion && info.builderMaxVersion < builder.plugins.PLUGINS_BUILDER_VERSION) {
+        builder.plugins.setEnabledState(installeds[i], builder.plugins.DISABLED);
+        builder.plugins.startupErrors.push("Disabled plugin \"" + info.name + "\": This version of the plugin is too old. Try updating the plugin.");
+        continue;
+      }
       var to_load = [];
       for (var j = 0; j < info.load.length; j++) {
         to_load.push(builder.plugins.getResourcePath(installeds[i], info.load[j]));
