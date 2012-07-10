@@ -133,25 +133,28 @@ builder.selenium2.rcPlayback.hasError = function(response) {
   return !!response.status; // So undefined and 0 are fine.
 };
 
-builder.selenium2.rcPlayback.handleError = function(response) {
+builder.selenium2.rcPlayback.handleError = function(response, errorThrown) {
   var err = "Server Error";
   if (response.value && response.value.message) {
     err += ": " + response.value.message;
+  } else {
+    if (errorThrown) { err += ": " + errorThrown; }
   }
   builder.selenium2.rcPlayback.recordError(err);
 };
 
 builder.selenium2.rcPlayback.recordError = function(err) {
-  if (builder.selenium2.rcPlayback.currentStep.negated && builder.selenium2.rcPlayback.currentStep.type.getName().startsWith("assert")) {
-    // Record this as a failed result instead - this way it will be turned into a successful result
-    // by recordResult.
-    builder.selenium2.rcPlayback.recordResult({success: false});
-    return;
-  }
   if (builder.selenium2.rcPlayback.currentStepIndex === -1) {
     // If we can't connect to the server right at the start, just attach the error message to the
     // first step.
     builder.selenium2.rcPlayback.currentStepIndex = 0;
+  } else {
+    if (builder.selenium2.rcPlayback.currentStep.negated && builder.selenium2.rcPlayback.currentStep.type.getName().startsWith("assert")) {
+      // Record this as a failed result instead - this way it will be turned into a successful result
+      // by recordResult.
+      builder.selenium2.rcPlayback.recordResult({success: false});
+      return;
+    } 
   }
   jQuery("#" + builder.selenium2.rcPlayback.script.steps[builder.selenium2.rcPlayback.currentStepIndex].id + '-content').css('background-color', '#ff3333');
   jQuery("#" + builder.selenium2.rcPlayback.script.steps[builder.selenium2.rcPlayback.currentStepIndex].id + "-error").html(err).show();
@@ -192,7 +195,7 @@ builder.selenium2.rcPlayback.send = function(http_method, path, msg, callback, e
       if (errorCallback) {
         errorCallback(response);
       } else {
-        builder.selenium2.rcPlayback.handleError(response);
+        builder.selenium2.rcPlayback.handleError(response, errorThrown);
       }
     }
   });
