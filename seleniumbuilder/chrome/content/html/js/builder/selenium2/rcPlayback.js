@@ -50,6 +50,7 @@ builder.selenium2.rcPlayback.run = function(hostPort, browserstring, postRunCall
   builder.views.script.clearResults();
   jQuery('#edit-clearresults-span').show();
   builder.selenium2.rcPlayback.sessionID = null;
+  jQuery('#edit-rc-connecting').show();
   builder.selenium2.rcPlayback.send(
     "POST",
     "",
@@ -89,6 +90,7 @@ builder.selenium2.rcPlayback.startJob = function(response) {
   builder.selenium2.rcPlayback.sessionID = response.sessionId;
   builder.selenium2.rcPlayback.playResult.success = true;
   builder.selenium2.rcPlayback.send("POST", "/timeouts/implicit_wait", JSON.stringify({'ms':60000}), function(response) {
+    jQuery('#edit-rc-connecting').hide();
     builder.selenium2.rcPlayback.playNextStep();
   });
 };
@@ -108,6 +110,7 @@ builder.selenium2.rcPlayback.playNextStep = function() {
 
 builder.selenium2.rcPlayback.shutdown = function() {
   // Finish session.
+  jQuery('#edit-rc-connecting').hide();
   builder.selenium2.rcPlayback.send("DELETE", "", "", function() {
     jQuery('#edit-rc-playing').hide();
     jQuery('#edit-rc-stopping').hide();
