@@ -1,6 +1,10 @@
 /** Attaches functionality to menu items. */
 builder.gui.menu = {};
 
+builder.gui.menu.addItem = function(menu, title, id, f) {
+  jQuery('#' + menu + '-menu').append(newNode('li', newNode('a', {'click': f, 'id': id}, title)));
+};
+
 /** Updates display of the "run suite on RC" option. */
 builder.gui.menu.updateRunSuiteOnRC = function() {
   if (builder.suite.areAllScriptsOfVersion(builder.selenium1)) {
@@ -13,14 +17,14 @@ builder.gui.menu.updateRunSuiteOnRC = function() {
 builder.registerPostLoadHook(function() {
   // Running script on RC: Available in Selenium 1 only.
   jQuery("#run-onrc-li").show();
-  builder.suite.addScriptChangeListener(function() {
+  /*builder.suite.addScriptChangeListener(function() { qqDPS!!!
     var script = builder.getScript();
     if (script && script.seleniumVersion === builder.selenium1) {
       jQuery("#run-onrc-li").show();
     } else {
       jQuery("#run-onrc-li").hide();
     }
-  });
+  });*/
   builder.gui.menu.updateRunSuiteOnRC();
   jQuery('#run-onrc').bind('click', function () {
     builder.dialogs.rc.show(jQuery("#dialog-attachment-point"), /*play all*/ false);

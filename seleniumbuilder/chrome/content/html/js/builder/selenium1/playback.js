@@ -119,7 +119,7 @@ builder.selenium1.playback.preprocessParameter = function(p) {
 };
 
 /** Executes the given step in the browser. */
-builder.selenium1.playback.play_step = function(step) {
+builder.selenium1.playback.play_step = function(step) {  
   var pNames = step.getParamNames();
   var p0 = pNames.length > 0 ? step[pNames[0]] : '';
   var p1 = pNames.length > 1 ? step[pNames[1]] : '';
@@ -165,7 +165,7 @@ builder.selenium1.playback.play_step = function(step) {
       // specific) for all the windows in the browser and pass them to browserbot to have them
       // processed.
       var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-      var en = windowManager.getZOrderDOMWindowEnumerator(null, false);
+      var en = windowManager.getEnumerator(null, false);
       while (en.hasMoreElements()) {
         var w = en.getNext();
         for (i = 0; i < w.frames.length; i++) {
@@ -193,7 +193,6 @@ builder.selenium1.playback.play_step = function(step) {
       builder.selenium1.playback.record_result(result);
     } catch (e) {
       window.clearInterval(interval);
-      dump(e.stack);
       builder.selenium1.playback.record_error(e);
     }
   }
@@ -265,5 +264,8 @@ builder.selenium1.playback.runtestbetween = function(start_step_id, end_step_id,
  * @param thePostPlayCallback Optional callback to call after the run
  */
 builder.selenium1.playback.runTest = function(thePostPlayCallback) {
+  if (builder.getScript().steps[0].type == builder.selenium1.stepTypes.open) {
+    builder.deleteURLCookies(builder.getScript().steps[0].url);
+  }
   builder.selenium1.playback.runtestbetween(0, 0, thePostPlayCallback);
 };

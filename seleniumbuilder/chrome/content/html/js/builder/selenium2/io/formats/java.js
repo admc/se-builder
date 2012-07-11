@@ -1,4 +1,4 @@
-builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
+builder.selenium2.io.formats.java_info = {
   name: "Java",
   extension: ".java",
   not: "!",
@@ -33,7 +33,12 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "        wd.navigate().forward();\n",
     "clickElement":
       "        wd.findElement(By.{locatorBy}({locator})).click();\n",
+    "setElementText":
+      "        wd.findElement(By.{locatorBy}({locator})).click();\n" +
+      "        wd.findElement(By.{locatorBy}({locator})).clear();\n" +
+      "        wd.findElement(By.{locatorBy}({locator})).sendKeys({text});\n",
     "sendKeysToElement":
+      "        wd.findElement(By.{locatorBy}({locator})).click();\n" +
       "        wd.findElement(By.{locatorBy}({locator})).sendKeys({text});\n",
     "setElementSelected":
       "        if (!wd.findElement(By.{locatorBy}({locator})).isSelected()) {\n" +
@@ -331,4 +336,6 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
   },
   usedVar: function(varName, varType) { return varName; },
   unusedVar: function(varName, varType) { return varType + " " + varName; }
-}));
+};
+
+builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter(builder.selenium2.io.formats.java_info));

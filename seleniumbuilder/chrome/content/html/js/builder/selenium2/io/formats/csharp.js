@@ -29,7 +29,12 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "        wd.Navigate().Forward();\n",
     "clickElement":
       "        wd.FindElement(By.{locatorBy}({locator})).Click();\n",
+    "setElementText":
+      "        wd.FindElement(By.{locatorBy}({locator})).Click();\n" +
+      "        wd.FindElement(By.{locatorBy}({locator})).Clear();\n" +
+      "        wd.FindElement(By.{locatorBy}({locator})).SendKeys({text});\n",
     "sendKeysToElement":
+      "        wd.FindElement(By.{locatorBy}({locator})).Click();\n" +
       "        wd.FindElement(By.{locatorBy}({locator})).SendKeys({text});\n",
     "setElementSelected":
       "        if (!wd.FindElement(By.{locatorBy}({locator})).Selected) {\n" +

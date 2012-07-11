@@ -1,7 +1,4 @@
 builder.selenium1.StepType = function(name, baseFunction, negator, baseName) {
-  /*dump(name);
-  dump("=    ");*/
-  /*dump(baseFunction); dump("     ");*/
   this.name = name;
   this.baseFunction = baseFunction;
   this.negatable = !!negator;
@@ -17,10 +14,8 @@ builder.selenium1.StepType = function(name, baseFunction, negator, baseName) {
     if (this.baseName.startsWith("get") && this.name.startsWith("store")) {
       this.params.push("variableName");
     }
-    //dump(JSON.stringify(this.params)); dump("    ");
   } catch (e) {
-    /*dump(e);dump("     ");
-    dump(name);dump("     ");*/
+    //dump(e);
   }
 };
 
@@ -69,6 +64,11 @@ builder.selenium1.stepTypes = {};
 builder.selenium1.negatedStepTypes = {};
 builder.selenium1.categories = [];
 
+/** No-op function for when there are no variants of a method. (See methods.js) */
+function noVariant(n) {
+  return n;
+}
+
 // Now mangle this into the stepTypes and categories structures.
 for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; catIndex++) {
   var reg_cat = builder.selenium1.__methodRegistry[catIndex];
@@ -78,7 +78,7 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
     builder.selenium1.categories.push(catcat);
     for (var methodIndex = 0; methodIndex < reg_subcat.contents.length; methodIndex++) {
       var baseName = reg_subcat.contents[methodIndex];
-      var variants = [ function(n) { return n; } ];
+      var variants = [ noVariant ];
       if (reg_cat.variants) {
         variants = reg_cat.variants;
       }
@@ -86,7 +86,7 @@ for (var catIndex = 0; catIndex < builder.selenium1.__methodRegistry.length; cat
       if (reg_cat.negator) { negator = reg_cat.negator; }
       for (var v = 0; v < variants.length; v++) {
         var variant = variants[v];
-        var adjustedBaseName = baseName
+        var adjustedBaseName = baseName;
         var baseFunc = Selenium.prototype[baseName];
         if (!baseFunc) {
           adjustedBaseName = "do" + baseName.substring(0, 1).toUpperCase() + baseName.substring(1);

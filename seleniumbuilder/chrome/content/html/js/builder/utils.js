@@ -1,5 +1,6 @@
 /**
- * Sets up selenium versions list.
+ * Sets up selenium versions list. Whenever possible, the UI should not use builder.seleniumX, but
+ * loop over builder.seleniumVersions;
  */
 builder.seleniumVersions = [];
 
@@ -18,6 +19,25 @@ builder.normalizeWhitespace = function(text) {
  */
 builder.getDomainName = function (url) {
   return url.split("/", 3).join("/");
+};
+
+/** Deletes all browser cookies for the domain of the given URL. */
+builder.deleteURLCookies = function(url) {
+  var domain = "." + builder.getDomainName(url).split("//")[1];
+  var man = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
+  var en = man.enumerator;
+  var cookies = [];
+  while (en.hasMoreElements()) {
+    cookies.push(en.getNext());
+  }
+  for (var i = 0; i < cookies.length; i++) {
+    var c = cookies[i];
+    // Explain to the cookie that it's a cookie...
+    c.QueryInterface(Components.interfaces.nsICookie);
+    if (endsWith(domain, c.host)) {
+      man.remove(c.host, c.name, c.path, false);
+    }
+  }
 };
 
 /**

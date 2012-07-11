@@ -1,32 +1,43 @@
+/** Converts between selenium 1 and 2. */
 builder.versionconverter = {};
 
+/**
+ * Special conversion functions. Most step types can be converted "automatically", but some need
+ * special treatments, eg adding a waitForPageToLoad after an open when converting Selenium 2 to
+ * Selenium 1.
+ */
 builder.versionconverter.conversionHooks = {};
 
-builder.versionconverter.addHook = function(srcType, srcVersion, targetVersion, f) {
+builder.versionconverter.addHook = function(srcType, srcVersion, targetVersion, conversionFunction) {
   var key = srcType.getName() + "-" + srcVersion + "-" + targetVersion;
-  builder.versionconverter.conversionHooks[key] = f;
+  builder.versionconverter.conversionHooks[key] = conversionFunction;
 };
 
 builder.versionconverter.addHook(builder.selenium1.stepTypes.waitForPageToLoad, builder.selenium1, builder.selenium2, function(step, src, tar) {
   return [];
 });
 
-builder.versionconverter.addHook(builder.selenium2.stepTypes.get, builder.selenium2, builder.selenium1, function(step, src, tar) {
-  var newSteps = builder.versionconverter.defaultConvertStep(step, src, tar);
-  newSteps.push(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
-  return newSteps;
-});
+builder.versionconverter.addHook(
+  builder.selenium2.stepTypes.get,
+  builder.selenium2,
+  builder.selenium1,
+  function(step, src, tar) {
+    var newSteps = builder.versionconverter.defaultConvertStep(step, src, tar);
+    newSteps.push(new builder.Step(builder.selenium1.stepTypes.waitForPageToLoad, 60000));
+    return newSteps;
+  }
+);
 
 // Need to combine the selectLocator and optionLocator into a single locator for Selenium 2.
 builder.versionconverter.convertSelectStep1To2 = function(step, sourceVersion, targetVersion) {
   var newStep = builder.versionconverter.defaultConvertStep(step, sourceVersion, targetVersion)[0];
   var locVals = {};
   if (step.selectLocator.supportsMethod(builder.locator.methods.xpath)) {
-    locVals[builder.locator.methods.xpath] = step.selectLocator.getValue(builder.locator.methods.xpath) +
-      "/*[. = '" + step.optionLocator + "']";
+    locVals[builder.locator.methods.xpath] = [step.selectLocator.getValue(builder.locator.methods.xpath) +
+      "/*[. = '" + step.optionLocator + "']"];
   } else if (step.selectLocator.supportsMethod(builder.locator.methods.id)) {
-    locVals[builder.locator.methods.xpath] = "//*[@id='" + step.selectLocator.getValue(builder.locator.methods.id) +
-      "']/*[. = '" + step.optionLocator + "']";
+    locVals[builder.locator.methods.xpath] = ["//*[@id='" + step.selectLocator.getValue(builder.locator.methods.id) +
+      "']/*[. = '" + step.optionLocator + "']"];
   }
   var newLoc = new builder.locator.Locator(builder.locator.methods.xpath, locVals);
   newStep.locator = newLoc;
@@ -99,7 +110,7 @@ builder.versionconverter.sel1ToSel2Steps = {
   "goBack":               "goBack",
   "goForward":            "goForward",
   "click":                "clickElement",
-  "type":                 "sendKeysToElement",
+  "type":                 "setElementText",
   "select":               "setElementSelected",
   "check":                "setElementSelected",
   "clickAt":              "clickElementWithOffset",

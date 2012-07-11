@@ -36,6 +36,7 @@ builder.selenium2.__stepData = {
   "goBack":                          [], 
   "goForward":                       [], 
   "clickElement":                    ["locator"], 
+  "setElementText":                  ["locator", "text"], 
   "sendKeysToElement":               ["locator", "text"], 
   "clickElementWithOffset":          ["locator", "offset"], 
   "doubleClickElement":              ["locator"], 
@@ -123,6 +124,7 @@ builder.selenium2.categories = [
   ]],
   ["Input", [
     builder.selenium2.stepTypes.clickElement,
+    builder.selenium2.stepTypes.setElementText,
     builder.selenium2.stepTypes.sendKeysToElement,
     builder.selenium2.stepTypes.setElementSelected,
     builder.selenium2.stepTypes.setElementNotSelected,

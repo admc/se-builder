@@ -105,7 +105,8 @@ builder.selenium2.Recorder.prototype = {
     }
   },
   isTypeOrClickInSamePlace: function(step, locator) {
-    if (step.type != builder.selenium2.stepTypes.sendKeysToElement &&
+    if (step.type != builder.selenium2.stepTypes.setElementText &&
+        step.type != builder.selenium2.stepTypes.sendKeysToElement &&
         step.type != builder.selenium2.stepTypes.clickElement &&
         step.type != builder.selenium2.stepTypes.doubleClickElement &&
         step.type != builder.selenium2.stepTypes.setElementSelected &&
@@ -139,7 +140,7 @@ builder.selenium2.Recorder.prototype = {
     if ({ textarea: 1, text: 1, password: 1 }[e.target.type.toLowerCase()]) {
       // Continue typing or replace a click with a type.
       if (lastStep && this.isTypeOrClickInSamePlace(lastStep, locator)) {
-        lastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        lastStep.changeType(builder.selenium2.stepTypes.setElementText);
         lastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
@@ -148,7 +149,7 @@ builder.selenium2.Recorder.prototype = {
       // otherwise we get a spurious extra "type" step after the submit click step.
       var nextToLastStep = builder.getScript().getStepBefore(lastStep);
       if (nextToLastStep && this.isTypeOrClickInSamePlace(nextToLastStep, locator)) {
-        nextToLastStep.changeType(builder.selenium2.stepTypes.sendKeysToElement);
+        nextToLastStep.changeType(builder.selenium2.stepTypes.setElementText);
         nextToLastStep.text = e.target.value;
         builder.stepdisplay.update();
         return;
@@ -162,7 +163,7 @@ builder.selenium2.Recorder.prototype = {
     // Selecting
     if (e.target.type.toLowerCase() == 'select' || e.target.type.toLowerCase() == 'select-one') {
       var vals = {};
-      vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[" + (e.target.selectedIndex + 1) + "]";
+      vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[" + (e.target.selectedIndex + 1) + "]"];
       var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
       
       // Add select
@@ -182,7 +183,7 @@ builder.selenium2.Recorder.prototype = {
         }
         if (newlyAdded) {
           var vals = {};
-          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']";
+          vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(currentVal[c]) + "']"];
           var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
           
           this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementSelected, optLoc));
@@ -197,7 +198,7 @@ builder.selenium2.Recorder.prototype = {
         }
         if (!stillThere) {
           var vals = {};
-          vals[builder.locator.methods.xpath] = locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']";
+          vals[builder.locator.methods.xpath] = [locator.getValueForMethod(builder.locator.methods.xpath) + "/option[normalize-space(.)='" + builder.normalizeWhitespace(oldVal[o]) + "']"];
           var optLoc = new builder.locator.Locator(builder.locator.methods.xpath, vals);
           
           this.recordStep(new builder.Step(builder.selenium2.stepTypes.setElementNotSelected, optLoc));
@@ -288,8 +289,6 @@ builder.selenium2.Recorder.prototype = {
     
     this.recordStep(new builder.Step(builder.selenium2.clickAt, locator, coordString));
   },
-  // qqDPS Doesn't work in Selenium 2 yet.
-  /*
   writeJsonKeyPress: function(e) {
     if (e.which == 13) { // 13 is the key code for enter
       var previousId = builder.getScript().getLastStep() ? builder.getScript().getLastStep().id : null;
@@ -315,7 +314,7 @@ builder.selenium2.Recorder.prototype = {
         }
       }, 100);
     }
-  },*/
+  },
   /**
    * Given a function and a recording function, returns a new function that first executes the 
    * original function and then calls the recording function, passing in the Observer function,
@@ -433,26 +432,23 @@ builder.selenium2.Recorder.prototype = {
       }
     }
 
-    this.overrideDialogs(frame);
+    this.overrideDialogs(frame.document);
 
-    jQuery('canvas').
+    jQuery('canvas', frame.document).
         bind('click', {}, this.listeners.writeJsonClickAt, true).
         bind('keypress', {}, this.listeners.writeJsonType, true);
-
-    jQuery(frame.document).
-        bind("dblclick", {}, this.listeners.writeJsonClicks, true).
-        bind("keyup", {}, this.listeners.writeJsonChange, true).
-        bind("change", {}, this.listeners.writeJsonChange, true)
-
+    
+    frame.document.addEventListener("dblclick", this.listeners.writeJsonClicks, true);
+    frame.document.addEventListener("change", this.listeners.writeJsonChange, true);    
+    frame.document.addEventListener("keyup", this.listeners.writeJsonChange, true);
 
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
           bind("keypress", {}, this.listeners.writeJsonType, true).
           bind("click", {}, this.listeners.writeJsonClickAt, true);
     } else {
-      jQuery(frame.document).
-          bind("click", {}, this.listeners.writeJsonClicks, true).
-          bind("keypress", {}, this.listeners.writeJsonKeyPress, true);
+      frame.document.addEventListener("click", this.listeners.writeJsonClicks, true);
+      //frame.document.addEventListener("keypress", this.listeners.writeJsonKeyPress, true); qqDPS
     }
 
     // Turn off autocomplete.
@@ -476,24 +472,21 @@ builder.selenium2.Recorder.prototype = {
 
     this.underrideDialogs(frame);
     
-    jQuery('canvas').
+    jQuery('canvas', frame.document).
         unbind('click', this.listeners.writeJsonClickAt, true).
         unbind('keypress', this.listeners.writeJsonType, true);
-    
-    jQuery(frame.document).unbind("dblclick", this.listeners.writeJsonClicks, true);
-    
-    jQuery(frame.document).
-        unbind("keyup", this.listeners.writeJsonChange, true).
-        unbind("change", this.listeners.writeJsonChange, true);
+      
+    frame.document.removeEventListener("dblclick", this.listeners.writeJsonClicks, true);
+    frame.document.removeEventListener("change", this.listeners.writeJsonChange, true);    
+    frame.document.removeEventListener("keyup", this.listeners.writeJsonChange, true);
     
     if (frame.document.designMode && frame.document.designMode.toLowerCase() == 'on') {
       jQuery(frame.document).
           unbind("keypress", this.listeners.writeJsonType, true).
           unbind("click", this.listeners.writeJsonClickAt, true);
     } else {
-      jQuery(frame.document).
-          unbind("click", this.listeners.writeJsonClicks, true).
-          unbind("keypress", this.listeners.writeJsonKeyPress, true);
+      frame.document.removeEventListener("click", this.listeners.writeJsonClicks, true);
+      //frame.document.removeEventListener("keypress", this.listeners.writeJsonKeyPress, true); qqDPS
     }
 
     // Turn autocomplete back on. Unfortunately, this also turns on autocomplete for elements

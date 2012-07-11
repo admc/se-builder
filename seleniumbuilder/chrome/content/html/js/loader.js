@@ -13,6 +13,19 @@ builder.loader.loadScripts = function() {
   }
 };
 
+builder.loader.loadListOfScripts = function(scripts) {
+  for (var i = 0; i < scripts.length; i++) {
+    var script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    // Force no caching.
+    script.setAttribute('src', scripts[i] + "?" + Math.random());
+    // Above line may not work due to security reasons, so let's try a different
+    // way too.
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+};
+
+
 /** Functions that get executed once everything has been loaded. */
 builder.postLoadHooks = [];
 
@@ -23,6 +36,13 @@ builder.registerPostLoadHook = function(f) {
   } else {
     builder.postLoadHooks.push(f);
   }
+};
+
+/** Functions that get executed before shutdown. */
+builder.preShutdownHooks = [];
+
+builder.registerPreShutdownHook = function(f) {
+  builder.preShutdownHooks.push(f);
 };
 
 builder.loader.loadScripts(
@@ -55,6 +75,7 @@ builder.loader.loadScripts(
   "builder/script.js",
   "builder/loadlistener.js",
   "builder/verifyexplorer.js",
+  "builder/plugins.js",
   "builder/pagestate.js",
   "builder/gui.js",
   "builder/gui/menu.js",
@@ -62,6 +83,7 @@ builder.loader.loadScripts(
   "builder/views/booting.js",
   "builder/views/startup.js",
   "builder/views/script.js",
+  "builder/views/plugins.js",
   "builder/selenium1/init.js",
   "builder/selenium1/seleniumpatch.js",
   "builder/selenium1/methods.js",
@@ -92,6 +114,7 @@ builder.loader.loadScripts(
   "builder/suite2.js",
   "builder/stepdisplay.js",
   "builder/selenium2/playback.js",
+  "builder/selenium2/rcPlayback.js",
   "builder/selenium2/recorder.js",
   "builder/selenium2/docs.js",
   "builder/record.js",

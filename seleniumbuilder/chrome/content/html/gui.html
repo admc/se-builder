@@ -37,7 +37,7 @@
       <li>
         <a href="#">File</a>
 
-        <ul>
+        <ul id="file-menu">
           <li id="script-save-li" style="display: none;"><a href="#script-save" name="script-save" id="script-save">Save to server</a></li>
 
           <li><a href="#script-export" name="script-export" id="script-export">Save to disk</a></li>
@@ -53,7 +53,7 @@
       <li>
         <a href="#">Run</a>
 
-        <ul>
+        <ul id="run-menu">
           <li><a href="#run-locally" name="run-locally" id="run-locally">Run test
           locally</a></li>
 
@@ -77,7 +77,7 @@
       <li>
         <a href="#">Suite</a>
 
-        <ul>
+        <ul id="suite-menu">
           <li><a href="#suite-save" name="suite-save" id="suite-save" class="suite-menu-item">Save suite</a></li>
           
           <li><a href="#suite-save-as" name="suite-save-as" id="suite-save-as" class="suite-menu-item">Save suite as...</a></li>
@@ -109,7 +109,11 @@
       </li>
 
       <li id="startup-show-steps-table">
-      <a name="startup-show-steps-table" href="#startup-show-steps-table">&raquo; View Selenium 2 step support table</a>
+        <a name="startup-show-steps-table" href="#startup-show-steps-table">&raquo; View Selenium 2 step support table</a>
+      </li>
+      
+      <li id="startup-plugins">
+        <a name="startup-plugins" href="#startup-plugins">&raquo; Plugins</a>
       </li>
     </ul>
     <div class="startrecording">
@@ -135,6 +139,18 @@
   
   <div id="dialog-attachment-point">
     <!-- Incidential dialogs put themselves into this div. -->
+  </div>
+  
+  <!-- Plugins screen -->
+  <div id="plugins" style="display: none;">
+    <h1>Plugins</h1>
+    <a href="#" class="button" id="plugins-back">&laquo; Back</a>
+    <a href="#" class="button" id="plugins-refresh">Refresh</a>
+    <span id="plugins-loading">Loading... <img src="img/loading.gif" /></span>
+    <span id="plugins-downloading" style="display: none">Downloading... <img src="img/loading.gif" /></span>
+    <ul id="plugins-list">
+      
+    </ul>
   </div>
   
   <!-- The steps -->
@@ -164,6 +180,9 @@
         <span id="edit-rc-stopping" style="display: none;">Stopping...</span>
         <span id="edit-clearresults-span" style="display: none;">
           <a href="#edit-clearresults" class="button" name="edit-clearresults" id="edit-clearresults">Clear results</a>
+        </span>
+        <span id="edit-rc-connecting" style="display: none; float: right;">
+          Connecting... <img src="img/loading.gif" />
         </span>
       </div>
 

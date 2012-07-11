@@ -46,6 +46,9 @@ builder.selenium2.playback.stopTest = function() {
 };
 
 builder.selenium2.playback.runTest = function(postPlayCallback) {
+  if (builder.getScript().steps[0].type == builder.selenium2.stepTypes.get) {
+    builder.deleteURLCookies(builder.getScript().steps[0].url);
+  }
   builder.selenium2.playback.vars = {};
   builder.selenium2.playback.runTestBetween(
     postPlayCallback,
@@ -83,9 +86,11 @@ builder.selenium2.playback.startSession = function() {
   var iface = Components.classes['@googlecode.com/webdriver/command-processor;1'];
   builder.selenium2.playback.commandProcessor = iface.getService(Components.interfaces.nsICommandProcessor);
   // In order to communicate to webdriver which window we want, we need to uniquely identify the
-  // window. The best way to do this I've found is to look for it by title. qqDPS
+  // window. The best way to do this I've found is to look for it by title. qqDPS This means that
+  // the code in the command processor is modified from its baseline to notice the title_identifier
+  // parameter and find the correct window.
   var title_identifier = "--" + new Date().getTime();
-  window.bridge.getRecordingWindow().document.title = title_identifier;
+  window.bridge.getRecordingWindow().document.title += title_identifier;
 
   builder.selenium2.playback.sessionStartTimeout = function() {
     var newSessionCommand = {
@@ -96,8 +101,13 @@ builder.selenium2.playback.startSession = function() {
       }
     };
     builder.selenium2.playback.commandProcessor.execute(JSON.stringify(newSessionCommand), function(result) {
+      if (builder.selenium2.playback.stopRequest) {
+        builder.selenium2.playback.shutdown();
+        return;
+      }
       if (JSON.parse(result).value === "NOT FOUND") {
-        window.bridge.getRecordingWindow().document.title = title_identifier;
+        // It might be we're still loading the recording window's page, and the title has changed.
+        window.bridge.getRecordingWindow().document.title += title_identifier;
         window.setTimeout(builder.selenium2.playback.sessionStartTimeout, 1000);
         return;
       }
@@ -109,6 +119,7 @@ builder.selenium2.playback.startSession = function() {
   window.setTimeout(builder.selenium2.playback.sessionStartTimeout, 100);
 };
 
+/** Repeatedly calls testFunction, allowing it to tell us if it was successful. */
 builder.selenium2.playback.wait = function(testFunction) {
   builder.stepdisplay.setProgressBar(builder.selenium2.playback.currentStep.id, 0);
   builder.selenium2.playback.waitCycle = 0;
@@ -147,8 +158,7 @@ builder.selenium2.playback.continueFindingElement = function(locator, callback, 
   builder.selenium2.playback.implicitWaitTimeout = window.setTimeout(function() {
     builder.selenium2.playback.execute('findElement', {using: locator.type, value: locator.value},
       /* callback */
-      callback
-      ,
+      callback,
       /* errorCallback */
       function(e) {
         if (builder.selenium2.playback.implicitWaitCycle++ >= builder.selenium2.playback.maxImplicitWaitCycles) {
@@ -204,9 +214,7 @@ builder.selenium2.playback.param = function(pName) {
   var hasDollar = false;
   var insideVar = false;
   var varName = "";
-  var text = builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
-    ? builder.selenium2.playback.currentStep[pName].getValue() : builder.selenium2.playback.currentStep[pName];
-  //pName.startsWith("locator") ? builder.selenium2.playback.currentStep[pName].value : builder.selenium2.playback.currentStep[pName];
+  var text = builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator" ? builder.selenium2.playback.currentStep[pName].getValue() : builder.selenium2.playback.currentStep[pName];
   for (var i = 0; i < text.length; i++) {
     var ch = text.substring(i, i + 1);
     if (insideVar) {
@@ -231,8 +239,7 @@ builder.selenium2.playback.param = function(pName) {
     }
   }
 
-  return builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator"
-    ? {"type": builder.selenium2.playback.currentStep[pName].getName(builder.selenium2), "value": output} : output;
+  return builder.selenium2.playback.currentStep.type.getParamType(pName) == "locator" ? {"type": builder.selenium2.playback.currentStep[pName].getName(builder.selenium2), "value": output} : output;
 };
 
 builder.selenium2.playback.canPlayback = function(stepType) {
@@ -273,9 +280,26 @@ builder.selenium2.playback.playbackFunctions = {
       builder.selenium2.playback.execute('submitElement', {id: result.value.ELEMENT});
     });
   },
+  "setElementText": function() {
+    builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
+      builder.selenium2.playback.execute('clickElement', {id: result.value.ELEMENT},
+        function() {
+          builder.selenium2.playback.execute('clearElement', {id: result.value.ELEMENT},
+            function() {
+              builder.selenium2.playback.execute('sendKeysToElement', {id: result.value.ELEMENT, value: builder.selenium2.playback.param("text").split("")});
+            }
+          );
+        }
+      );
+    });
+  },
   "sendKeysToElement": function() {
     builder.selenium2.playback.findElement(builder.selenium2.playback.param("locator"), function(result) {
-      builder.selenium2.playback.execute('sendKeysToElement', {id: result.value.ELEMENT, value: builder.selenium2.playback.param("text").split("")});
+      builder.selenium2.playback.execute('clickElement', {id: result.value.ELEMENT},
+        function() {
+          builder.selenium2.playback.execute('sendKeysToElement', {id: result.value.ELEMENT, value: builder.selenium2.playback.param("text").split("")});
+        }
+      );
     });
   },
   "setElementSelected": function() {
@@ -828,7 +852,7 @@ builder.selenium2.playback.playStep = function() {
 
 builder.selenium2.playback.print = function(text) {
   jQuery('#' + builder.selenium2.playback.currentStep.id + '-message').show().append(newNode('span', text));
-}
+};
 
 builder.selenium2.playback.recordResult = function(result) {
   if (builder.selenium2.playback.currentStep.negated) {

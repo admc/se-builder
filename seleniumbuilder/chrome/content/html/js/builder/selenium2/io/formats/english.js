@@ -16,6 +16,8 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "- Click the forward button\n",
     "clickElement":
       "- Click {locatorBy} \"{locator}\"\n",
+    "setElementText":
+      "- Type \"{text}\" in \"{locator}\", replacing any text that was already there\n",
     "sendKeysToElement":
       "- Type \"{text}\" in \"{locator}\"\n",
     "setElementSelected":

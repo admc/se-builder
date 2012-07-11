@@ -18,7 +18,12 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
       "wd.navigate.forward\n",
     "clickElement":
       "wd.find_element({locatorBy}, {locator}).click\n",
+    "setElementText":
+      "wd.find_element({locatorBy}, {locator}).click\n" +
+      "wd.find_element({locatorBy}, {locator}).clear\n" +
+      "wd.find_element({locatorBy}, {locator}).send_keys {text}\n",
     "sendKeysToElement":
+      "wd.find_element({locatorBy}, {locator}).click\n" +
       "wd.find_element({locatorBy}, {locator}).send_keys {text}\n",
     "setElementSelected":
       "if not wd.find_element({locatorBy}, {locator}).selected?\n" +

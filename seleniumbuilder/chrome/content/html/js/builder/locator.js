@@ -16,7 +16,8 @@ builder.locator.methods = {
   name:  {toString: function() { return "name"; }},
   link:  {toString: function() { return "link"; }},
   css:   {toString: function() { return "css"; }},
-  xpath: {toString: function() { return "xpath"; }}
+  xpath: {toString: function() { return "xpath"; }},
+  full_xpath: {toString: function() { return "full_xpath"; }}
 };
 
 builder.locator.methods.id[builder.selenium1] = "id";
@@ -43,27 +44,47 @@ builder.locator.methodForName = function(seleniumVersion, name) {
  * @param The preferred location method (one of builder.locator.methods).
  * @param Map of locator methods to appropriate values.
  */
-builder.locator.Locator = function(preferredMethod, values) {
+builder.locator.Locator = function(preferredMethod, preferredAlternative, values) {
   this.preferredMethod = preferredMethod;
+  this.preferredAlternative = preferredAlternative || 0;
   this.values = values || {};
 };
 
 builder.locator.Locator.prototype = {
-  /** @return Ñame of the locator's preferred location method for the given version. */
+  /** @return Name of the locator's preferred location method for the given version. */
   getName: function(selVersion) { return this.preferredMethod[selVersion]; },
   /** @return Value of the preferred method. */
-  getValue: function()    { return this.values[this.preferredMethod] || ""; },
+  getValue: function()    {
+    if (this.values[this.preferredMethod]) {
+      if (this.preferredAlternative >= this.values[this.preferredMethod].length) {
+        return "";
+      }
+      return this.values[this.preferredMethod][this.preferredAlternative] || "";
+    } else {
+      return "";
+    }
+  },
   /** @return The same locator with the given preferred method. */
-  withPreferredMethod: function(preferredMethod) {
-    var l2 = new builder.locator.Locator(preferredMethod);
-    for (var t in this.values) { l2.values[t] = this.values[t]; }
+  withPreferredMethod: function(preferredMethod, preferredAlternative) {
+    var l2 = new builder.locator.Locator(preferredMethod, preferredAlternative || 0);
+    for (var t in this.values) { l2.values[t] = this.values[t].slice(0); }
   },
   /** @return Whether the locator has a value for the given locator method. */
   supportsMethod: function(method) {
-    if (this.values[method]) { return true; } else { return false; }
+    if (this.values[method] && this.values[method].length > 0) { return true; } else { return false; }
   },
   /** @return Get the value for the given method. */
-  getValueForMethod: function(method)    { return this.values[method] || ""; },
+  getValueForMethod: function(method, alternative) {
+    alternative = alternative || 0;
+    if (this.values[method]) {
+      if (alternative >= this.values[method].length) {
+        return "";
+      }
+      return this.values[method][alternative] || "";
+    } else {
+      return "";
+    }
+  },
   /** @return Whether the given locator has the same preferred method with the same value. */
   probablyHasSameTarget: function(l2) {
     return this.preferredMethod === l2.preferredMethod && this.getValue() === l2.getValue();
@@ -85,8 +106,8 @@ builder.locator.fromElement = function(element) {
   // Locate by ID
   var id = element.getAttribute('id');
   if (id) {
-    values[builder.locator.methods.id] = id;
-    values[builder.locator.methods.css] = "#" + id;
+    values[builder.locator.methods.id] = [id];
+    values[builder.locator.methods.css] = ["#" + id];
     if (findNode("id", id) === element) {
       preferredMethod = builder.locator.methods.id;
     }
@@ -95,7 +116,7 @@ builder.locator.fromElement = function(element) {
   // Locate by name
   var name = element.getAttribute('name');
   if (name) {
-    values[builder.locator.methods.name] = name;
+    values[builder.locator.methods.name] = [name];
     if (!preferredMethod && findNode("name", name) === element) {
       preferredMethod = builder.locator.methods.name;
     }
@@ -107,7 +128,7 @@ builder.locator.fromElement = function(element) {
   {
     var link = removeHTMLTags(element.innerHTML);
     if (link) {
-      values[builder.locator.methods.link] = link;
+      values[builder.locator.methods.link] = [link];
       if (!preferredMethod && findNode("link", link) === element) {
         preferredMethod = builder.locator.methods.link;
       }
@@ -120,7 +141,20 @@ builder.locator.fromElement = function(element) {
     // Contrary to the XPath spec, Selenium requires the "//" at the start, even for paths that 
     // don't start at the root.
     xpath = (xpath.substring(0, 2) !== "//" ? ("/" + xpath) : xpath);
-    values[builder.locator.methods.xpath] = xpath;
+    values[builder.locator.methods.xpath] = [xpath];
+    if (!preferredMethod) {
+      preferredMethod = builder.locator.methods.xpath;
+    }
+  }
+  
+  // Locate by XPath
+  var fullxpath = getFullXPath(element);
+  if (fullxpath && xpath != fullxpath) {
+    if (values[builder.locator.methods.xpath]) {
+      values[builder.locator.methods.xpath].push(fullxpath);
+    } else {
+      values[builder.locator.methods.xpath] = [fullxpath];
+    }
     if (!preferredMethod) {
       preferredMethod = builder.locator.methods.xpath;
     }
@@ -135,13 +169,23 @@ builder.locator.fromElement = function(element) {
     }
   }
   
-  return new builder.locator.Locator(preferredMethod, values);
+  return new builder.locator.Locator(preferredMethod, 0, values);
 };
 
 // Helper functions:
 
 /** The DOM type enum of an Element node, as opposed to eg an attribute or text. */
 var ELEMENT_NODE_TYPE = 1;
+
+function getFullXPath(node) {
+  if (node.nodeName !== "body" && node.nodeName !== "html" && node.parentNode &&
+      node.parentNode.nodeName.toLowerCase() !== "body") 
+  {
+    return getFullXPath(node.parentNode) + "/" + getChildSelector(node);
+  } else {
+    return "//" + getChildSelector(node);
+  }
+}
 
 /** 
  * Gets the XPath bit between two /s for normal elements.

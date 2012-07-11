@@ -9,6 +9,12 @@ bridge.recorderWindow = null;
 /** Document load listeners, mapped from window to listener. */
 bridge.docLoadListeners = {};
 
+bridge.logMessage = function(aMessage) {
+  var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+                                 .getService(Components.interfaces.nsIConsoleService);
+  consoleService.logStringMessage(aMessage);
+}
+
 /** Set an alternate window to record in that's not the window of the recordingTab. */
 bridge.setCustomRecordingWindow = function(newWindow) {
   bridge.customRecordingWindow = newWindow;
@@ -67,20 +73,14 @@ bridge.removeDocLoadListener = function(win, l) {
 
 bridge.prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 
-bridge.rcHostPort = function() {
-  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.hostport");
+bridge.browserType = function() { return "firefox"; }
+
+bridge.pluginRepository = function() {
+  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.plugins.repository");
 };
 
-bridge.setRcHostPort = function(hostport) {
-  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.hostport", hostport);
-};
-
-bridge.rcBrowserString = function() {
-  return bridge.prefManager.getCharPref("extensions.seleniumbuilder.rc.browserstring");
-};
-
-bridge.setRcBrowserString = function(browserstring) {
-  bridge.prefManager.setCharPref("extensions.seleniumbuilder.rc.browserstring", browserstring);
+bridge.setPluginRepository = function(rep) {
+  bridge.prefManager.setCharPref("extensions.seleniumbuilder.plugins.repository", rep);
 };
 
 bridge.boot = function() {
@@ -103,13 +103,14 @@ bridge.boot = function() {
     var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(
         Components.interfaces.nsIObserverService);
     var observer = {
-      observe: function (win) {
-        if (bridge.docLoadListeners[win]) {
-          bridge.docLoadListeners[win]();
+      observe: function (doc) {
+        if (bridge.docLoadListeners[doc.defaultView]) {
+          bridge.docLoadListeners[doc.defaultView]();
         }
       }
     };
-    observerService.addObserver(observer, "content-document-global-created", false);
+    //observerService.addObserver(observer, "content-document-global-created", false);
+    observerService.addObserver(observer, "document-element-inserted", false);
   } catch (e) {
     dump(e);
   }
@@ -182,4 +183,18 @@ bridge.readFile = function(file) {
   } while (read != 0);
   cstream.close(); // this closes fstream
   return data;
-}
+};
+
+bridge.decodeBase64 = function(data) {
+  return window.atob(data);
+};
+
+bridge.writeBinaryFile = function(path, data) {
+  var file = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+  file.initWithPath(path);
+  var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream);
+  outputStream.init(file, -1, -1, 0);
+  outputStream.write(data, data.length);
+  outputStream.close();
+};

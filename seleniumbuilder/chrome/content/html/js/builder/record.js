@@ -47,25 +47,6 @@ builder.record.stopVerifyExploring = function() {
   builder.record.continueRecording();
 };
 
-/** Deletes all browser cookies for the domain of the given URL. */
-function deleteURLCookies(url) {
-  var domain = "." + builder.getDomainName(url).split("//")[1];
-  var man = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
-  var en = man.enumerator;
-  var cookies = [];
-  while (en.hasMoreElements()) {
-    cookies.push(en.getNext());
-  }
-  for (var i = 0; i < cookies.length; i++) {
-    var c = cookies[i];
-    // Explain to the cookie that it's a cookie...
-    c.QueryInterface(Components.interfaces.nsICookie);
-    if (endsWith(domain, c.host)) {
-      man.remove(c.host, c.name, c.path, false);
-    }
-  }
-}
-
 /** Whether a ends with b. */
 function endsWith(a, b) {
   if (a.length < b.length) { return false; }
@@ -150,7 +131,7 @@ builder.record.startRecording = function(urlText, seleniumVersion) {
     return;
   }
   // Delete cookies for given URL.
-  deleteURLCookies(url.href());
+  builder.deleteURLCookies(url.href());
   
   // Now load the page - both to ensure we're on the right page when we start recording
   // and to ensure that we get a clean page free of cookie influence.
