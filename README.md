@@ -9,9 +9,9 @@ Simply click on the latest XPI in the downloads section.
 ## Open
 
   * Splash Site - http://sebuilder.com
-  * Github - http://github.com/admc/se-builder
+  * Github - http://github.com/sebuilder/se-builder
   * Mailing list - https://groups.google.com/d/forum/se-builder
-  * Issues - https://github.com/admc/se-builder/issues
+  * Issues - https://github.com/sebuilder/se-builder/issues
 
 ## License
 
