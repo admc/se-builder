@@ -53,10 +53,20 @@ builder.selenium2.rcPlayback.run = function(hostPort, browserstring, postRunCall
   jQuery('#edit-clearresults-span').show();
   builder.selenium2.rcPlayback.sessionID = null;
   jQuery('#edit-rc-connecting').show();
+  var name = "Untitled SeBuilder Script";
+  if (builder.selenium2.rcPlayback.script.path) {
+    var name = builder.selenium2.rcPlayback.script.path.path.split("/");
+    name = name[name.length - 1];
+    name = name.split(".")[0];
+  }
   builder.selenium2.rcPlayback.send(
     "POST",
     "",
-    JSON.stringify({"desiredCapabilities":{"platform":"ANY","browserName":browserstring||"firefox","version":""}}),
+    JSON.stringify({"desiredCapabilities":{
+      "name": name,
+      "platform":"ANY",
+      "browserName":browserstring||"firefox",
+      "version":""}}),
     builder.selenium2.rcPlayback.startJob);
 };
 

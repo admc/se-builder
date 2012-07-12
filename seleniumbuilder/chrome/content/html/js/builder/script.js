@@ -11,16 +11,16 @@ builder.Script = function(seleniumVersion) {
 builder.Script.prototype = {
   getStepIndexForID: function(id) {
     for (var i = 0; i < this.steps.length; i++) {
-      if (this.steps[i].id === id) { return i; }
+      if (this.steps[i].id == id) { return i; }
     }
     return -1;
   },
   getStepWithID: function(id) {
     var index = this.getStepIndexForID(id);
-    return index === -1 ? null : this.steps[index];
+    return index == -1 ? null : this.steps[index];
   },
   getLastStep: function() {
-    return this.steps.length === 0 ? null : this.steps[this.steps.length - 1];
+    return this.steps.length == 0 ? null : this.steps[this.steps.length - 1];
   },
   getStepBefore: function(step) {
     var index = this.getStepIndexForID(step.id);
@@ -62,7 +62,7 @@ builder.Script.prototype = {
   },
   moveStepToAfter: function(stepID, afterStepID) {
     var step = this.removeStepWithID(stepID);
-    if (this.getLastStep().id === afterStepID) {
+    if (this.getLastStep().id == afterStepID) {
       this.steps.push(step);
     } else {
       this.steps.splice(this.getStepIndexForID(afterStepID) + 1, 0, step);
@@ -95,7 +95,7 @@ builder.Step = function(type) {
       if (i + 1 < arguments.length) {
         this[pNames[i]] = arguments[i + 1];
       } else {
-        this[pNames[i]] = this.type.getParamType(pNames[i]) === "locator" ? builder.locator.empty() : "";
+        this[pNames[i]] = this.type.getParamType(pNames[i]) == "locator" ? builder.locator.empty() : "";
       }
     }
   }
@@ -111,7 +111,7 @@ builder.Step.prototype = {
     var pNames = this.type.getParamNames();
     for (var i = 0; i < pNames.length; i++) {
       if (!this[pNames[i]]) {
-        this[pNames[i]] = this.type.getParamType(pNames[i]) === "locator" ? builder.locator.empty() : "";
+        this[pNames[i]] = this.type.getParamType(pNames[i]) == "locator" ? builder.locator.empty() : "";
       }
     }
   }

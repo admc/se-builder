@@ -12,11 +12,13 @@ builder.record.selenium1WaitsListenerNoticedLoading = false;
 
 /** Stop recorder or verify explorer currently running. */
 builder.record.stopAll = function() {
+  if (builder.record.verifyExploring) {
+    builder.record.verifyExploring = false;
+    builder.record.verifyExplorer.destroy();
+    builder.record.verifyExplorer = null;
+  }
   if (builder.record.recording) {
     builder.record.stop();
-  }
-  if (builder.record.verifyExploring) {
-    builder.record.stopVerifyExploring();
   }
 };
 
@@ -60,7 +62,7 @@ builder.record.recordStep = function(step) {
 
 builder.record.stop = function() {
   jQuery('#record-panel').hide();
-  builder.record.recorder.destroy();
+  if (builder.record.recorder) { builder.record.recorder.destroy(); }
   builder.record.recorder = null;
   builder.pageState.removeListener(builder.record.pageLoadListener);
   if (builder.record.selenium1WaitsListener) {
