@@ -21,7 +21,7 @@ builder.selenium2.io.formats.push(builder.selenium2.io.createLangFormatter({
     "setElementText":
       "wd.{locatorBy}({locator}).click()\n" +
       "wd.{locatorBy}({locator}).clear()\n" +
-      "wd.{locatorBy}({locator}).click().clear().send_keys({text})\n",
+      "wd.{locatorBy}({locator}).send_keys({text})\n",
     "sendKeysToElement":
       "wd.{locatorBy}({locator}).click()\n" +
       "wd.{locatorBy}({locator}).send_keys({text})\n",
