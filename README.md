@@ -1,3 +1,5 @@
+# NOTICE: Newest updates are now at https://github.com/sebuilder/se-builder/
+
 # Se Builder
 
 A test development environment for Selenium 1 and 2
